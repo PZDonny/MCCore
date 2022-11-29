@@ -15,6 +15,7 @@ public final class Core extends JavaPlugin {
         new BukkitRunnable() {//Connect to Mongo Asynchronously
             public void run() {
                 coreMongo.connectToMongo();
+                //pizza
             }
         }.runTaskAsynchronously(this);
 
