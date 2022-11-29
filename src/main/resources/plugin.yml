@@ -1,0 +1,4 @@
+name: MCCore
+version: '${project.version}'
+main: core.Main
+api-version: 1.19
