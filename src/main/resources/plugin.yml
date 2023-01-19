@@ -1,4 +1,49 @@
 name: MCCore
 version: '${project.version}'
-main: core.Main
+main: MCCore.Core
 api-version: 1.19
+depends: [WorldEdit, WorldGuard]
+commands:
+  gmc:
+    description:
+    usage:
+    aliases: [gm1, creative]
+  gms:
+    description:
+    usage:
+    aliases: [gm0, survival]
+  gma:
+    description:
+    usage:
+    aliases: [gm2, adventure]
+  gmsp:
+    description:
+    usage:
+    aliases: [gm3, spectator]
+  fly:
+    description:
+    usage:
+  cc:
+    description:
+    usage:
+  ci:
+    description:
+    usage:
+  ping:
+    description:
+    usage:
+  day:
+    description:
+    usage:
+  noon:
+    description:
+    usage:
+  night:
+    description:
+    usage:
+  midnight:
+    description:
+    usage:
+  speed:
+    description:
+    usage:
