@@ -21,6 +21,7 @@ public class ProjectileRandomness implements Listener {
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void onProjectileLaunch(ProjectileLaunchEvent e) {
+        if (!plugin.projectileRandomness) return;
 
         //Makes projectiles shoot simillar to 1.8 instead of being affected by player velocity
         //Arrows shot from a bow and non-Multishot crossbows will shoot more naturally
