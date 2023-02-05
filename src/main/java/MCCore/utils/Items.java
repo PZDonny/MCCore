@@ -13,48 +13,48 @@ import java.util.*;
 
 public class Items {
     public static boolean hasEnoughSpace(Player p, ItemStack[] list, boolean checkArmor, boolean sendMSG){
-        int filled = 0;
+        int empty = 0;
         for (ItemStack i : p.getInventory().getStorageContents()){
             if (i == null){
-                filled++;
+                empty++;
             }
         }
         if (checkArmor){
-            if (p.getInventory().getHelmet() != null) filled--;
-            if (p.getInventory().getChestplate() != null) filled--;
-            if (p.getInventory().getLeggings() != null) filled--;
-            if (p.getInventory().getBoots() != null) filled--;
+            if (p.getInventory().getHelmet() != null) empty--;
+            if (p.getInventory().getChestplate() != null) empty--;
+            if (p.getInventory().getLeggings() != null) empty--;
+            if (p.getInventory().getBoots() != null) empty--;
         }
 
-        if (list.length <= filled) {
+        if (list.length <= empty) {
             return true;
         }
         if (sendMSG){
-            p.sendMessage(ChatColor.GOLD+"⚠ "+ChatColor.RED+"You do not have enough inventory space! Make room for "+ChatColor.YELLOW+(list.length-filled)+ChatColor.RED+" slot(s)");
+            p.sendMessage(ChatColor.GOLD+"⚠ "+ChatColor.RED+"You do not have enough inventory space! Make room for "+ChatColor.YELLOW+(list.length-empty)+ChatColor.RED+" slot(s)");
             p.playSound(p, Sound.BLOCK_NOTE_BLOCK_BIT, 1, 0.5f);
         }
         return false;
 
     }
     public boolean hasEnoughSpace(Player p, ItemStack item, boolean checkArmor, boolean sendMSG){
-        int filled = 0;
+        int empty = 0;
         for (ItemStack i : p.getInventory().getStorageContents()){
             if (i == null){
-                filled++;
+                empty++;
             }
         }
         if (checkArmor){
-            if (p.getInventory().getHelmet() != null) filled--;
-            if (p.getInventory().getChestplate() != null) filled--;
-            if (p.getInventory().getLeggings() != null) filled--;
-            if (p.getInventory().getBoots() != null) filled--;
+            if (p.getInventory().getHelmet() != null) empty--;
+            if (p.getInventory().getChestplate() != null) empty--;
+            if (p.getInventory().getLeggings() != null) empty--;
+            if (p.getInventory().getBoots() != null) empty--;
         }
 
-        if (1 <= filled) {
+        if (1 <= empty) {
             return true;
         }
         if (sendMSG){
-            p.sendMessage(ChatColor.GOLD+"⚠ "+ChatColor.RED+"You do not have enough inventory space! Make room for "+ChatColor.YELLOW+(1-filled)+ChatColor.RED+" slot(s)");
+            p.sendMessage(ChatColor.GOLD+"⚠ "+ChatColor.RED+"You do not have enough inventory space! Make room for "+ChatColor.YELLOW+(1-empty)+ChatColor.RED+" slot(s)");
             p.playSound(p, Sound.BLOCK_NOTE_BLOCK_BIT, 1, 0.5f);
         }
         return false;
