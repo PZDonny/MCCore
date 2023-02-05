@@ -2,8 +2,11 @@ name: MCCore
 version: '${project.version}'
 main: MCCore.Core
 api-version: 1.19
-depends: [WorldEdit, WorldGuard]
+depends: [WorldGuard]
 commands:
+  corereload:
+    description:
+    usage:
   gmc:
     description:
     usage:
