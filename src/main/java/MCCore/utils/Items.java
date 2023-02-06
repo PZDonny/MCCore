@@ -36,7 +36,7 @@ public class Items {
         return false;
 
     }
-    public boolean hasEnoughSpace(Player p, ItemStack item, boolean checkArmor, boolean sendMSG){
+    public static boolean hasEnoughSpace(Player p, ItemStack item, boolean checkArmor, boolean sendMSG){
         int empty = 0;
         for (ItemStack i : p.getInventory().getStorageContents()){
             if (i == null){
