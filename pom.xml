@@ -5,12 +5,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>MCCore</groupId>
-    <artifactId>MCCore</artifactId>
+    <artifactId>mccore</artifactId> <!--LOWERCASE ARTIFACE ID FOR GITHUB PACKAGE-->
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>MCCore</name>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub PZDonny Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/pzdonny/mccore</url>
+        </repository>
+    </distributionManagement>
 
     <properties>
         <java.version>1.8</java.version>
