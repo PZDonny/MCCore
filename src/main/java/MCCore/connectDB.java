@@ -29,9 +29,9 @@ public class connectDB {
     public static MongoCollection<Document> collCosOut; // Collection
     public static MongoCollection<Document> collCosPets; // Collection
     public static MongoCollection<Document> collCosToys; // Collection
-    public static void connectToMongo() {
+    protected static void connectToMongo(String connectionString) {
         try{
-            MongoClient client = MongoClients.create("mongodb+srv://admin:superjman7@minecraft.fzpkp.mongodb.net/?retryWrites=true&w=majority");
+            MongoClient client = MongoClients.create(connectionString);
             MongoDatabase db = client.getDatabase("MineClassic");
             //Add collections
             collKit = db.getCollection("kitpvp");

@@ -17,10 +17,10 @@ import java.util.UUID;
 public final class Core extends JavaPlugin {
     private FileConfiguration config = getConfig();
     public boolean projectileRandomness = getConfig().getBoolean("fixProjectileRandomness");
-    public boolean connectToMongo = getConfig().getBoolean("connectToMongo");
+    public boolean connectToMongo = getConfig().getBoolean("mongoDB.enabled");
+    public String connectionString = getConfig().getString("connectionString");
 
     private final String serverPrefix = ChatColor.GREEN+"Mine"+ChatColor.WHITE+"Classic";
-    public static WorldGuardPlugin WGAPI;
     @Override
     public void onEnable() {
         config.options().copyDefaults(true);
@@ -29,7 +29,7 @@ public final class Core extends JavaPlugin {
         getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "M" + ChatColor.WHITE + "C" + ChatColor.DARK_RED + "CORE " + ChatColor.GREEN + "ENABLED");
         new BukkitRunnable() {//Connect to Mongo Asynchronously
             public void run() {
-                if (connectToMongo) connectDB.connectToMongo();
+                if (connectToMongo) connectDB.connectToMongo(connectionString);
             }
         }.runTaskAsynchronously(this);
 
