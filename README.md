@@ -1,4 +1,4 @@
-# MCCore 
+# **MCCore**
 
 Sequestered Minecraft Server plugin library and MongoDB connector (when enabled in config).
 
