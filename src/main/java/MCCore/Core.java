@@ -2,7 +2,6 @@ package MCCore;
 
 import MCCore.commands.*;
 import MCCore.events.ProjectileRandomness;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -12,13 +11,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 
-import java.util.UUID;
-
 public final class Core extends JavaPlugin {
     private FileConfiguration config = getConfig();
     public boolean projectileRandomness = getConfig().getBoolean("fixProjectileRandomness");
     public boolean connectToMongo = getConfig().getBoolean("mongoDB.enabled");
-    public String connectionString = getConfig().getString("connectionString");
+    public String connectionString = getConfig().getString("mongoDB.connectionString");
 
     private final String serverPrefix = ChatColor.GREEN+"Mine"+ChatColor.WHITE+"Classic";
     @Override
@@ -34,19 +31,19 @@ public final class Core extends JavaPlugin {
         }.runTaskAsynchronously(this);
 
         //Commands
-        getCommand("gmc").setExecutor(new Gamemode());
-        getCommand("gms").setExecutor(new Gamemode());
-        getCommand("gma").setExecutor(new Gamemode());
-        getCommand("gmsp").setExecutor(new Gamemode());
-        getCommand("fly").setExecutor(new Fly());
-        getCommand("speed").setExecutor(new Speed());
+        //getCommand("gmc").setExecutor(new Gamemode());
+        //getCommand("gms").setExecutor(new Gamemode());
+        //getCommand("gma").setExecutor(new Gamemode());
+        //getCommand("gmsp").setExecutor(new Gamemode());
+        //getCommand("fly").setExecutor(new Fly());
+        //getCommand("speed").setExecutor(new Speed());
         getCommand("cc").setExecutor(new ClearChat());
-        getCommand("ci").setExecutor(new ClearInv());
+        //getCommand("ci").setExecutor(new ClearInv());
         getCommand("day").setExecutor(new DayCycle());
         getCommand("noon").setExecutor(new DayCycle());
         getCommand("night").setExecutor(new DayCycle());
         getCommand("midnight").setExecutor(new DayCycle());
-        getCommand("ping").setExecutor(new Ping());
+        //getCommand("ping").setExecutor(new Ping());
         getCommand("corereload").setExecutor(this);
 
         //Events
