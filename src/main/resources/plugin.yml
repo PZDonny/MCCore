@@ -7,34 +7,34 @@ commands:
   corereload:
     description:
     usage:
-  gmc:
-    description:
-    usage:
-    aliases: [gm1, creative]
-  gms:
-    description:
-    usage:
-    aliases: [gm0, survival]
-  gma:
-    description:
-    usage:
-    aliases: [gm2, adventure]
-  gmsp:
-    description:
-    usage:
-    aliases: [gm3, spectator]
-  fly:
-    description:
-    usage:
+  #gmc:
+   # description:
+   # usage:
+    #aliases: [gm1, creative]
+  #gms:
+    #description:
+    #usage:
+    #aliases: [gm0, survival]
+  #gma:
+    #description:
+    #usage:
+    #aliases: [gm2, adventure]
+  #gmsp:
+    #description:
+    #usage:
+    #aliases: [gm3, spectator]
+  #fly:
+    #description:
+    #usage:
   cc:
     description:
     usage:
-  ci:
-    description:
-    usage:
-  ping:
-    description:
-    usage:
+  #ci:
+    #description:
+    #usage:
+  #ping:
+    #description:
+    #usage:
   day:
     description:
     usage:
@@ -47,6 +47,6 @@ commands:
   midnight:
     description:
     usage:
-  speed:
-    description:
-    usage:
+  #speed:
+    #description:
+    #usage:
