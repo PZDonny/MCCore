@@ -14,6 +14,7 @@ public class connectDB {
     //Minigames
     public static MongoCollection<Document> collKit; //KitPvP Collection
     public static MongoCollection<Document> collKitPlaytest; //KitPvP Playtest Collection
+    private static boolean connected = false;
     protected static void connectToMongo(String connectionString) {
         try{
             MongoClient client = MongoClients.create(connectionString);
@@ -23,9 +24,15 @@ public class connectDB {
             collKitPlaytest = db.getCollection("kitpvpPlaytest");
 
             Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA+"Successfully connected to"+ChatColor.GREEN+ " MongoDB!");
+            connected = true;
         }catch (MongoException e){
+            connected = false;
             Bukkit.getConsoleSender().sendMessage(ChatColor.RED+"There was an error connecting to the MongoDB Database!");
         }
+    }
+
+    public static boolean isConnected(){
+        return connected;
     }
 
     public static void updateDoc(String key, Object value, MongoCollection<Document> collection, Document doc){
