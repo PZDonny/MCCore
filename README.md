@@ -1,6 +1,6 @@
 # **MCCore**
 
-Sequestered Minecraft Server plugin library and MongoDB connector (when enabled in config).
+Sequestered Minecraft Server plugin library and MongoDB database connector (when enabled in config).
 
 **Plugin Dependencies**
 - WorldEdit
