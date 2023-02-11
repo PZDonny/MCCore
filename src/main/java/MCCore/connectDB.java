@@ -1,6 +1,6 @@
 package MCCore;
 
-import com.mongodb.MongoException;
+import com.mongodb.*;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -15,10 +15,17 @@ public class connectDB {
     public static MongoCollection<Document> collKit; //KitPvP Collection
     public static MongoCollection<Document> collKitPlaytest; //KitPvP Playtest Collection
     private static boolean connected = false;
-    protected static void connectToMongo(String connectionString) {
+    protected static void connectToMongo(String cstring) {
         try{
-            MongoClient client = MongoClients.create(connectionString);
-            MongoDatabase db = client.getDatabase("MineClassic");
+            ConnectionString connectionString = new ConnectionString(cstring);
+            MongoClientSettings settings = MongoClientSettings.builder()
+                    .applyConnectionString(connectionString)
+                    .serverApi(ServerApi.builder()
+                            .version(ServerApiVersion.V1)
+                            .build())
+                    .build();
+            MongoClient client = MongoClients.create(settings);
+            MongoDatabase db = client.getDatabase("Sequestered");
             //Add collections
             collKit = db.getCollection("kitpvp");
             collKitPlaytest = db.getCollection("kitpvpPlaytest");
