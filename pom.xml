@@ -6,7 +6,7 @@
 
     <groupId>MCCore</groupId>
     <artifactId>mccore</artifactId> <!--LOWERCASE ARTIFACE ID FOR GITHUB PACKAGE-->
-    <version>0.3.2-SNAPSHOT</version>
+    <version>0.3.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>MCCore</name>
