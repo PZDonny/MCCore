@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 public class Speed implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!sender.hasPermission("mineclassic.speed")){
+        if (!sender.hasPermission("sq.speed")){
             sender.sendMessage(ChatColor.RED + "You do not have permission to do this command");
             return false;
         }

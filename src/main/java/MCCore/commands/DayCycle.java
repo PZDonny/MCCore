@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 public class DayCycle implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!sender.hasPermission("mineclassic.day")){
+        if (!sender.hasPermission("sq.daycycle")){
             sender.sendMessage(ChatColor.RED + "You do not have permission to do this command");
             return false;
         }

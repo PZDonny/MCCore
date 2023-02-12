@@ -12,7 +12,7 @@ public class Gamemode implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!sender.hasPermission("mineclassic.gamemode")) { //Player w/o perms
+        if (!sender.hasPermission("sq.gamemode")) { //Player w/o perms
             sender.sendMessage(ChatColor.RED + "You do not have permission to do this command");
             return false;
         }

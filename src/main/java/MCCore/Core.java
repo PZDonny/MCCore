@@ -17,7 +17,7 @@ public final class Core extends JavaPlugin {
     public boolean connectToMongo = getConfig().getBoolean("mongoDB.enabled");
     public String connectionString = getConfig().getString("mongoDB.connectionString");
 
-    private final String serverPrefix = ChatColor.GREEN+"Mine"+ChatColor.WHITE+"Classic";
+    private final String serverPrefix = ChatColor.DARK_RED+"Sequestered";
     @Override
     public void onEnable() {
         config.options().copyDefaults(true);
@@ -31,14 +31,14 @@ public final class Core extends JavaPlugin {
         }.runTaskAsynchronously(this);
 
         //Commands
-        //getCommand("gmc").setExecutor(new Gamemode());
-        //getCommand("gms").setExecutor(new Gamemode());
-        //getCommand("gma").setExecutor(new Gamemode());
-        //getCommand("gmsp").setExecutor(new Gamemode());
-        //getCommand("fly").setExecutor(new Fly());
-        //getCommand("speed").setExecutor(new Speed());
+        getCommand("gmc").setExecutor(new Gamemode());
+        getCommand("gms").setExecutor(new Gamemode());
+        getCommand("gma").setExecutor(new Gamemode());
+        getCommand("gmsp").setExecutor(new Gamemode());
+        getCommand("fly").setExecutor(new Fly());
+        getCommand("speed").setExecutor(new Speed());
         getCommand("cc").setExecutor(new ClearChat());
-        //getCommand("ci").setExecutor(new ClearInv());
+        getCommand("ci").setExecutor(new ClearInv());
         getCommand("day").setExecutor(new DayCycle());
         getCommand("noon").setExecutor(new DayCycle());
         getCommand("night").setExecutor(new DayCycle());

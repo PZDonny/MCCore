@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 public class Fly implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!sender.hasPermission("mineclassic.fly.use")){
+        if (!sender.hasPermission("sq.fly.use")){
             sender.sendMessage(ChatColor.RED + "You do not have permission to do this command");
             return false;
         }
@@ -24,7 +24,7 @@ public class Fly implements CommandExecutor {
                 return false;
             }
 
-            if (sender.hasPermission("mineclassic.fly.s")) {
+            if (sender.hasPermission("sq.fly.staff")) {
                 doFlight(t, sender);
             }
 
@@ -40,7 +40,7 @@ public class Fly implements CommandExecutor {
                 doFlight(t, null);
             }
             else {
-                if (!(t.hasPermission("mineclassic.fly.s"))){
+                if (!(t.hasPermission("sq.fly.staff"))){
                     sender.sendMessage(ChatColor.RED + "You cannot fly here!");
                     return false;
                 }

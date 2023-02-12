@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 public class ClearInv implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender.hasPermission("mineclassic.clear"))) {
+        if (!(sender.hasPermission("sq.clearinv"))) {
             sender.sendMessage(ChatColor.RED + "You do not have permission to do this command");
             return false;
         }
@@ -29,7 +29,7 @@ public class ClearInv implements CommandExecutor {
 
 
         if (args.length > 0) {
-            if (!(sender.hasPermission("mineclassic.clear.others"))){
+            if (!(sender.hasPermission("sq.clearinv.others"))){
                 sender.sendMessage(ChatColor.RED + "You cannot clear the inventories of other players!");
                 return false;
             }
