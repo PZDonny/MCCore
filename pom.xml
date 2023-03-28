@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>MCCore</groupId>
-    <artifactId>mccore</artifactId> <!--LOWERCASE ARTIFACE ID FOR GITHUB PACKAGE-->
-    <version>0.3.3-SNAPSHOT</version>
+    <artifactId>mccore</artifactId> <!--LOWERCASE ARTIFACT ID FOR GITHUB PACKAGE-->
+    <version>0.4.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>MCCore</name>
@@ -66,10 +66,6 @@
             <url>https://maven.enginehub.org/repo/</url>
         </repository>
         <repository>
-            <id>spigotmc-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
-        <repository>
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
@@ -81,19 +77,40 @@
             <id>dmulloy2-repo</id>
             <url>https://repo.dmulloy2.net/repository/public/</url>
         </repository>
+    <!--Slime World Stuff-->
+        <repository>
+            <id>rapture-snapshots</id>
+            <url>https://repo.rapture.pw/repository/maven-snapshots/</url>
+        </repository>
+        <repository>
+            <id>rapture-releases</id>
+            <url>https://repo.rapture.pw/repository/maven-releases/</url>
+        </repository>
+    <!--Slime World Stuff-->
     </repositories>
-
     <dependencies>
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.19-R0.1-SNAPSHOT</version>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.19.3-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.infernalsuite.aswm</groupId>
+            <artifactId>api</artifactId>
+            <version>1.19.3-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.flowpowered</groupId>
+            <artifactId>flow-nbt</artifactId>
+            <version>2.0.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-sync</artifactId>
-            <version>4.8.2</version>
+            <version>4.9.0</version>
         </dependency>
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
