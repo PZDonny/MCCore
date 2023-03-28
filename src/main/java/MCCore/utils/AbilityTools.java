@@ -1,6 +1,6 @@
 package MCCore.utils;
 
-import net.md_5.bungee.api.ChatColor;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.data.Openable;
@@ -17,7 +17,7 @@ public class AbilityTools {
         Collection<Entity> coll = p.getNearbyEntities(d, d, d);
         if (p.getNearbyEntities(d,d,d).stream().noneMatch(en->en instanceof Player)) {
             if (sendMSG){
-                p.sendMessage(prefix+ChatColor.RED+"You are not within "+d+" blocks of any players!");
+                p.sendMessage(prefix+ ChatColor.RED+"You are not within "+d+" blocks of any players!");
                 p.playSound(p, Sound.BLOCK_NOTE_BLOCK_BIT, 1, 0.5f);
             }
             return null;
