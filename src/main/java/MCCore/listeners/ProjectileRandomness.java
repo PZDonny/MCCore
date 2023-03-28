@@ -1,6 +1,7 @@
-package MCCore.events;
+package MCCore.listeners;
 
 import MCCore.Core;
+import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -13,15 +14,10 @@ import org.bukkit.util.Vector;
 
 public class ProjectileRandomness implements Listener {
 
-    private final Core plugin;
-
-    public ProjectileRandomness(Core plugin) { //Constructor for when event is called in main class to set the plugin variable
-        this.plugin = plugin;
-    }
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void onProjectileLaunch(ProjectileLaunchEvent e) {
-        if (!plugin.projectileRandomness) return;
+        if (!Core.projectileRandomness) return;
 
         //Makes projectiles shoot simillar to 1.8 instead of being affected by player velocity
         //Arrows shot from a bow and non-Multishot crossbows will shoot more naturally
@@ -33,22 +29,24 @@ public class ProjectileRandomness implements Listener {
         if (shooter instanceof Player) {
             Player p = (Player) shooter;
 
-            Vector pVec = p.getLocation().getDirection().normalize();
+            Vector pVec = p.getEyeLocation().getDirection().normalize();
             Vector projectileDirection = projectile.getVelocity();
-
-            //Keep original speed if not a Crossbow w/ Multishot
             double prevSpeed = projectileDirection.length();
 
-            if (p.getInventory().getItemInMainHand().containsEnchantment(Enchantment.MULTISHOT) || p.getInventory().getItemInOffHand().containsEnchantment(Enchantment.MULTISHOT)){
+        //Crossbow
+            if (p.getInventory().getItemInMainHand().containsEnchantment(Enchantment.MULTISHOT)
+                    || (p.getInventory().getItemInOffHand().containsEnchantment(Enchantment.MULTISHOT)
+                    && !p.getInventory().getItemInMainHand().getType().equals(Material.BOW)
+                    && !p.getInventory().getItemInMainHand().getType().equals(Material.CROSSBOW))){
                 pVec.setX(projectileDirection.getX());
                 pVec.setZ(projectileDirection.getZ());
 
                 //Set to 1 because crossbow's with multishot shot with their previous speed (projectileDirection.length)
                 //end up shooting too fast
-                prevSpeed = 1;
+                //prevSpeed = 1;
 
                 //Multiply without changing the Y first to fix crossbow incorrections in pitch direction
-                pVec.multiply(prevSpeed);
+                //pVec.multiply(prevSpeed);
                 pVec.setY(projectile.getVelocity().getY());
             }
             else{
