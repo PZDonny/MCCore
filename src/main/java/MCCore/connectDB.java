@@ -5,17 +5,20 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import net.md_5.bungee.api.ChatColor;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+
 
 public class connectDB {
     //Minigames
     public static MongoCollection<Document> collKit; //KitPvP Collection
-    public static MongoCollection<Document> collKitPlaytest; //KitPvP Playtest Collection
+
+
+
     private static boolean connected = false;
-    protected static void connectToMongo(String cstring) {
+    static void connectToMongo(String cstring) {
         try{
             ConnectionString connectionString = new ConnectionString(cstring);
             MongoClientSettings settings = MongoClientSettings.builder()
@@ -25,10 +28,17 @@ public class connectDB {
                             .build())
                     .build();
             MongoClient client = MongoClients.create(settings);
-            MongoDatabase db = client.getDatabase("Sequestered");
+            MongoDatabase db;
+            if (Core.isPlaytest){
+                Bukkit.getConsoleSender().sendMessage(Core.prefix+ ChatColor.YELLOW+"Utilizing Playtest Database!");
+                db = client.getDatabase("MineClassicPlaytest");
+            }
+            else{
+                Bukkit.getConsoleSender().sendMessage(Core.prefix+ChatColor.RED+"Utilizing Production Database!");
+                db = client.getDatabase("MineClassic");
+            }
             //Add collections
             collKit = db.getCollection("kitpvp");
-            collKitPlaytest = db.getCollection("kitpvpPlaytest");
 
             Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA+"Successfully connected to"+ChatColor.GREEN+ " MongoDB!");
             connected = true;
