@@ -6,6 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+
 public class Speed implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -17,6 +18,7 @@ public class Speed implements CommandExecutor {
             sender.sendMessage(ChatColor.RED + "You cannot do this in the console!");
             return false;
         }
+
 
         Player p = (Player) sender;
 
@@ -53,14 +55,10 @@ public class Speed implements CommandExecutor {
             }catch(NumberFormatException e) {
                 incorrectUsage(p);
             }
-
-
         }
         else {
             incorrectUsage(p);
         }
-
-
         return true;
     }
     private void setSpeed(Player p, double speed, String arg) {
