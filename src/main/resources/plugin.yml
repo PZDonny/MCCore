@@ -2,7 +2,7 @@ name: MCCore
 version: '${project.version}'
 main: MCCore.Core
 api-version: 1.19
-depends: [WorldGuard]
+softdepend: [WorldGuard, SlimeWorldManager]
 commands:
   corereload:
     description:
@@ -30,9 +30,6 @@ commands:
     description:
     usage:
   ci:
-    description:
-    usage:
-  ping:
     description:
     usage:
   day:
