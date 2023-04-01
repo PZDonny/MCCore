@@ -47,3 +47,6 @@ commands:
   speed:
     description:
     usage:
+  play:
+    description:
+    usage:

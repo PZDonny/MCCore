@@ -4,6 +4,7 @@ import MCCore.commands.*;
 import MCCore.listeners.*;
 import MCCore.minigameAPI.SlimeTools;
 import MCCore.sockets.Client;
+import MCCore.tempMinigame.TempPlayCommand;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -30,10 +31,6 @@ public final class Core extends JavaPlugin {
     public static String fallbackServer;
 
     public static boolean isPlaytest;
-
-    public static int maxArenas;
-
-    public static boolean playCommandAllowed;
 
     private static Client client;
 
@@ -78,7 +75,7 @@ public final class Core extends JavaPlugin {
 
         new BukkitRunnable() {//Connect to Mongo Asynchronously
             public void run() {
-                if (connectToMongo) connectDB.connectToMongo(connectionString);
+                if (connectToMongo) DBConnection.connectToMongo(connectionString);
             }
         }.runTaskAsynchronously(this);
 
@@ -143,8 +140,6 @@ public final class Core extends JavaPlugin {
         connectToMongo = getConfig().getBoolean("mongoDB.enabled");
         isPlaytest = getConfig().getBoolean("mongoDB.usePlaytestDatabase");
         connectionString = getConfig().getString("mongoDB.connectionString");
-        playCommandAllowed = getConfig().getBoolean("minigames.allowPlayCommand");
-        maxArenas = getConfig().getInt("minigames.maxArenas");
         port = getConfig().getInt("port");
         fallbackServer = getConfig().getString("minigames.mainFallbackServer");
         String world = getConfig().getString("minigames.waitingWorld");

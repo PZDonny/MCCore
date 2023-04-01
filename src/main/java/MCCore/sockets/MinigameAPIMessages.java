@@ -32,7 +32,6 @@ public class MinigameAPIMessages {
                         List<String> worldList = SlimeTools.getSlimeLoader().listWorlds();
                         SlimeWorld world = SlimeTools.getSlimePlugin().getWorld(worldList.get(new Random().nextInt(worldList.size())));
                         Arena arena = new TempArena(queueID);
-                        System.out.println(queueID+"CREATE");
                         arena.setMode(mode);
                         arena.setMinimumPlayers(min);
                         arena.setCountdownStyle(CountdownStyle.BOSSBAR);
