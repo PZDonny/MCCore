@@ -1,5 +1,6 @@
 package MCCore.listeners;
 
+import MCCore.Core;
 import MCCore.minigameAPI.arenaManager.ArenaManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,12 +15,13 @@ public class JoinQuit implements Listener {
         Player p = e.getPlayer();
         Chat.playerChatChannels.put(p.getUniqueId(), 0);
         ArenaManager.addPlayerToHashArena(p);
+        if (Core.isMinigameEnabled()) p.teleport(Core.getInstance().getMinigameWaitingWorld().getSpawnLocation());
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e){
         Player p = e.getPlayer();
         Chat.playerChatChannels.remove(p.getUniqueId());
-        ArenaManager.removePlayerFromArena(p);
+        ArenaManager.removePlayerFromArena(p, true);
     }
 }

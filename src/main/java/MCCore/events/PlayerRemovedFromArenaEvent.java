@@ -1,29 +1,27 @@
 package MCCore.events;
 
-import MCCore.minigameAPI.GameState;
 import MCCore.minigameAPI.arenaManager.Arena;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-
-public class GameStateChange extends Event {
+public class PlayerRemovedFromArenaEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
 
     Arena arena;
-    GameState gameState;
+    Player player;
 
-    public GameStateChange(Arena arena, GameState gameState){
+    public PlayerRemovedFromArenaEvent(Arena arena, Player player){
         this.arena = arena;
-        this.gameState = gameState;
-    }
-
-    public GameState getGameState(){
-        return gameState;
     }
 
     public Arena getArena(){
         return arena;
+    }
+
+    public Player getPlayer(){
+        return player;
     }
 
 
@@ -36,5 +34,4 @@ public class GameStateChange extends Event {
     public static HandlerList getHandlerList() {
         return handlers;
     }
-
 }

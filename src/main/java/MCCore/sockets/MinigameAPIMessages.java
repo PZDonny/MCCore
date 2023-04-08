@@ -1,11 +1,15 @@
 package MCCore.sockets;
 
-import MCCore.minigameAPI.SlimeTools;
+import MCCore.Core;
+import MCCore.events.ArenaCreatedEvent;
+import MCCore.utils.SlimeTools;
 import MCCore.minigameAPI.arenaManager.Arena;
 import MCCore.minigameAPI.arenaManager.ArenaManager;
 import MCCore.minigameAPI.arenaManager.CountdownStyle;
-import MCCore.tempMinigame.TempArena;
 import com.infernalsuite.aswm.api.world.SlimeWorld;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
 import java.util.*;
@@ -25,17 +29,26 @@ public class MinigameAPIMessages {
                     List<UUID> playerList = new ArrayList<>();
                     for (String uuid : uuidsAsString){
                         playerList.add(UUID.fromString(uuid));
+                        Player p = Bukkit.getPlayer(UUID.fromString(uuid));
+                        if (p != null && ArenaManager.getArenaOfPlayer(p) != null){
+                            new BukkitRunnable(){
+                                public void run(){
+                                    ArenaManager.removePlayerFromArena(p, false);
+                                }
+                            }.runTask(Core.getInstance());
+
+                        }
                     }
 
-                    //Check if players should be added to an existing arena or if a new one must be created (will automatically be created through the check method)
+                //Check if players should be added to an existing arena or if a new one must be created
                     if (!ArenaManager.addPlayersToAvaliableArena(playerList, queueID)){
                         List<String> worldList = SlimeTools.getSlimeLoader().listWorlds();
                         SlimeWorld world = SlimeTools.getSlimePlugin().getWorld(worldList.get(new Random().nextInt(worldList.size())));
-                        Arena arena = new TempArena(queueID);
+                        Arena arena = new Arena(queueID);
                         arena.setMode(mode);
                         arena.setMinimumPlayers(min);
                         arena.setCountdownStyle(CountdownStyle.BOSSBAR);
-                        ArenaManager.createArena(world, arena, playerList, true);
+                        ArenaManager.createArena(arena, playerList, true);
                     }
                 }
 
@@ -44,10 +57,18 @@ public class MinigameAPIMessages {
                     int queueID = Integer.parseInt(message[2]);
                     List<String> uuidsAsString = new ArrayList<>(Arrays.asList(uuids.replace(" ", "").replace("[", "").replace("]", "").split(",")));
                     List<UUID> playerList = new ArrayList<>();
-                    //Arena arena = ArenaManager.getActiveArenas().values().stream().filter(a -> a.getQueueID() == queueID).findFirst().orElse(null);
 
                     for (String uuid : uuidsAsString){
                         playerList.add(UUID.fromString(uuid));
+                        Player p = Bukkit.getPlayer(UUID.fromString(uuid));
+                        if (p != null && ArenaManager.getArenaOfPlayer(p) != null){
+                            new BukkitRunnable(){
+                                public void run(){
+                                    ArenaManager.removePlayerFromArena(p, false);
+                                }
+                            }.runTask(Core.getInstance());
+
+                        }
                     }
                     ArenaManager.addPlayersToAvaliableArena(playerList, queueID);
                 }

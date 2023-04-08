@@ -40,18 +40,19 @@ public class Countdown {
                     int iteration = countdownTime;
                     public void run(){
                         if (iteration == 0){
-                            for (Player p : arena.getPlayers()){
+                            for (Player p : arena.getAllPlayers()){
                                 p.clearTitle();
                             }
                             attemptStart();
                             cancel();
                             return;
                         }
-                        for (Player p : arena.getPlayers()){
+                        for (Player p : arena.getAllPlayers()){
                             Title title = Title.title(Component.text(defaultMSG + iteration), Component.empty());
                             p.showTitle(title);
                         }
                         iteration--;
+                        return;
                     }
                 }.runTaskTimer(Core.getInstance(), 0, 20);
                 break;
@@ -60,18 +61,19 @@ public class Countdown {
                     int iteration = countdownTime;
                     public void run(){
                         if (iteration == 0){
-                            for (Player p : arena.getPlayers()){
+                            for (Player p : arena.getAllPlayers()){
                                 p.clearTitle();
                             }
                             attemptStart();
                             cancel();
                             return;
                         }
-                        for (Player p : arena.getPlayers()){
+                        for (Player p : arena.getAllPlayers()){
                             Title title = Title.title( Component.empty(), Component.text(defaultMSG + iteration));
                             p.showTitle(title);
                         }
                         iteration--;
+                        return;
                     }
                 }.runTaskTimer(Core.getInstance(), 0, 20);
                 break;
@@ -83,15 +85,29 @@ public class Countdown {
 
 
     private void attemptStart(){
-        if (arena.getPlayers().size() >= arena.getMinPlayers()){
-            for (Player p : arena.getPlayers()){
+    //Arena World never set through ArenaCreatedEvent
+        if (arena.getArenaWorld() == null){
+            ArenaManager.deleteArena(arena, ChatColor.RED+"An unexpected error occurred when attempting to start minigame!");
+            return;
+        }
+        if (arena.getAllPlayers().size() >= arena.getMinPlayers()){
+            for (Player p : arena.getAllPlayers()){
                 p.teleportAsync(Bukkit.getWorld(arena.getArenaWorld().getName()).getSpawnLocation());
                 Collection<PotionEffect> potions = p.getActivePotionEffects();
                 for (PotionEffect effect : potions){
                     p.removePotionEffect(effect.getType());
                 }
             }
-            arena.setGameState(GameState.PLAYING);
+
+            new BukkitRunnable(){
+                public void run(){
+                    arena.setStateToPlaying();
+                    arena.setPlayingPlayers(arena.getAllPlayers());
+                }
+
+            }.runTaskLater(Core.getInstance(), 1);
+
+
             /*new BukkitRunnable(){
                 public void run(){
                     arena.setGameState(GameState.ENDING);
@@ -99,7 +115,7 @@ public class Countdown {
             }.runTaskLater(Core.getInstance(), 20*10);*/
         }
         else{
-            ArenaManager.deleteArena(arena);
+            ArenaManager.deleteArena(arena, ChatColor.RED+"Insufficient player count. Game cancelled!");
         }
 
     }
@@ -116,7 +132,7 @@ public class Countdown {
             double i = 0;
             final double totaltime = duration*10;
             public void run(){
-                for (Player p : arena.getPlayers()){
+                for (Player p : arena.getAllPlayers()){
                     if (p.isOnline() && !bar.getPlayers().contains(p)) bar.addPlayer(p);
                 }
 
@@ -125,18 +141,17 @@ public class Countdown {
                         attemptStart();
                         cancel();
                         bar.removeAll();
-                        return;
+                    return;
                     //}
                 }
                 for (Player p : bar.getPlayers()){
-                    if (!arena.getPlayers().contains(p)){
+                    if (!arena.getAllPlayers().contains(p)){
                         bar.removePlayer(p);
                     }
                 }
                 double prog = i/(totaltime);
                 bar.setProgress(prog);
                 i++;
-
             }
         }.runTaskTimer(Core.getInstance(), 1, 2);
     }
@@ -146,14 +161,14 @@ public class Countdown {
             int iteration = duration;
             public void run(){
                 if (iteration == 0){
-                    for (Player p : arena.getPlayers()){
+                    for (Player p : arena.getAllPlayers()){
                         p.sendActionBar(Component.empty());
                     }
                     attemptStart();
                     cancel();
                     return;
                 }
-                for (Player p : arena.getPlayers()){
+                for (Player p : arena.getAllPlayers()){
                     p.sendActionBar(Component.text(message+iteration));
                 }
                 iteration--;
