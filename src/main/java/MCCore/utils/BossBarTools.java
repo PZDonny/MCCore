@@ -1,7 +1,7 @@
 package MCCore.utils;
 
 import MCCore.Core;
-import MCCore.events.TimedBarEndEvent;
+import MCCore.events.TimedBossBarEndEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.boss.BarColor;
@@ -74,7 +74,7 @@ public class BossBarTools {
             public void run(){
                 if (i == 0 && !bar.getPlayers().isEmpty()){
                     cancel();
-                    Bukkit.getServer().getPluginManager().callEvent(new TimedBarEndEvent(bar, bar.getPlayers()));
+                    Bukkit.getServer().getPluginManager().callEvent(new TimedBossBarEndEvent(bar, bar.getPlayers()));
                     bar.removePlayer(p);
                     return;
                 }
@@ -90,7 +90,6 @@ public class BossBarTools {
                 double prog = i/(totaltime);
                 bar.setProgress(prog);
                 i--;
-
             }
         }.runTaskTimer(Core.getInstance(), 1, 2);
     }
@@ -107,7 +106,7 @@ public class BossBarTools {
             public void run(){
                 if (i == 0 && !bar.getPlayers().isEmpty()){
                     cancel();
-                    Bukkit.getServer().getPluginManager().callEvent(new TimedBarEndEvent(bar, bar.getPlayers()));
+                    Bukkit.getServer().getPluginManager().callEvent(new TimedBossBarEndEvent(bar, bar.getPlayers()));
                     bar.removeAll();
                     return;
                 }
@@ -123,7 +122,6 @@ public class BossBarTools {
                 double prog = i/(totaltime);
                 bar.setProgress(prog);
                 i--;
-
             }
         }.runTaskTimer(Core.getInstance(), 1, 2);
     }

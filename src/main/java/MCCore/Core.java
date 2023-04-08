@@ -2,7 +2,7 @@ package MCCore;
 
 import MCCore.commands.*;
 import MCCore.listeners.*;
-import MCCore.minigameAPI.SlimeTools;
+import MCCore.utils.SlimeTools;
 import MCCore.sockets.Client;
 import MCCore.tempMinigame.TempPlayCommand;
 import net.kyori.adventure.text.Component;
@@ -28,9 +28,9 @@ public final class Core extends JavaPlugin {
     public static boolean connectToMongo;
     public static String connectionString;
 
-    public static String fallbackServer;
+    private static boolean isMinigameEnabled = false;
 
-    public static boolean isPlaytest;
+    private static boolean isPlaytest;
 
     private static Client client;
 
@@ -38,28 +38,34 @@ public final class Core extends JavaPlugin {
 
     static World waitingWorld;
 
+    private static boolean isSlimeInstalled = true;
+
     public static String prefix = "["+ ChatColor.GREEN+"M"+ChatColor.WHITE+"C"+ChatColor.RED+" Core"+ChatColor.WHITE+"] ";
 
     @Override
     public void onEnable() {
 
+        //WorldGuard
+        if (!Bukkit.getPluginManager().isPluginEnabled("WorldGuard")) {
+            getLogger().severe("MCCore cannot utilize the WorldTools Utility!");
+            getLogger().severe("*** WorldGuard is not installed or not enabled. ***");
+        }
+
         //SlimeWorldManager
         if (!Bukkit.getPluginManager().isPluginEnabled("SlimeWorldManager")) {
             getLogger().severe("MCCore cannot fully utilize the MinigameAPI!");
             getLogger().severe("*** SlimeWorldManager is not installed or not enabled. ***");
+            isSlimeInstalled = false;
         }
+        else SlimeTools.setSlimeVariables();
 
-        //WorldGuard
-        if (!Bukkit.getPluginManager().isPluginEnabled("WorldGuard")) {
-            getLogger().severe("MCCore cannot fully utilize the WorldTools Utility!");
-            getLogger().severe("*** WorldGuard is not installed or not enabled. ***");
-        }
+
+
 
         instance = this;
         new PluginMessage();
 
     //Slime World Variables
-        SlimeTools.setSlimeVariables();
 
     //Configuartion
         config.options().copyDefaults(true);
@@ -100,8 +106,13 @@ public final class Core extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerChangeWorld(), this);
         getServer().getPluginManager().registerEvents(new JoinQuit(), this);
         getServer().getPluginManager().registerEvents(new Chat(), this);
+        getServer().getPluginManager().registerEvents(new PlayerDropItem(), this);
+        getServer().getPluginManager().registerEvents(new Damage(), this);
+
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "playerbalancer:main");
 
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "mccore:connect");
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "mccore:fallback");
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "mccore:partychat");
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "mccore:minigameapi");
 
@@ -122,6 +133,7 @@ public final class Core extends JavaPlugin {
         return instance;
     }
 
+
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (sender instanceof Player && !(sender.hasPermission("mccore.reload"))) {
@@ -141,21 +153,46 @@ public final class Core extends JavaPlugin {
         isPlaytest = getConfig().getBoolean("mongoDB.usePlaytestDatabase");
         connectionString = getConfig().getString("mongoDB.connectionString");
         port = getConfig().getInt("port");
-        fallbackServer = getConfig().getString("minigames.mainFallbackServer");
-        String world = getConfig().getString("minigames.waitingWorld");
-        if (world != null && Bukkit.getWorld(world) != null){
-            waitingWorld = Bukkit.getWorld(world);
+
+    //Minigames
+        isMinigameEnabled = getConfig().getBoolean("minigames.enabled");
+        //Enabled
+        if (isMinigameEnabled){
+            String world = getConfig().getString("minigames.waitingWorld");
+            if (world != null && Bukkit.getWorld(world) != null){
+                waitingWorld = Bukkit.getWorld(world);
+            }
+            else{
+                waitingWorld = null;
+                Bukkit.getConsoleSender().sendMessage(Component.text(ChatColor.RED+"There was an error using the specified minigame waiting world!"+ChatColor.GOLD+"("+world+")"));
+            }
         }
+
+        //Disabled
         else{
-            Bukkit.getConsoleSender().sendMessage(Component.text(ChatColor.RED+"There was an error using the specified minigame waiting world!"+ChatColor.GOLD+"("+world+")"));
+            waitingWorld = null;
         }
+
     }
 
+    //Getters
     public static Client getClient() {
         return client;
     }
 
+    public static boolean isMinigameEnabled() {
+        return isMinigameEnabled;
+    }
+
+    public static boolean isPlaytest() {
+        return isPlaytest;
+    }
+
     public World getMinigameWaitingWorld(){
         return waitingWorld;
+    }
+
+    public static boolean isSlimeInstalled() {
+        return isSlimeInstalled;
     }
 }

@@ -22,12 +22,16 @@ public class Chat implements Listener {
     public void playerChat(AsyncPlayerChatEvent e){
         Player p = e.getPlayer();
         int chatChannel = playerChatChannels.get(p.getUniqueId());
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF(p.getUniqueId().toString());
-        out.writeUTF(e.getMessage());
+    //Party Chat
         if (chatChannel == 1) {
             e.setCancelled(true);
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF(p.getUniqueId().toString());
+            out.writeUTF(e.getMessage());
             p.sendPluginMessage(Core.getInstance(), "mccore:partychat", out.toByteArray());
+        }
+        else {
+
         }
     }
 }

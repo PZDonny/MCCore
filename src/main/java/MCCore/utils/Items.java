@@ -3,7 +3,6 @@ package MCCore.utils;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -521,8 +520,27 @@ public class Items {
         }
     }
 
-
-
-
-
+    public static boolean isBed(Material material){
+        switch (material){
+            case BLACK_BED:
+            case BLUE_BED:
+            case BROWN_BED:
+            case CYAN_BED:
+            case GRAY_BED:
+            case GREEN_BED:
+            case LIGHT_BLUE_BED:
+            case LIME_BED:
+            case MAGENTA_BED:
+            case ORANGE_BED:
+            case PINK_BED:
+            case PURPLE_BED:
+            case RED_BED:
+            case WHITE_BED:
+            case YELLOW_BED:
+            case LIGHT_GRAY_BED:
+                return true;
+            default:
+                return false;
+        }
+    }
 }

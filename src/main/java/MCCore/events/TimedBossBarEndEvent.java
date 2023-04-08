@@ -8,14 +8,14 @@ import org.bukkit.event.HandlerList;
 
 import java.util.List;
 
-public class TimedBarEndEvent extends Event {
+public class TimedBossBarEndEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
 
     KeyedBossBar bar;
     List<Player> players;
 
-    public TimedBarEndEvent(KeyedBossBar bar, List<Player> players){
+    public TimedBossBarEndEvent(KeyedBossBar bar, List<Player> players){
         this.bar = bar;
         this.players = players;
     }

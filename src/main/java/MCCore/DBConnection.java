@@ -13,7 +13,9 @@ import org.bukkit.ChatColor;
 
 public class DBConnection {
     //Minigames
-    private static MongoDatabase db; //KitPvP Collection
+    private static MongoDatabase db;
+
+    private static MongoDatabase minigameDB;
 
 
 
@@ -28,7 +30,7 @@ public class DBConnection {
                             .build())
                     .build();
             MongoClient client = MongoClients.create(settings);
-            if (Core.isPlaytest){
+            if (Core.isPlaytest()){
                 Bukkit.getConsoleSender().sendMessage(Core.prefix+ ChatColor.YELLOW+"Utilizing Playtest Database!");
                 db = client.getDatabase("MineClassicPlaytest");
             }
@@ -36,6 +38,8 @@ public class DBConnection {
                 Bukkit.getConsoleSender().sendMessage(Core.prefix+ChatColor.RED+"Utilizing Production Database!");
                 db = client.getDatabase("MineClassic");
             }
+
+            minigameDB = client.getDatabase("Minigames");
 
             Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA+"Successfully connected to"+ChatColor.GREEN+ " MongoDB!");
             connected = true;
@@ -45,8 +49,13 @@ public class DBConnection {
         }
     }
 
+
     public static MongoCollection<Document> getCollection(String collectionName){
         return db.getCollection(collectionName);
+    }
+
+    public static MongoCollection<Document> getCollectionFromMinigameDB(String collectionName){
+        return minigameDB.getCollection(collectionName);
     }
 
     public static boolean isConnected(){

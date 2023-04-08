@@ -8,12 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class PitchParticleRing {
+public class DirectionalParticleRing {
 
     Location location;
     double ringSize;
 
     double spacing;
+
+    double extra;
 
     int amount = 1;
 
@@ -21,10 +23,11 @@ public class PitchParticleRing {
 
     List<Particle> particleList = new ArrayList<>();
 
-    public PitchParticleRing(Location location, double ringSize, double spacing){
-        this.location = location;
+    public DirectionalParticleRing(Location location, double ringSize, double spacing, double extra){
+        this.location = location.clone();
         this.ringSize = ringSize;
         this.spacing = spacing;
+        this.extra = extra;
         this.particleList.add(Particle.FLAME);
     }
 
@@ -38,15 +41,20 @@ public class PitchParticleRing {
         this.particleList.add(particle);
     }
 
+    public void setLocation(Location loc){
+        this.location = loc.clone();
+    }
+
     public void setParticles(List<Particle> particleList){
         this.particleList = particleList;
     }
 
 
     public void spawn(){
-        float pc = location.getPitch();
-        location.setPitch(pc);
-        Vector tVec = location.getDirection();
+        Location loc = location.clone();
+        float pc = loc.getPitch();
+        loc.setPitch(pc);
+        Vector tVec = loc.getDirection();
 
 
         tVec.normalize();
@@ -56,13 +64,13 @@ public class PitchParticleRing {
         v.setY(ringSize);
 
         for (int i = 0; i <360; i+=spacing){
-            Location particleLoc = location.clone();
+            Location particleLoc = loc.clone();
             particleLoc.setPitch(pc);
             Vector addVec = v.rotateAroundAxis(tVec, i);
             particleLoc.add(addVec);
 
             Particle particle = particleList.get(random.nextInt(particleList.size()));
-            particleLoc.getWorld().spawnParticle(particle, particleLoc, amount, 0,0,0,0);
+            particleLoc.getWorld().spawnParticle(particle, particleLoc, amount, 0,0,0, extra);
         }
     }
 

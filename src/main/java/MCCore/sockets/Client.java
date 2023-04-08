@@ -1,8 +1,5 @@
 package MCCore.sockets;
 
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import org.bukkit.Bukkit;
 
 import java.io.*;
@@ -42,18 +39,15 @@ public class Client {
 
     private void listenForMessage(){
         new Thread(() -> {
-            //ObjectInputStream message;
-
             while (socket.isConnected()){
                 try{
                     String[] message = (String[]) input.readObject();
-                    //message = ByteStreams.newDataInput(input.readAllBytes());
                     if (message[0].contains("minigameapi")) MinigameAPIMessages.run(message);
 
                 } catch (IOException e) {
                     closeEverything();
                 } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             }
         }).start();

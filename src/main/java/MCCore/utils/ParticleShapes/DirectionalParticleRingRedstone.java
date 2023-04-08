@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class PitchParticleRingRedstone {
+public class DirectionalParticleRingRedstone {
 
     Location location;
     double ringSize;
@@ -25,19 +25,19 @@ public class PitchParticleRingRedstone {
 
     Random random = new Random();
 
-    public PitchParticleRingRedstone(Location location, double ringSize, double spacing, Color color, float particleSize){
-        this.location = location;
+    public DirectionalParticleRingRedstone(Location location, double ringSize, double spacing, Color color, float particleSize){
+        this.location = location.clone();
         this.ringSize = ringSize;
         this.spacing = spacing;
         this.colors.add(color);
         this.particleSize = particleSize;
     }
 
-    public PitchParticleRingRedstone(Location location, double ringSize, double spacing, List<Color> color, float particleSize){
-        this.location = location;
+    public DirectionalParticleRingRedstone(Location location, double ringSize, double spacing, List<Color> colors, float particleSize){
+        this.location = location.clone();
         this.ringSize = ringSize;
         this.spacing = spacing;
-        this.colors = color;
+        this.colors = colors;
         this.particleSize = particleSize;
     }
 
@@ -45,11 +45,15 @@ public class PitchParticleRingRedstone {
         this.amount = amount;
     }
 
+    public void setLocation(Location loc){
+        this.location = loc.clone();
+    }
 
     public void spawn(){
-        float pc = location.getPitch();
-        location.setPitch(pc);
-        Vector tVec = location.getDirection();
+        Location loc = location.clone();
+        float pc = loc.getPitch();
+        loc.setPitch(pc);
+        Vector tVec = loc.getDirection();
 
 
         tVec.normalize();
@@ -59,7 +63,7 @@ public class PitchParticleRingRedstone {
         v.setY(ringSize);
 
         for (int i = 0; i <360; i+=spacing){
-            Location particleLoc = location.clone();
+            Location particleLoc = loc.clone();
             particleLoc.setPitch(pc);
             Vector addVec = v.rotateAroundAxis(tVec, i);
             particleLoc.add(addVec);
