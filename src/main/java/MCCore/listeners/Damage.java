@@ -15,9 +15,11 @@ public class Damage implements Listener {
     public void onDamage(EntityDamageEvent e){
         Entity entity = e.getEntity();
         if (Core.getInstance().getMinigameWaitingWorld() != null){
-            if (entity instanceof Player p && p.getWorld().equals(Core.getInstance().getMinigameWaitingWorld())){
-                e.setCancelled(true);
+            if (entity instanceof Player){
+                Player p = (Player) entity;
+                if (p.getWorld().equals(Core.getInstance().getMinigameWaitingWorld())) e.setCancelled(true);
             }
+
         }
 
 
