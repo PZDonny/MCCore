@@ -16,12 +16,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Chat implements Listener {
 
-    public static Map<UUID, Integer> playerChatChannels = new ConcurrentHashMap<>();
+    static Map<UUID, Integer> playerChatChannels = new ConcurrentHashMap<>();
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void playerChat(AsyncPlayerChatEvent e){
         Player p = e.getPlayer();
         int chatChannel = playerChatChannels.get(p.getUniqueId());
+
     //Party Chat
         if (chatChannel == 1) {
             e.setCancelled(true);
@@ -29,9 +30,6 @@ public class Chat implements Listener {
             out.writeUTF(p.getUniqueId().toString());
             out.writeUTF(e.getMessage());
             p.sendPluginMessage(Core.getInstance(), "mccore:partychat", out.toByteArray());
-        }
-        else {
-
         }
     }
 }
