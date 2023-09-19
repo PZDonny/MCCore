@@ -192,7 +192,7 @@ public class AbilityTools {
             if (!nearby.isEmpty()){
                 Entity[] arr = nearby.toArray(new Entity[nearby.size()]);
                 for (Entity e : arr) {
-                    if (e instanceof Player && !e.equals(p) && !PlayerTools.isNPC((Player) e)) {
+                    if (e instanceof Player && !e.equals(p) && !PlayerUtils.isNPC((Player) e)) {
                         if (checkOpenables){
                             double x2 = e.getLocation().getX();
                             double y2 = e.getLocation().getY();
@@ -341,7 +341,7 @@ public class AbilityTools {
             if (!nearby.isEmpty()){
                 Entity[] arr = nearby.toArray(new Entity[nearby.size()]);
                 for (Entity e : arr) {
-                    if (e instanceof Player && !e.equals(p) && !PlayerTools.isNPC((Player) e)) {
+                    if (e instanceof Player && !e.equals(p) && !PlayerUtils.isNPC((Player) e)) {
                         if (checkOpenables){
                             double x2 = e.getLocation().getX();
                             double y2 = e.getLocation().getY();

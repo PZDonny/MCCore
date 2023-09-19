@@ -94,7 +94,7 @@ public static void setEntityAbilityCaster(UUID abilityEntity, UUID caster){
     }
 
     public static void setAbilityDamager(UUID victim, UUID attacker){
-        if (victim != null & attacker != null) PlayerTools.sendHPToPlayer(Bukkit.getPlayer(attacker), Bukkit.getPlayer(victim), 2);
+        if (victim != null & attacker != null) PlayerUtils.sendHPToPlayer(Bukkit.getPlayer(attacker), Bukkit.getPlayer(victim), 2);
         if (abilityDamager.containsKey(victim)) abilityDamager.replace(victim, attacker);
         if (!(abilityDamager.containsKey(victim))) abilityDamager.put(victim, attacker);
     }
