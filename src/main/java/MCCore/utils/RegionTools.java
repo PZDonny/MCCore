@@ -35,9 +35,9 @@ public class RegionTools {
         return false;
     }
 
-    public Block[] getSelectedBlocks(String authorsName) {
-        LocalSession worldEditSession = worldEdit.getSessionManager().findByName(authorsName);
-        if(worldEditSession != null) {
+    public Block[] getSelectedBlocks(Player player) {
+        LocalSession worldEditSession = worldEdit.getSessionManager().findByName(player.getName());
+        if (worldEditSession != null) {
             if(worldEditSession.getSelectionWorld() != null) {
                 RegionSelector regionSelector = worldEditSession.getRegionSelector(worldEditSession.getSelectionWorld());
                 if(regionSelector.isDefined()) {
