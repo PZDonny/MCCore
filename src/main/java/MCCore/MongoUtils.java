@@ -16,10 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 
 public class MongoUtils {
@@ -28,41 +25,46 @@ public class MongoUtils {
 
     private static MongoDatabase minigameDB;
 
+    private static MongoCollection<Document> settingsCollection;
+    private static HashMap<UUID, Document> settingsCache = new HashMap<>();
 
 
     private static boolean connected = false;
     static void connectToMongo(String cstring, String mainDatabaseName, String playtestDatabaseName, String minigameDatabaseName) {
-        try{
-            ConnectionString connectionString = new ConnectionString(cstring);
-            MongoClientSettings settings = MongoClientSettings.builder()
-                    .applyConnectionString(connectionString)
-                    .serverApi(ServerApi.builder()
-                            .version(ServerApiVersion.V1)
-                            .build())
-                    .build();
-            MongoClient client = MongoClients.create(settings);
-            if (Core.isPlaytest()){
-                Bukkit.getConsoleSender().sendMessage(Core.prefix+ ChatColor.YELLOW+"Utilizing Playtest Database!");
-                db = client.getDatabase(playtestDatabaseName);
-            }
-            else{
-                Bukkit.getConsoleSender().sendMessage(Core.prefix+ChatColor.RED+"Utilizing Production Database!");
-                db = client.getDatabase(mainDatabaseName);
-            }
-
-            minigameDB = client.getDatabase(minigameDatabaseName);
-
-            Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA+"Successfully connected to"+ChatColor.GREEN+ " MongoDB!");
-            connected = true;
-            new BukkitRunnable() {
-                public void run() {
-                    Bukkit.getServer().getPluginManager().callEvent(new MongoConnectedEvent(db, minigameDB));
+        new Thread(() ->{
+            try{
+                ConnectionString connectionString = new ConnectionString(cstring);
+                MongoClientSettings settings = MongoClientSettings.builder()
+                        .applyConnectionString(connectionString)
+                        .serverApi(ServerApi.builder()
+                                .version(ServerApiVersion.V1)
+                                .build())
+                        .build();
+                MongoClient client = MongoClients.create(settings);
+                if (Core.isPlaytest()){
+                    Bukkit.getConsoleSender().sendMessage(Core.prefix+ ChatColor.YELLOW+"Utilizing Playtest Database!");
+                    db = client.getDatabase(playtestDatabaseName);
                 }
-            }.runTask(Core.getInstance());
-        }catch (MongoException e){
-            connected = false;
-            Bukkit.getConsoleSender().sendMessage(ChatColor.RED+"There was an error connecting to the MongoDB Database!");
-        }
+                else{
+                    Bukkit.getConsoleSender().sendMessage(Core.prefix+ChatColor.RED+"Utilizing Production Database!");
+                    db = client.getDatabase(mainDatabaseName);
+                }
+
+                minigameDB = client.getDatabase(minigameDatabaseName);
+                settingsCollection = db.getCollection("settings");
+
+                Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA+"Successfully connected to"+ChatColor.GREEN+ " MongoDB!");
+                connected = true;
+                new BukkitRunnable() {
+                    public void run() {
+                        Bukkit.getServer().getPluginManager().callEvent(new MongoConnectedEvent(db, minigameDB));
+                    }
+                }.runTask(Core.getInstance());
+            } catch (MongoException e){
+                connected = false;
+                Bukkit.getConsoleSender().sendMessage(ChatColor.RED+"There was an error connecting to the MongoDB Database!");
+            }
+        }).start();
     }
 
 //Check Connection Status
@@ -78,8 +80,33 @@ public class MongoUtils {
         return db.getCollection(collectionName);
     }
 
-//Get Collection From Minigame Database
-    public static MongoCollection<Document> getCollectionFromMinigameDB(String collectionName){
+    public static MongoCollection<Document> getSettingsCollection() {
+        return settingsCollection;
+    }
+
+    public static void cachePlayerSettings(Player p){
+        Document doc = settingsCollection.find(new Document("player", p.getUniqueId().toString())).first();
+        if (doc != null){
+            settingsCache.put(p.getUniqueId(), doc);
+        }
+    }
+
+    public static void uncachePlayerSettings(OfflinePlayer p){
+        settingsCache.remove(p.getUniqueId());
+    }
+
+    public static Document getPlayerSettings(Player p){
+        return settingsCache.get(p.getUniqueId());
+    }
+
+    public static Document getOfflinePlayerSettings(OfflinePlayer p){
+        return settingsCollection.find(new Document("player", p.getUniqueId().toString())).first();
+    }
+
+
+
+    //Get Collection From Minigame Database
+    public static MongoCollection<Document> getMinigameDBCollection(String collectionName){
         return minigameDB.getCollection(collectionName);
     }
 

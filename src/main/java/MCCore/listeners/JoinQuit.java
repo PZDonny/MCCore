@@ -26,10 +26,17 @@ public class JoinQuit implements Listener {
         if (Core.isMinigameEnabled()){
             p.teleport(Core.getInstance().getMinigameWaitingWorld().getSpawnLocation());
         }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPostJoin(PlayerJoinEvent e){
+        Player p = e.getPlayer();
+        if (!p.isOnline()) return;
         MinigameHandler handler = MinigameHandler.getInstance();
         if (handler != null){
-            createPlayerData(p, handler);
+            createPlayerData(e.getPlayer(), handler);
         }
+        MongoUtils.cachePlayerSettings(p);
     }
 
     private void createPlayerData(Player p, MinigameHandler handler){
@@ -58,7 +65,6 @@ public class JoinQuit implements Listener {
                 MongoUtils.replacePlayerDocument(p, existing, handler);
             }
             handler.setPlayerCache(p, existing);
-            System.out.println(existing);
         }).start();
 
     }
@@ -73,5 +79,6 @@ public class JoinQuit implements Listener {
         if (handler != null){
             handler.removePlayerFromCache(p);
         }
+        MongoUtils.uncachePlayerSettings(p);
     }
 }

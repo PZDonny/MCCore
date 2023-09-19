@@ -5,7 +5,6 @@ import MCCore.listeners.*;
 import MCCore.minigameAPI.RamThresholdManager;
 import MCCore.minigameAPI.arenaManager.ArenaManager;
 import MCCore.sockets.Client;
-import MCCore.commands.PlayCommand;
 import MCCore.utils.InventoryUtils.GUIItem_InventoryClick;
 import MCCore.utils.SlimeTools;
 import dev.iiahmed.disguise.DisguiseManager;
@@ -19,7 +18,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.net.URL;
 
@@ -99,12 +97,7 @@ public final class Core extends JavaPlugin {
         saveDefaultConfig();
         setConfigVariables();
         getServer().getConsoleSender().sendMessage(prefix + ChatColor.GREEN + "ENABLED");
-
-        new BukkitRunnable() {//Connect to Mongo Asynchronously
-            public void run() {
-                if (connectToMongo) MongoUtils.connectToMongo(connectionString, mainDatabaseName, playtestDatabaseName, minigameDatabaseName);
-            }
-        }.runTaskAsynchronously(this);
+        if (connectToMongo) MongoUtils.connectToMongo(connectionString, mainDatabaseName, playtestDatabaseName, minigameDatabaseName);
 
         DisguiseManager.setPlugin(this);
 
