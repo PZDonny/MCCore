@@ -10,18 +10,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 public class ActionBarTools {
-    //Static ActionBar
-    public static void sendActionBar(Player p, String message){
-        p.sendActionBar(Component.text(message));
-    }
 
 //Timed Actionbar
     //Single Player
-    public static void sendActionBarTimed(Player p, String message, int duration){
+    public static void sendActionBarTimer(Player p, String message, int duration, boolean showTime){
         if (duration <= 0) return;
         new BukkitRunnable(){
             int iteration = duration;
@@ -31,14 +27,15 @@ public class ActionBarTools {
                     cancel();
                     return;
                 }
-                p.sendActionBar(Component.text(message+iteration));
+                if (showTime) p.sendActionBar(Component.text(message+iteration));
+                else p.sendActionBar(Component.text(message));
                 iteration--;
             }
         }.runTaskTimer(Core.getInstance(), 0, 20);
     }
 
     //Multiple Players
-    public static void sendActionBarTimed(Set<Player> players, String message, int duration){
+    public static void sendActionBarTimer(Collection<Player> players, String message, int duration, boolean showTime){
         if (duration <= 0) return;
         new BukkitRunnable(){
             int iteration = duration;
@@ -51,7 +48,8 @@ public class ActionBarTools {
                     return;
                 }
                 for (Player p : players){
-                    p.sendActionBar(Component.text(message+iteration));
+                    if (showTime) p.sendActionBar(Component.text(message+iteration));
+                    else p.sendActionBar(Component.text(message));
                 }
                 iteration--;
             }
@@ -69,14 +67,14 @@ public class ActionBarTools {
 
 
     private static void generateActionBar(Player p, String message, String generatedMessage, Sound sound, float volume, float pitch, int position){
-        List<Character> delays = new ArrayList<>();
-        delays.add('.');
-        delays.add('!');
-        delays.add('?');
-        delays.add(',');
-        delays.add(';');
+        List<Character> delayers = new ArrayList<>();
+        delayers.add('.');
+        delayers.add('!');
+        delayers.add('?');
+        delayers.add(',');
+        delayers.add(';');
         int delay = 2;
-        if (position > 0 && delays.contains(message.charAt(position-1))) delay = 3;
+        if (position > 0 && delayers.contains(message.charAt(position-1))) delay = 3;
         if (message.charAt(position) == '§'){
             String currentMSG = generatedMessage+message.charAt(position)+message.charAt(position+1);
             if (delay == 3){
@@ -116,14 +114,14 @@ public class ActionBarTools {
     }
 
     private static void generateActionBarBG(Player p, String message, String generatedMessage, Sound sound, float volume, float pitch, int position){
-        List<Character> delays = new ArrayList<>();
-        delays.add('.');
-        delays.add('!');
-        delays.add('?');
-        delays.add(',');
-        delays.add(';');
+        List<Character> delayers = new ArrayList<>();
+        delayers.add('.');
+        delayers.add('!');
+        delayers.add('?');
+        delayers.add(',');
+        delayers.add(';');
         int delay = 2;
-        if (position > 0 && delays.contains(message.charAt(position-1))) delay = 3;
+        if (position > 0 && delayers.contains(message.charAt(position-1))) delay = 3;
         if (message.charAt(position) == '§'){
             String currentMSG = generatedMessage+message.charAt(position)+message.charAt(position+1);
             if (delay == 3){
