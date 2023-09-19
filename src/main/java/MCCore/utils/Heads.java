@@ -67,13 +67,16 @@ public enum Heads {
         this.texture = texture;
     }
 
-    public static ItemStack createSkull(Heads h){
-        String texture = h.texture;
+    public ItemStack createSkull(){
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         UUID hashAsUUID = new UUID(texture.hashCode(), texture.hashCode());
         Bukkit.getUnsafe().modifyItemStack(head, "{SkullOwner:{Id:\"" + hashAsUUID + "\",Properties:{textures:[{Value:\""
                 + texture + "\"}]}}}");
         return head;
+    }
+
+    public String getTexture() {
+        return texture;
     }
 }
 
