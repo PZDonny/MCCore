@@ -1,8 +1,11 @@
 package MCCore.utils;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
+import MCCore.Core;
+import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,4 +43,30 @@ public class WorldTools {
         }
         return true;
     }
+
+    public static void destroyWorld(World bukkitWorld) {
+        if (bukkitWorld == null) return;
+        Location defaultWorld = Bukkit.getWorlds().get(0).getSpawnLocation();
+        for (Player p : bukkitWorld.getPlayers()){
+            p.teleport(defaultWorld);
+        }
+
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                bukkitWorld.setKeepSpawnInMemory(false);
+                bukkitWorld.setAutoSave(false);
+
+                for (Entity e : bukkitWorld.getEntities()){
+                    e.remove();
+                }
+                for (Chunk chunk : bukkitWorld.getLoadedChunks()) {
+                    chunk.unload(false);
+                }
+                Bukkit.unloadWorld(bukkitWorld, true);
+            }
+        }.runTaskLater(Core.getInstance(), 5);
+
+    }
+
 }
