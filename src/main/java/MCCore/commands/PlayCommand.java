@@ -14,9 +14,13 @@ public class PlayCommand implements CommandExecutor {
         if (!(sender instanceof Player)){
             return true;
         }
-        if (args.length < 2){
-            sender.sendMessage(ChatColor.RED+"Incorrect Usage! /play <minigame> <mode>");
+        if (args.length < 1){
+            sender.sendMessage(ChatColor.RED+"Incorrect Usage! /play <minigame> [mode]");
             return false;
+        }
+        else if (args.length == 1){
+            Player p = (Player) sender;
+            PlayMinigame.join(p, args[0], "", true);
         }
         else{
             Player p = (Player) sender;
