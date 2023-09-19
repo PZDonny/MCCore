@@ -2,16 +2,23 @@ package MCCore.minigameAPI.arenaManager;
 
 import MCCore.Core;
 import MCCore.events.ArenaCreatedEvent;
+import MCCore.events.ArenaDeletedEvent;
+import MCCore.events.PlayerRemovedFromArenaEvent;
+import MCCore.minigameAPI.RamThresholdManager;
+import MCCore.sockets.Messages;
 import MCCore.utils.PlayerBalancerAPI;
 import MCCore.utils.SlimeTools;
 import com.infernalsuite.aswm.api.world.SlimeWorld;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.boss.BossBar;
+import org.bukkit.boss.KeyedBossBar;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.IOException;
 import java.util.*;
 
 public class ArenaManager {
@@ -21,11 +28,13 @@ public class ArenaManager {
 
 
     public static void addPlayerToHashArena(Player p){
-        if (playerTargetArenas.containsKey(p.getUniqueId())){
-            Arena arena = playerTargetArenas.get(p.getUniqueId());
-            arena.addPlayer(p);
-            removeHashPlayer(p.getUniqueId());
+        Arena arena = playerTargetArenas.get(p.getUniqueId());
+        if (arena == null || !arena.isUsuable()){
+            //do smthn
+            return;
         }
+        arena.addPlayer(p);
+        removeHashPlayer(p.getUniqueId());
     }
 
     public static boolean addPlayersToAvaliableArena(List<UUID> uuids, int queueID){
@@ -70,57 +79,72 @@ public class ArenaManager {
     }
 
     public static void deleteArena(Arena arena, String cause){
+        if (cause != null){
+            Bukkit.getConsoleSender().sendMessage(cause);
+        }
         new BukkitRunnable(){
             public void run(){
-                SlimeWorld world = arena.getArenaWorld();
-                World bukkitWorld = Bukkit.getWorld(world.getName());
+                Bukkit.getPluginManager().callEvent(new ArenaDeletedEvent(arena));
 
             //Remove players from World
-                if (!arena.getAllPlayers().isEmpty()){
-                    for (Player p : arena.getAllPlayers()){
-                        if (cause != null) p.sendMessage(cause);
+                if (!arena.getArenaPlayers().isEmpty()){
+                    for (Player p : arena.getArenaPlayers()){
+                        if (cause != null){
+                            p.sendMessage(cause);
+                        }
+                        for (Entity e : p.getPassengers()){
+                            p.removePassenger(e);
+                        }
                         p.teleport(Core.getInstance().getMinigameWaitingWorld().getSpawnLocation());
                         PlayerBalancerAPI.connectPlayerToFallback(p);
                     }
                 }
 
-                if (bukkitWorld == null){
-                    Bukkit.getConsoleSender().sendMessage(Core.prefix+ChatColor.RED+"Unable to delete arena world that doesn't exist!"+ChatColor.GOLD+" ("+world.getName()+")");
-                    return;
-                }
-            //Unload World when all players are removed
-                Bukkit.unloadWorld(bukkitWorld, false);
-                new BukkitRunnable(){
-                    public void run(){
-                        if (Bukkit.getWorld(bukkitWorld.getName()) == null){
-                            removeHashPlayers(arena);
-                            activeArenas.remove(world);
-                            String[] out = new String[]{"minigameapi:stoparena"};
-                            Core.getClient().sendMessage(out);
-                            arena.deleteArena();
 
-                            Bukkit.getConsoleSender().sendMessage("Removed "+bukkitWorld.getName()+" from the Cache!");
-                            cancel();
-                        }
-                    }
-                }.runTaskTimer(Core.getInstance(), 5 ,15);
+                removeHashPlayers(arena);
+
+                String[] out = new String[]{Messages.MINIGAMEAPI_STOPARENA.getID(), String.valueOf(arena.getQueueID())};
+                Core.getClient().sendMessage(out);
+
+                activeArenas.remove(arena.getArenaWorld());
+                arena.deleteArena();
+                ramThresholdCheck();
+
             }
         }.runTask(Core.getInstance());
     }
 
-    public static Map<SlimeWorld, Arena> getActiveArenas(){
-        return activeArenas;
+    private static void ramThresholdCheck(){
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                RamThresholdManager manager = Core.getRamManager();
+                if (manager == null || manager.isStopped() || !manager.isRestartingSoon()){
+                    return;
+                }
+                if (activeArenas.size() == 0){
+                    String message = Core.prefix+ChatColor.RED+"All arenas have ended their matches, restarting NOW!";
+                    Bukkit.getConsoleSender().sendMessage(message);
+                    Bukkit.shutdown();
+                }
+                /*else{
+                    System.out.println(activeArenas.size());
+                    for (Arena arena : activeArenas.values()){
+                        System.out.println(arena.getTemplateWorldName());
+                    }
+                }*/
+            }
+        }.runTaskLater(Core.getInstance(), 30);
     }
 
-    public static List<String> getAllTemplateArenaName(){
-        try{
-            return SlimeTools.getSlimeLoader().listWorlds();
-        }
-        catch(IOException e){
-            Bukkit.getConsoleSender().sendMessage(Core.prefix+ChatColor.RED+"Failed to retrieve template arenas! None were found!");
-            return null;
-        }
+    public static void addArena(SlimeWorld world, Arena arena){
+        activeArenas.put(world, arena);
     }
+
+    public static Collection<Arena> getActiveArenas(){
+        return activeArenas.values();
+    }
+
 
     private static void addHashPlayers(List<UUID> players, Arena arena){
         for (UUID uuid : players){
@@ -142,40 +166,85 @@ public class ArenaManager {
         }
     }
 
-    public static void removePlayerFromArena(Player p, boolean removeFromHash){
-        if (removeFromHash) removeHashPlayer(p.getUniqueId());
-        for (Arena arena : ArenaManager.getActiveArenas().values()){
-            arena.removePlayer(p);
+    public static void removePlayerFromArena(Player p, boolean removeFromHash, PlayerRemovedFromArenaEvent.RemoveCause cause){
+        if (removeFromHash){
+            removeHashPlayer(p.getUniqueId());
+        }
+        Arena arena = getArenaOfPlayer(p);
+        if (arena != null){
+            arena.removePlayer(p, cause);
         }
     }
 
 
-    public static Arena getArena(String worldName){
-        for (SlimeWorld sw : activeArenas.keySet()){
-            if (sw.getName().equals(worldName)) return activeArenas.get(sw);
+    public static Arena getArena(String slimeWorldName){
+        for (SlimeWorld world : activeArenas.keySet()){
+            if (world.getName().equals(slimeWorldName)){
+                return activeArenas.get(world);
+            }
         }
         return null;
     }
 
     public static Arena getArenaOfPlayer(Player p){
-        return getArena(p.getWorld().getName());
+        for (Arena arena : activeArenas.values()){
+            SlimeWorld sw = arena.getArenaWorld();
+            if (sw != null && sw.getName().equals(p.getWorld().getName())){
+                return arena;
+            }
+
+            if (arena.getArenaPlayers().contains(p)){
+                return arena;
+            }
+        }
+        return null;
     }
 
-    public static void refreshPlayer(Player p){
+
+    public static void refreshPlayer(Player p, GameMode gameMode){
+    //UI/Visuals
         p.getInventory().clear();
-        WorldBorder worldborder = p.getWorldBorder();
-        if (worldborder != null) worldborder.reset();
+        p.setShoulderEntityLeft(null);
+        p.setShoulderEntityRight(null);
         p.setLevel(0);
         p.setExp(0);
-        p.resetTitle();
-        p.resetCooldown();
+        p.setFoodLevel(20);
         p.setArrowsInBody(0);
-        p.clearTitle();
-        p.sendActionBar(Component.empty());
+        p.setBeeStingersInBody(0);
         p.setFireTicks(0);
         p.setFreezeTicks(0);
-        p.setHealth(p.getMaxHealth());
-        p.setFoodLevel(20);
+        p.setGlowing(false);
+        p.setVisualFire(false);
+        p.resetTitle();
+        p.sendActionBar(Component.empty());
+        p.resetCooldown();
+        p.resetPlayerTime();
+        p.resetPlayerWeather();
+        p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
+        p.setHealth(20);
+        p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+        Iterator<KeyedBossBar> bars = Bukkit.getBossBars();
+        while(bars.hasNext()){
+            BossBar bar = bars.next();
+            bar.removePlayer(p);
+        }
+        WorldBorder worldborder = p.getWorldBorder();
+        if (worldborder != null){
+            worldborder.reset();
+        }
+
+
+    //Other
+        p.undiscoverRecipes(p.getDiscoveredRecipes());
+        p.setCanPickupItems(true);
+        p.setBedSpawnLocation(null, true);
+        p.setFlying(false);
+        p.setSwimming(false);
+        p.setGliding(false);
+        p.setInvulnerable(false);
+        p.setWalkSpeed(0.2f);
+        p.setFlySpeed(0.1f);
+        p.setGameMode(gameMode);
         Collection<PotionEffect> potions = p.getActivePotionEffects();
         for (PotionEffect effect : potions){
             p.removePotionEffect(effect.getType());

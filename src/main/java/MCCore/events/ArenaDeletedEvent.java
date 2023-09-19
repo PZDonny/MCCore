@@ -1,40 +1,22 @@
 package MCCore.events;
 
 import MCCore.minigameAPI.arenaManager.Arena;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class PlayerRemovedFromArenaEvent extends Event {
 
-    public enum RemoveCause{
-        DISCONNECT,
-        PLUGIN;
-    }
+public class ArenaDeletedEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
 
     Arena arena;
-    Player player;
 
-    RemoveCause cause;
-
-    public PlayerRemovedFromArenaEvent(Arena arena, Player player, RemoveCause cause){
+    public ArenaDeletedEvent(Arena arena){
         this.arena = arena;
-        this.player = player;
-        this.cause = cause;
     }
 
     public Arena getArena(){
         return arena;
-    }
-
-    public Player getPlayer(){
-        return player;
-    }
-
-    public RemoveCause getCause(){
-        return cause;
     }
 
 
@@ -47,4 +29,5 @@ public class PlayerRemovedFromArenaEvent extends Event {
     public static HandlerList getHandlerList() {
         return handlers;
     }
+
 }

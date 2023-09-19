@@ -1,10 +1,8 @@
 package MCCore.minigameAPI.arenaManager;
 
 import MCCore.Core;
-import MCCore.minigameAPI.GameState;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import net.kyori.adventure.title.TitlePart;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
@@ -18,11 +16,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.Collection;
 
 
-public class Countdown {
+public class ArenaCountdown {
 
     Arena arena;
 
-    Countdown(Arena arena){
+    ArenaCountdown(Arena arena){
         this.arena = arena;
     }
 
@@ -40,19 +38,18 @@ public class Countdown {
                     int iteration = countdownTime;
                     public void run(){
                         if (iteration == 0){
-                            for (Player p : arena.getAllPlayers()){
+                            for (Player p : arena.getOnlineStartPlayers()){
                                 p.clearTitle();
                             }
                             attemptStart();
                             cancel();
                             return;
                         }
-                        for (Player p : arena.getAllPlayers()){
+                        for (Player p : arena.getOnlineStartPlayers()){
                             Title title = Title.title(Component.text(defaultMSG + iteration), Component.empty());
                             p.showTitle(title);
                         }
                         iteration--;
-                        return;
                     }
                 }.runTaskTimer(Core.getInstance(), 0, 20);
                 break;
@@ -61,19 +58,18 @@ public class Countdown {
                     int iteration = countdownTime;
                     public void run(){
                         if (iteration == 0){
-                            for (Player p : arena.getAllPlayers()){
+                            for (Player p : arena.getOnlineStartPlayers()){
                                 p.clearTitle();
                             }
                             attemptStart();
                             cancel();
                             return;
                         }
-                        for (Player p : arena.getAllPlayers()){
+                        for (Player p : arena.getOnlineStartPlayers()){
                             Title title = Title.title( Component.empty(), Component.text(defaultMSG + iteration));
                             p.showTitle(title);
                         }
                         iteration--;
-                        return;
                     }
                 }.runTaskTimer(Core.getInstance(), 0, 20);
                 break;
@@ -85,38 +81,37 @@ public class Countdown {
 
 
     private void attemptStart(){
-    //Arena World never set through ArenaCreatedEvent
-        if (arena.getArenaWorld() == null){
+        if (arena.getArenaWorld() == null || Bukkit.getWorld(arena.getArenaWorld().getName()) == null){
             ArenaManager.deleteArena(arena, ChatColor.RED+"An unexpected error occurred when attempting to start minigame!");
             return;
         }
-        if (arena.getAllPlayers().size() >= arena.getMinPlayers()){
-            for (Player p : arena.getAllPlayers()){
-                p.teleportAsync(Bukkit.getWorld(arena.getArenaWorld().getName()).getSpawnLocation());
-                Collection<PotionEffect> potions = p.getActivePotionEffects();
-                for (PotionEffect effect : potions){
-                    p.removePotionEffect(effect.getType());
-                }
+
+        if (arena.getOnlineStartPlayers().size() < arena.getMinPlayers()){
+            ArenaManager.deleteArena(arena, ChatColor.RED+"Insufficient player count. Game cancelled!");
+            return;
+        }
+
+        for (Player p : arena.getOnlineStartPlayers()){
+            p.teleportAsync(Bukkit.getWorld(arena.getArenaWorld().getName()).getSpawnLocation());
+            Collection<PotionEffect> potions = p.getActivePotionEffects();
+            for (PotionEffect effect : potions){
+                p.removePotionEffect(effect.getType());
+            }
+        }
+
+        new BukkitRunnable(){
+            public void run(){
+                arena.setStateToPlaying();
             }
 
-            new BukkitRunnable(){
-                public void run(){
-                    arena.setStateToPlaying();
-                    arena.setPlayingPlayers(arena.getAllPlayers());
-                }
-
-            }.runTaskLater(Core.getInstance(), 1);
+        }.runTaskLater(Core.getInstance(), 1);
 
 
-            /*new BukkitRunnable(){
-                public void run(){
-                    arena.setGameState(GameState.ENDING);
-                }
-            }.runTaskLater(Core.getInstance(), 20*10);*/
-        }
-        else{
-            ArenaManager.deleteArena(arena, ChatColor.RED+"Insufficient player count. Game cancelled!");
-        }
+        /*new BukkitRunnable(){
+            public void run(){
+                arena.setGameState(GameState.ENDING);
+            }
+        }.runTaskLater(Core.getInstance(), 20*10);*/
 
     }
 
@@ -132,8 +127,10 @@ public class Countdown {
             double i = 0;
             final double totaltime = duration*10;
             public void run(){
-                for (Player p : arena.getAllPlayers()){
-                    if (p.isOnline() && !bar.getPlayers().contains(p)) bar.addPlayer(p);
+                for (Player p : arena.getOnlineStartPlayers()){
+                    if (p.isOnline() && !bar.getPlayers().contains(p)){
+                        bar.addPlayer(p);
+                    }
                 }
 
                 if (i == totaltime){
@@ -145,7 +142,7 @@ public class Countdown {
                     //}
                 }
                 for (Player p : bar.getPlayers()){
-                    if (!arena.getAllPlayers().contains(p)){
+                    if (!arena.getOnlineStartPlayers().contains(p)){
                         bar.removePlayer(p);
                     }
                 }
@@ -161,14 +158,14 @@ public class Countdown {
             int iteration = duration;
             public void run(){
                 if (iteration == 0){
-                    for (Player p : arena.getAllPlayers()){
+                    for (Player p : arena.getOnlineStartPlayers()){
                         p.sendActionBar(Component.empty());
                     }
                     attemptStart();
                     cancel();
                     return;
                 }
-                for (Player p : arena.getAllPlayers()){
+                for (Player p : arena.getOnlineStartPlayers()){
                     p.sendActionBar(Component.text(message+iteration));
                 }
                 iteration--;
