@@ -6,70 +6,86 @@ import org.bukkit.Particle;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 public class DirectionalParticleRingRedstone {
 
     Location location;
-    double ringSize;
+    double radius;
 
-    double spacing;
+    double angleToNext;
+
+    double maxRevolutions = 1;
+
 
     int amount = 1;
 
-    List<Color> colors = new ArrayList<>();
-
-    float particleSize;
-
-
     Random random = new Random();
 
-    public DirectionalParticleRingRedstone(Location location, double ringSize, double spacing, Color color, float particleSize){
+    List<Color> colors = new ArrayList<>();
+    double offset = 0.1;
+
+    float particleSize = 1;
+
+    public DirectionalParticleRingRedstone(Location location, double radius, double angleToNext){
         this.location = location.clone();
-        this.ringSize = ringSize;
-        this.spacing = spacing;
-        this.colors.add(color);
-        this.particleSize = particleSize;
+        this.radius = radius;
+        if (angleToNext <= 0) angleToNext = 1;
+        this.angleToNext = angleToNext;
+        this.colors.add(Color.RED);
     }
 
-    public DirectionalParticleRingRedstone(Location location, double ringSize, double spacing, List<Color> colors, float particleSize){
-        this.location = location.clone();
-        this.ringSize = ringSize;
-        this.spacing = spacing;
-        this.colors = colors;
-        this.particleSize = particleSize;
-    }
-
-    public void setAmountPerRotation(int amount){
+    public DirectionalParticleRingRedstone setParticleAmount(int amount){
         this.amount = amount;
+        return this;
     }
 
-    public void setLocation(Location loc){
-        this.location = loc.clone();
+    public DirectionalParticleRingRedstone setOffset(double offset){
+        if (offset <= 0) this.offset = 0.1;
+        else this.offset = offset;
+        return this;
     }
+
+    public DirectionalParticleRingRedstone setLocation(Location loc){
+        this.location = loc.clone();
+        return this;
+    }
+
+    public DirectionalParticleRingRedstone setColors(Color... colors){
+        if (colors == null || colors.length == 0) return this;
+        this.colors.clear();
+        this.colors = Arrays.asList(colors);
+        return this;
+    }
+
+    public DirectionalParticleRingRedstone setParticleSize(float size){
+        this.particleSize = size;
+        return this;
+    }
+
+    public DirectionalParticleRingRedstone setMaxRevolutions(double maxRevolutions){
+        this.maxRevolutions = Math.abs(maxRevolutions);
+        return this;
+    }
+
 
     public void spawn(){
+
         Location loc = location.clone();
-        float pc = loc.getPitch();
-        loc.setPitch(pc);
-        Vector tVec = loc.getDirection();
+        Location offset = location.clone();
+        offset.setPitch(location.getPitch()+90F);
 
-
-        tVec.normalize();
-        Vector v = tVec.clone();
-        v.setX(ringSize);
-        v.setZ(ringSize);
-        v.setY(ringSize);
-
-        for (int i = 0; i <360; i+=spacing){
-            Location particleLoc = loc.clone();
-            particleLoc.setPitch(pc);
-            Vector addVec = v.rotateAroundAxis(tVec, i);
-            particleLoc.add(addVec);
-
+        Vector extendVector = loc.getDirection().multiply(this.offset);
+        Vector offsetVector = offset.getDirection().normalize().multiply(radius);
+        for (int i = 0; i < maxRevolutions*360; i+=angleToNext){
+            Location particleLoc = loc.clone().add(offsetVector.rotateAroundAxis(extendVector, Math.toRadians(i)).normalize().multiply(radius));
+            particleLoc.add(extendVector);
             Color color = colors.get(random.nextInt(colors.size()));
-            particleLoc.getWorld().spawnParticle(Particle.REDSTONE, particleLoc, amount, 0 ,0,0, new Particle.DustOptions(color, particleSize));
+            particleLoc.getWorld().spawnParticle(Particle.REDSTONE, particleLoc, amount, 0,0,0, new Particle.DustOptions(color, particleSize));
         }
     }
+
+
 }
