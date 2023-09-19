@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 public class Speed implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!sender.hasPermission("sq.speed")){
+        if (!sender.hasPermission("mc.speed")){
             sender.sendMessage(ChatColor.RED + "You do not have permission to do this command");
             return false;
         }
@@ -21,14 +21,17 @@ public class Speed implements CommandExecutor {
 
 
         Player p = (Player) sender;
-
+        if (args.length == 0){
+            incorrectUsage(p);
+            return true;
+        }
         if (!args[0].isEmpty()){
             try {
                 switch(Integer.parseInt(args[0])) {
                     case 1:
                         p.sendMessage(ChatColor.GREEN+"Your speed has been set to"+ChatColor.GOLD+" 1 "+ChatColor.WHITE+"("+ChatColor.BLUE+"default"+ChatColor.WHITE+")");
-                        p.setWalkSpeed((float) 0.2);
-                        p.setFlySpeed((float) 0.1);
+                        p.setWalkSpeed(0.2f);
+                        p.setFlySpeed(0.1f);
                         break;
                     case 2: setSpeed(p, 0.3, args[0]);
                         break;
