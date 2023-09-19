@@ -1,7 +1,8 @@
 package MCCore.commands;
 
-import net.md_5.bungee.api.ChatColor;
+import MCCore.Core;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,7 +11,7 @@ import org.bukkit.entity.Player;
 public class Fly implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!sender.hasPermission("sq.fly.use")){
+        if (!sender.hasPermission("mc.fly.use")){
             sender.sendMessage(ChatColor.RED + "You do not have permission to do this command");
             return false;
         }
@@ -24,7 +25,7 @@ public class Fly implements CommandExecutor {
                 return false;
             }
 
-            if (sender.hasPermission("sq.fly.staff")) {
+            if (sender.hasPermission("mc.fly.staff")) {
                 doFlight(t, sender);
             }
 
@@ -36,11 +37,11 @@ public class Fly implements CommandExecutor {
             }
 
             t = (Player) sender;
-            if (t.getWorld().toString().contains("lobby")) {
+            if (Core.isLobbyServer()) {
                 doFlight(t, null);
             }
             else {
-                if (!(t.hasPermission("sq.fly.staff"))){
+                if (!(t.hasPermission("mc.fly.staff"))){
                     sender.sendMessage(ChatColor.RED + "You cannot fly here!");
                     return false;
                 }
@@ -54,7 +55,7 @@ public class Fly implements CommandExecutor {
     public void doFlight(Player t, CommandSender sender) {
         if (!(t.getAllowFlight())) {
             t.setAllowFlight(true);
-            t.sendMessage("You can fly!");
+            t.sendMessage(ChatColor.AQUA+"You can fly!");
             if (sender != null) {
                 sender.sendMessage(ChatColor.GREEN + "You enabled flight for " + ChatColor.YELLOW + t.getName());
             }
@@ -62,7 +63,7 @@ public class Fly implements CommandExecutor {
         else {
             t.setAllowFlight(false);
             t.setFlying(false);
-            t.sendMessage("You can no longer fly!");
+            t.sendMessage(ChatColor.GRAY+"You can no longer fly!");
             if (sender != null) {
                 sender.sendMessage(ChatColor.RED + "You disabled flight for " + ChatColor.YELLOW + t.getName());
             }
