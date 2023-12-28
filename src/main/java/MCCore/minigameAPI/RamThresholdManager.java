@@ -1,6 +1,7 @@
 package MCCore.minigameAPI;
 
 import MCCore.Core;
+import MCCore.minigameAPI.arenaManager.ArenaManager;
 import MCCore.sockets.Messages;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -36,20 +37,29 @@ public class RamThresholdManager implements Runnable{
                         //+ (instance.totalMemory() - instance.freeMemory()) / mb);
                 // Maximum available memory
                 //System.out.println("Max Memory: " + instance.maxMemory() / mb);
-                if ((instance.totalMemory() / (double) mb) >= limit && !isRestartingSoon){
+                if (isRestartingSoon){
+                    if (ArenaManager.getActiveArenas().isEmpty()){
+                        restartServer();
+                    }
+                }
+                else if ((instance.totalMemory() / (double) mb) >= limit){
                     isRestartingSoon = true;
-                    String message = Core.prefix+ ChatColor.RED+"Ram limit reached server will restart after all game arenas finish their matches!";
+                    String message = Core.prefix+ ChatColor.RED+"Ram limit reached! The server will restart after all game arenas finish their matches !";
                     Bukkit.getConsoleSender().sendMessage(message);
                     String[] out = new String[]{Messages.MINIGAMEAPI_BLOCK.getID()};
                     Core.getClient().sendMessage(out);
-                    return;
                 }
-
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
 
+    }
+
+    public void restartServer(){
+        String message = Core.prefix+ChatColor.RED+"All arenas have ended their matches, restarting NOW!";
+        Bukkit.getConsoleSender().sendMessage(message);
+        Bukkit.shutdown();
     }
 
     public void stop(){
