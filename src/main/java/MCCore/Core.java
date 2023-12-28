@@ -1,6 +1,9 @@
 package MCCore;
 
 import MCCore.commands.*;
+import MCCore.commands.minigameCommands.CreatePrivateQueueCommand;
+import MCCore.commands.minigameCommands.JoinPrivateQueueCommand;
+import MCCore.commands.minigameCommands.PlayCommand;
 import MCCore.listeners.*;
 import MCCore.minigameAPI.RamThresholdManager;
 import MCCore.minigameAPI.arenaManager.ArenaManager;
@@ -44,6 +47,7 @@ public final class Core extends JavaPlugin {
 
     private static String serverID;
     private static boolean isDataProxyAllowed;
+
     private static boolean isLobbyServer;
 
     private static boolean isSlimeInstalled = true;
@@ -60,8 +64,17 @@ public final class Core extends JavaPlugin {
 
     public static final String prefix = "["+ ChatColor.GREEN+"M"+ChatColor.WHITE+"C"+ChatColor.RED+" Core"+ChatColor.WHITE+"] ";
 
+    private static int networkPlayerCount = 0;
+
     @Override
     public void onEnable() {
+
+        //LuckPerms
+        if (!Bukkit.getPluginManager().isPluginEnabled("LuckPerms")) {
+            getLogger().severe("MCCore cannot utilize the LuckPerms Utilities!");
+            getLogger().severe("*** LuckPerms is not installed or not enabled. ***");
+        }
+
         //WorldGuard
         if (!Bukkit.getPluginManager().isPluginEnabled("WorldGuard")) {
             getLogger().severe("MCCore cannot utilize the WorldTools Utilities!");
@@ -97,15 +110,14 @@ public final class Core extends JavaPlugin {
         saveDefaultConfig();
         setConfigVariables();
         getServer().getConsoleSender().sendMessage(prefix + ChatColor.GREEN + "ENABLED");
-        if (connectToMongo) MongoUtils.connectToMongo(connectionString, mainDatabaseName, playtestDatabaseName, minigameDatabaseName);
 
         DisguiseManager.setPlugin(this);
 
         //Commands
-        getCommand("gmc").setExecutor(new Gamemode());
-        getCommand("gms").setExecutor(new Gamemode());
-        getCommand("gma").setExecutor(new Gamemode());
-        getCommand("gmsp").setExecutor(new Gamemode());
+        getCommand("gmc").setExecutor(new GamemodeCommand());
+        getCommand("gms").setExecutor(new GamemodeCommand());
+        getCommand("gma").setExecutor(new GamemodeCommand());
+        getCommand("gmsp").setExecutor(new GamemodeCommand());
         getCommand("fly").setExecutor(new Fly());
         getCommand("speed").setExecutor(new Speed());
         getCommand("cc").setExecutor(new ClearChat());
@@ -116,9 +128,13 @@ public final class Core extends JavaPlugin {
         getCommand("midnight").setExecutor(new DayCycle());
         getCommand("corereload").setExecutor(this);
         getCommand("play").setExecutor(new PlayCommand());
+        getCommand("privatequeue").setExecutor(new CreatePrivateQueueCommand());
+        getCommand("joinprivate").setExecutor(new JoinPrivateQueueCommand());
         getCommand("previewborder").setExecutor(new PreviewBorder());
         getCommand("realname").setExecutor(new RealName());
         getCommand("centerplayer").setExecutor(new CenterPlayer());
+        getCommand("lobby").setExecutor(new LobbyCommand());
+        getCommand("help").setExecutor(new HelpCommand());
 
         //Events
         getServer().getPluginManager().registerEvents(new ProjectileRandomness(), this);
@@ -133,11 +149,13 @@ public final class Core extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new GUIItem_InventoryClick(), this);
         getServer().getPluginManager().registerEvents(new InventoryClose(), this);
         getServer().getPluginManager().registerEvents(new ChunkUnload(), this);
+        getServer().getPluginManager().registerEvents(new WorldChange(), this);
+        getServer().getPluginManager().registerEvents(new Sneak(), this);
+        getServer().getPluginManager().registerEvents(new MCCore.listeners.Command(), this);
 
-        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "playerbalancer:main");
-
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "mccore:lobby");
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "mccore:lobbydequeue");
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "mccore:connect");
-        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "mccore:fallback");
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "mccore:partychat");
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "mccore:minigameapi");
 
@@ -147,23 +165,27 @@ public final class Core extends JavaPlugin {
         setGamerulesForSlime();
 
         if (isDataProxyAllowed){
-            client = new Client(dataProxyIP, port);
+            setClient(new Client(dataProxyIP, port));
         }
-
-
     }
 
     @Override
     public void onDisable() {
-        getServer().getConsoleSender().sendMessage(prefix+ChatColor.RED+"DISABLED");
         if (client != null){
             client.disconnect();
-            client = null;
         }
     }
 
     public URL getResourceURL(String resource){
         return getClassLoader().getResource(resource);
+    }
+
+    public static int getNetworkPlayerCount() {
+        return networkPlayerCount;
+    }
+
+    public static void setNetworkPlayerCount(int networkPlayerCount) {
+        Core.networkPlayerCount = networkPlayerCount;
     }
 
     public static Core getInstance(){
@@ -295,6 +317,30 @@ public final class Core extends JavaPlugin {
         return isSlimeInstalled;
     }
 
+    public static boolean isDataProxyAllowed() {
+        return isDataProxyAllowed;
+    }
+
+    public static boolean isMongoAllowed() {
+        return connectToMongo;
+    }
+
+    public static String getConnectionString() {
+        return connectionString;
+    }
+
+    public static String getMainDatabaseName() {
+        return mainDatabaseName;
+    }
+
+    public static String getPlaytestDatabaseName() {
+        return playtestDatabaseName;
+    }
+
+    public static String getMinigameDatabaseName() {
+        return minigameDatabaseName;
+    }
+
 
     private void setGamerulesForSlime(){
         for (World w : Bukkit.getWorlds()){
@@ -304,9 +350,13 @@ public final class Core extends JavaPlugin {
 
     public static void templateWorldSetup(World w){
     //Only for Slime Worlds
-        if (!SlimeTools.isSlimeWorld(w.getName())) return;
+        if (!SlimeTools.isSlimeWorld(w.getName())){
+            return;
+        }
     //Non Arena Worlds
-        if (ArenaManager.getArena(w.getName()) != null) return;
+        if (ArenaManager.getArena(w.getName()) != null){
+            return;
+        }
 
         w.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
         w.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
