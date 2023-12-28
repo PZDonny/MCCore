@@ -4,6 +4,7 @@ import MCCore.Core;
 import MCCore.sockets.Client;
 import MCCore.sockets.Messages;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -24,6 +25,8 @@ public class PlayMinigame {
             }
         }
         cooldowns.put(p.getUniqueId(), System.currentTimeMillis()+3000);
+        p.sendMessage(ChatColor.GRAY+"Attempting to join minigame..");
+        p.playSound(p, Sound.ENTITY_ALLAY_ITEM_THROWN, 1, 1.5f);
         Client client = Core.getClient();
         String[] out = new String[]{Messages.MINIGAMEAPI_JOINQUEUE.getID(), p.getUniqueId().toString(), minigame, mode};
         client.sendMessage(out);
