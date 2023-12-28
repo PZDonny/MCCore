@@ -1,8 +1,8 @@
 package MCCore.cosmetics;
 
 import MCCore.MongoUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 
 public abstract class Cosmetic{
     private final String cosmeticName;
@@ -17,6 +17,7 @@ public abstract class Cosmetic{
 
     public Cosmetic(String cosmeticName){
         this.cosmeticName = cosmeticName;
+        this.setMongoSelectValue(cosmeticName);
     }
 
     public Material getDisplayMaterial() {
@@ -79,23 +80,25 @@ public abstract class Cosmetic{
     }
 
     public enum CosmeticType {
-        CURRENCY(null, null),
-        WINS(null, "wins"),
-        LEVEL(null, "level"),
-        PRESTIGE(null, "prestige"),
-        KILLS(null, "kills"),
+        CURRENCY(null, null, "Currency"),
+        WINS(null, "wins", "Wins"),
+        LEVEL(null, "level", "Level"),
+        PRESTIGE(null, "prestige", "Prestige"),
+        KILLS(null, "kills", "Kills"),
 
-        IRONRANKED("mc.iron", null),
-        GOLDRANKED("mc.gold", null),
-        TNTRANKED("mc.tnt", null),
-        INFLUENCER("mc.influencer", null),
-        STAFF("mc.staff", null);
+        IRONRANKED("mc.iron", null, ChatColor.GRAY+"Iron"),
+        GOLDRANKED("mc.gold", null, ChatColor.GOLD+"Gold"),
+        TNTRANKED("mc.tnt", null, ChatColor.RED+"T"+ChatColor.WHITE+"N"+ChatColor.RED+"T"),
+        INFLUENCER("mc.influencer", null, ""),
+        STAFF("mc.staff", null, "");
 
         private final String permission;
         private final String mongoKey;
-        CosmeticType(String permission, String mongoKey){
+        private final String displayName;
+        CosmeticType(String permission, String mongoKey, String displayName){
             this.permission = permission;
             this.mongoKey = mongoKey;
+            this.displayName = displayName;
         }
 
         public boolean isRanked(){
@@ -116,6 +119,10 @@ public abstract class Cosmetic{
             }
             String parenthesized = mongoKey.substring(0, mongoKey.length()-1)+"(";
             return parenthesized+mongoKey.charAt(mongoKey.length()-1)+")";
+        }
+
+        public String getDisplayName(){
+            return displayName;
         }
 
         public boolean hasMongoKey(){
