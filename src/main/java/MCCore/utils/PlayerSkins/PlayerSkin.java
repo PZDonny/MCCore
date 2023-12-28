@@ -1,10 +1,7 @@
 package MCCore.utils.PlayerSkins;
 
-import MCCore.utils.Disguise.DisguiseHandler;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
-import dev.iiahmed.disguise.DisguiseManager;
-import dev.iiahmed.disguise.DisguiseUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

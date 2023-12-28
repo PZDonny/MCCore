@@ -8,9 +8,7 @@ import java.util.Random;
 public final class PlayerSkinLoader {
 
     //Cannot be instantiated
-    private PlayerSkinLoader(){
-
-    }
+    private PlayerSkinLoader(){}
     static Map<String, PlayerSkin> allSkins = new HashMap<>();
 
     public static PlayerSkin getSkin(String skinName){
