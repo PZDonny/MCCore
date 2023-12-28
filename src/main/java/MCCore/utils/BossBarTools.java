@@ -19,7 +19,9 @@ public class BossBarTools {
 //BossBars
     private static KeyedBossBar createBossBar(Player p, String message, String barID, BarColor color, BarStyle style){
         KeyedBossBar bar = Bukkit.createBossBar(new NamespacedKey(Core.getInstance(), barID), message, color, style);
-        if (p != null) bar.addPlayer(p);
+        if (p != null){
+            bar.addPlayer(p);
+        }
         bar.setVisible(true);
         return bar;
     }
@@ -40,18 +42,30 @@ public class BossBarTools {
         while (bossBars.hasNext()){
             KeyedBossBar bar = bossBars.next();
             if (bar.getKey().getKey().equals(barID)){
-                bar.getPlayers().clear();
+                bar.removeAll();
                 return;
             }
         }
     }
 
+    public static KeyedBossBar getBossBar(String barID){
+        Iterator<KeyedBossBar> bossBars = Bukkit.getBossBars();
+        while (bossBars.hasNext()){
+            KeyedBossBar bar = bossBars.next();
+            if (bar.getKey().getKey().equals(barID)){
+                return bar;
+            }
+        }
+        return null;
+    }
+
 
     //Solid BossBars
     //Single Player
-    public static void sendBossBar( Player p, String barID, String message, BarColor color, BarStyle style){
-        KeyedBossBar bar = createBossBar(p, message, barID, color, style);
+    public static void sendBossBar(Player p, String barID, String message, BarColor color, BarStyle style){
+        createBossBar(p, message, barID, color, style);
     }
+
     //List of Players
     public static void sendBossBar(Collection<Player> players, String barID, String message, BarColor color, BarStyle style){
         KeyedBossBar bar = createBossBar(null, message, barID, color, style);
@@ -64,23 +78,59 @@ public class BossBarTools {
 
 
 
-
     //Timed BossBars
-    public static KeyedBossBar sendBossBarTimed(Player p, String barID, String message, BarColor color, BarStyle style, long timeInSeconds){
-        KeyedBossBar bar = createBossBar(p, message, barID, color, style);
+    public static BossBar sendBossBarTimed(Player p, String message, BarColor color, BarStyle style, long timeInSeconds){
+        BossBar bar = Bukkit.createBossBar(message, color, style);
         new BukkitRunnable(){
             double i = timeInSeconds*10;
             final double totaltime = i;
             public void run(){
                 if (i == 0 && !bar.getPlayers().isEmpty()){
                     cancel();
-                    Bukkit.getServer().getPluginManager().callEvent(new TimedBossBarEndEvent(bar, bar.getPlayers()));
+                    removePlayersFromBar(bar);
+                    return;
+                }
+                else if (!p.isOnline()){
+                    bar.removePlayer(p);
+                    cancel();
+                    return;
+                }
+                else if (bar.getPlayers().isEmpty() || !bar.isVisible()){
+                    cancel();
+                    return;
+                }
+                double progress = i/(totaltime);
+                bar.setProgress(progress);
+                i--;
+            }
+        }.runTaskTimer(Core.getInstance(), 1, 2);
+        return bar;
+    }
+
+
+    //Timed BossBars
+    public static KeyedBossBar sendBossBarTimed(Player p, String barID, String message, BarColor color, BarStyle style, long timeInSeconds){
+        KeyedBossBar bar = createBossBar(p, message, barID, color, style);
+        new BukkitRunnable(){
+            double i = timeInSeconds*10;
+            final double totalTime = i;
+            public void run(){
+                if (i == 0 && !bar.getPlayers().isEmpty()){
+                    cancel();
+                    new TimedBossBarEndEvent(bar, bar.getPlayers()).callEvent();
                     if (bar.getKey().getKey().contains(AbilityHandler.CooldownType.PRIMARY.getName())
                             || bar.getKey().getKey().contains(AbilityHandler.CooldownType.SECONDARY.getName())) {
+
                         AbilityHandler.CooldownType type;
-                        if (bar.getKey().getKey().contains(AbilityHandler.CooldownType.PRIMARY.getName())) type = AbilityHandler.CooldownType.PRIMARY;
-                        else type = AbilityHandler.CooldownType.SECONDARY;
-                        Bukkit.getServer().getPluginManager().callEvent(new AbilityReturnedEvent(bar, p, type));
+
+                        if (bar.getKey().getKey().contains(AbilityHandler.CooldownType.PRIMARY.getName())){
+                            type = AbilityHandler.CooldownType.PRIMARY;
+                        }
+
+                        else{
+                            type = AbilityHandler.CooldownType.SECONDARY;
+                        }
+                        new AbilityReturnedEvent(bar, p, type).callEvent();
                     }
                     removePlayersFromBar(bar);
                     return;
@@ -96,7 +146,7 @@ public class BossBarTools {
                     cancel();
                     return;
                 }
-                double progress = i/(totaltime);
+                double progress = i/(totalTime);
                 bar.setProgress(progress);
                 i--;
             }
@@ -107,7 +157,9 @@ public class BossBarTools {
     public static KeyedBossBar sendBossBarTimed(Collection<Player> players, String barID, String message, BarColor color, BarStyle style, long timeInSeconds){
         KeyedBossBar bar = createBossBar(null, message, barID, color, style);
         for (Player p : players){
-            if (p.isOnline()) bar.addPlayer(p);
+            if (p.isOnline()){
+                bar.addPlayer(p);
+            }
         }
         new BukkitRunnable(){
             double i = timeInSeconds*10;
@@ -115,7 +167,7 @@ public class BossBarTools {
             public void run(){
                 if (i == 0 && !bar.getPlayers().isEmpty()){
                     cancel();
-                    Bukkit.getServer().getPluginManager().callEvent(new TimedBossBarEndEvent(bar, bar.getPlayers()));
+                    new TimedBossBarEndEvent(bar, bar.getPlayers()).callEvent();
                     removePlayersFromBar(bar);
                     Bukkit.removeBossBar(bar.getKey());
                     return;
