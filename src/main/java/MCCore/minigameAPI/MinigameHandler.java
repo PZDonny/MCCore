@@ -8,23 +8,24 @@ import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MinigameHandler {
-    private static MinigameHandler instance;
     MongoCollection<Document> playerCollection = null;
     MongoCollection<Document> worldCollection = null;
     Map<UUID, Document> playerCache = new ConcurrentHashMap<>();
     Document playerTemplateDocument;
+    static ArrayList<MinigameHandler> handlers = new ArrayList<>();
 
     public MinigameHandler(){
-        instance = this;
+        handlers.add(this);
     }
 
-    public static MinigameHandler getInstance() {
-        return instance;
+    public static ArrayList<MinigameHandler> getHandlers() {
+        return new ArrayList<>(handlers);
     }
 
     public void setPlayerCollection(MongoCollection<Document> mongoCollection){
