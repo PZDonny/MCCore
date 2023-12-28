@@ -1,0 +1,166 @@
+
+
+strict: #Filtered if word contains this
+  #N-Word
+  - nigger
+  - nigg
+  - niqq
+  - niqqer
+  - niqqa
+  - nigha
+  - niqha
+  - niqqha
+  - niggy
+  - niqqy
+  - nigra
+  #Jiggaboo
+  - jigaboo
+  - jiqaboo
+  - jiggaboo
+  - jiqqaboo
+  #Racist
+  - beaner
+  - porchmonkey
+  - mulatto
+  - chink
+  - coon
+  - koon
+  - kike
+  - kyke
+  - spick
+  #Slave
+  - slave
+  - slavery
+  #Offsenive/Mean
+  - kys
+  #Female Offensive
+  - slut
+  - slvt
+  - slutty
+  - slvtty
+  - slag
+  - bitch
+  - whore
+  - whoring
+  - dike
+  - dyke
+  #Tard/Retard/Bastard
+  - tard
+  - tarded
+  #Shit
+  - shit
+  - shite
+  - shitty
+  #Fuck
+  - fuck
+  - fvck
+  #Faggot
+  - fag
+  #Sexual
+  - cunt
+  - cvnt
+  - dicks
+  - dicked
+  - dickin
+  - dicking
+  - tiddy
+  - titties
+  - tiddies
+  - blowjob
+  - titjob
+  - penis
+  - schlong
+  - bollock
+  - cock
+  - dick
+  - vagina
+  - pussy
+  - pvssy
+  - puss
+  - pvss
+  - pussies
+  - pvssies
+  - pussboy
+  - pvssboy
+  - pussyboy
+  - pvssyboy
+  - pussi
+  - pvssi
+  - sex
+  - secks
+  - gooch
+  - dildo
+  - coochie
+  - coochy
+  - coochi
+  - piss
+  - pissy
+  - pisser
+  - cum
+  - cvm
+  - semen
+  - sperm
+  - ejaculate
+  - jizz
+  - smegma
+  - dumbass
+  - dumass
+  - dumbarse
+  - dumarse
+  - dvmbass
+  - dvmass
+  - dvmbarse
+  - dvmarse
+  - asshole
+  - arsehole
+  - asswipe
+  - arsewipe
+  - nutsack
+  - nvtsack
+  - chode
+  - choad
+  - porn
+  - wank
+  - orgasm
+  - rape
+  - anal
+  - seduce
+  - tampon
+  - testicle
+  - lust
+  - boner
+  - inbred
+  - clit
+  - cervix
+  - virgin
+  - condom
+  - twat
+  - gangbang
+  - orgy
+  - circlejerk
+  - rawdog
+  #Masturbating/Masturbation
+  - masturbate
+  - masterbate
+  - masturbati
+  - masterbati
+  #People
+  - hitler
+  - pedophile
+  - sleazy
+  - douche
+  - dovche
+  - prostitute
+  - prostitution
+  - jackass
+
+
+
+soft:
+  - ass
+  - arse
+  - wtf
+  - stfu
+  - tit
+  - titty
+  - titties
