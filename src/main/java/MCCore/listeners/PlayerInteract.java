@@ -1,10 +1,9 @@
 package MCCore.listeners;
 
 import MCCore.Core;
-import MCCore.minigameAPI.PlayMinigame;
 import MCCore.minigameAPI.arenaManager.Arena;
 import MCCore.minigameAPI.arenaManager.ArenaManager;
-import MCCore.utils.PlayerBalancerAPI;
+import MCCore.utils.PlayerUtils;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
@@ -64,24 +63,25 @@ public class PlayerInteract implements Listener {
         ItemStack tool = null;
 
     //Lobby Tool
-        if (main.equals(Arena.leaveTool) || main.equals(Arena.requeueTool)) tool = main;
+        if (main.equals(Arena.leaveTool)){
+            tool = main;
+        }
 
-        else if (off.equals(Arena.leaveTool) || off.equals(Arena.requeueTool)) tool = off;
+        else if (off.equals(Arena.leaveTool)){
+            tool = off;
+        }
 
         if (tool != null) {
             if (tool.equals(Arena.leaveTool)){
-                PlayerBalancerAPI.connectPlayerToFallback(p);
+                PlayerUtils.sendToLobby(p);
             }
-            else{
+            /*else{
                 Arena arena = ArenaManager.getArenaOfPlayer(p);
                 if (arena != null){
                     PlayMinigame.join(p, arena.getMinigameName(), arena.getMode(), true);
                 }
-
-            }
-
+            }*/
             return;
         }
-
     }
 }
