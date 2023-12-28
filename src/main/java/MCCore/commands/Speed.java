@@ -1,5 +1,6 @@
 package MCCore.commands;
 
+import MCCore.minigameAPI.arenaManager.ArenaManager;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -12,15 +13,17 @@ public class Speed implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!sender.hasPermission("mc.speed")){
             sender.sendMessage(ChatColor.RED + "You do not have permission to do this command");
-            return false;
+            return true;
         }
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player p)) {
             sender.sendMessage(ChatColor.RED + "You cannot do this in the console!");
-            return false;
+            return true;
+        }
+        if (ArenaManager.getArenaOfPlayer(p) != null){
+            sender.sendMessage(ChatColor.RED+"You cannot execute this command while in an arena. You must be admin or higher!");
+            return true;
         }
 
-
-        Player p = (Player) sender;
         if (args.length == 0){
             incorrectUsage(p);
             return true;
