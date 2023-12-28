@@ -1,4 +1,4 @@
-package MCCore.commands;
+package MCCore.commands.minigameCommands;
 
 import MCCore.minigameAPI.PlayMinigame;
 import org.bukkit.ChatColor;
