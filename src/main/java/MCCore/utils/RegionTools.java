@@ -5,6 +5,7 @@ import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.RegionSelector;
 import com.sk89q.worldguard.WorldGuard;
@@ -20,8 +21,8 @@ import java.util.Objects;
 
 public class RegionTools {
 
-    private final WorldEdit worldEdit = WorldEdit.getInstance();
-    private final WorldGuard worldGuard = WorldGuard.getInstance();
+    private static final WorldEdit worldEdit = WorldEdit.getInstance();
+    private static final WorldGuard worldGuard = WorldGuard.getInstance();
 
     public static boolean isPlayerinRegion(Player p, String region){
         double x = p.getLocation().getX();
@@ -35,7 +36,7 @@ public class RegionTools {
         return false;
     }
 
-    public Block[] getSelectedBlocks(Player player) {
+    public static Block[] getSelectedBlocks(Player player) {
         LocalSession worldEditSession = worldEdit.getSessionManager().findByName(player.getName());
         if (worldEditSession != null) {
             if(worldEditSession.getSelectionWorld() != null) {
@@ -61,5 +62,31 @@ public class RegionTools {
             }
         }
         return new Block[0];
+    }
+
+    public static Location[] getPlayerSelection(Player player){
+        LocalSession worldEditSession = worldEdit.getSessionManager().findByName(player.getName());
+        if (worldEditSession == null || worldEditSession.getSelectionWorld() == null){
+            return new Location[0];
+        }
+        RegionSelector regionSelector = worldEditSession.getRegionSelector(worldEditSession.getSelectionWorld());
+        if (!regionSelector.isDefined()){
+            return new Location[0];
+        }
+
+        try{
+            if (worldEditSession.getSelection() instanceof CuboidRegion cRegion){
+                World world = Bukkit.getWorld(Objects.requireNonNull(cRegion.getWorld()).getName());
+                BlockVector3 pos1 = cRegion.getPos1();
+                BlockVector3 pos2 = cRegion.getPos2();
+                Location loc1 = new Location(world, pos1.getX(), pos1.getY(), pos1.getZ());
+                Location loc2 = new Location(world, pos2.getX(), pos2.getY(), pos2.getZ());
+                return new Location[]{loc1, loc2};
+            }
+            return new Location[0];
+        }
+        catch(IncompleteRegionException | NullPointerException e){
+            return new Location[0];
+        }
     }
 }
