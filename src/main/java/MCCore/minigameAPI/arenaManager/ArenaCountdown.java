@@ -81,29 +81,31 @@ public class ArenaCountdown {
 
 
     private void attemptStart(){
-        if (arena.getArenaWorld() == null || Bukkit.getWorld(arena.getArenaWorld().getName()) == null){
-            ArenaManager.deleteArena(arena, ChatColor.RED+"An unexpected error occurred when attempting to start minigame!");
-            return;
-        }
+        if (!arena.isManualWorld()){
+            if (arena.getArenaWorld() == null || Bukkit.getWorld(arena.getArenaWorld().getName()) == null){
+                ArenaManager.deleteArena(arena, ChatColor.RED+"An unexpected error occurred when attempting to start minigame!");
+                return;
+            }
 
-        if (arena.getOnlineStartPlayers().size() < arena.getMinPlayers()){
-            ArenaManager.deleteArena(arena, ChatColor.RED+"Insufficient player count. Game cancelled!");
-            return;
-        }
+            if (arena.getOnlineStartPlayers().size() < arena.getMinPlayers()){
+                ArenaManager.deleteArena(arena, ChatColor.RED+"Insufficient player count. Game cancelled!");
+                return;
+            }
 
-        for (Player p : arena.getOnlineStartPlayers()){
-            p.teleportAsync(Bukkit.getWorld(arena.getArenaWorld().getName()).getSpawnLocation());
-            Collection<PotionEffect> potions = p.getActivePotionEffects();
-            for (PotionEffect effect : potions){
-                p.removePotionEffect(effect.getType());
+            for (Player p : arena.getOnlineStartPlayers()){
+                p.teleportAsync(Bukkit.getWorld(arena.getArenaWorld().getName()).getSpawnLocation());
+                Collection<PotionEffect> potions = p.getActivePotionEffects();
+                for (PotionEffect effect : potions){
+                    p.removePotionEffect(effect.getType());
+                }
             }
         }
+
 
         new BukkitRunnable(){
             public void run(){
                 arena.setStateToPlaying();
             }
-
         }.runTaskLater(Core.getInstance(), 1);
 
 
