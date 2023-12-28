@@ -29,8 +29,28 @@ public abstract class CosmeticLoader {
         return cosmetic;
     }
 
+    public void autoSetMongoSelectValues(){
+        ArrayList<Cosmetic> cosmetics = new ArrayList<>(cosmeticStorage.values());
+        for (int i = 0; i < cosmetics.size(); i++){
+            cosmetics.get(i).setMongoSelectValue(i+1);
+        }
+    }
+
     public Cosmetic getCosmetic(String cosmeticName){
         return cosmeticStorage.get(cosmeticName);
+    }
+
+    public <T> T getCosmetic(String cosmeticName, Class<T> cosmeticClass){
+        Cosmetic cosmetic = cosmeticStorage.get(cosmeticName);
+        if (cosmetic == null){
+            return null;
+        }
+        try{
+            return cosmeticClass.cast(cosmetic);
+        }
+        catch(ClassCastException e){
+            throw new ClassCastException("Invalid cosmetic class provided");
+        }
     }
 
     public Cosmetic getCosmetic(Object mongoSelectValue){
@@ -62,7 +82,7 @@ public abstract class CosmeticLoader {
         return cosmetics;
     }
 
-    public <T> Collection<T> getCosmetics(Class<T> cosmeticClass){
+    public <T> ArrayList<T> getCosmetics(Class<T> cosmeticClass){
         try{
             ArrayList<T> list = new ArrayList<>();
             for (Cosmetic cosmetic : cosmeticStorage.values()){
@@ -72,7 +92,11 @@ public abstract class CosmeticLoader {
             return list;
         }
         catch(ClassCastException e){
-            throw new ClassCastException("Cosmetic class not provided");
+            throw new ClassCastException("Invalid cosmetic class provided");
         }
+    }
+
+    public ArrayList<Cosmetic> getCosmetics(){
+        return new ArrayList<>(cosmeticStorage.values());
     }
 }
