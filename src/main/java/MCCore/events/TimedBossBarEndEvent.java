@@ -12,20 +12,28 @@ public class TimedBossBarEndEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
 
-    KeyedBossBar bar;
+    BossBar bar;
     List<Player> players;
+    String barID;
 
-    public TimedBossBarEndEvent(KeyedBossBar bar, List<Player> players){
+    public TimedBossBarEndEvent(BossBar bar, List<Player> players){
         this.bar = bar;
         this.players = players;
+        if (bar instanceof KeyedBossBar){
+            barID = ((KeyedBossBar) bar).getKey().getKey();
+        }
     }
 
     public BossBar getBar(){
         return bar;
     }
 
+    public boolean hasBarID(){
+        return bar instanceof KeyedBossBar;
+    }
+
     public String getBarID(){
-        return bar.getKey().getKey();
+        return barID;
     }
     public List<Player> getPlayers(){
         return players;
