@@ -2,7 +2,7 @@ name: MCCore
 version: '${project.version}'
 main: MCCore.Core
 api-version: 1.19
-softdepend: [WorldGuard, SlimeWorldManager, NoteBlockAPI]
+softdepend: [LuckPerms, WorldGuard, SlimeWorldManager, NoteBlockAPI]
 commands:
   corereload:
     description:
@@ -53,9 +53,24 @@ commands:
   play:
     description:
     usage:
+  privatequeue:
+    description:
+    usage:
+    aliases: [pq]
+  joinprivate:
+    description:
+    usage:
+    aliases: [jp]
   realname:
     description:
     usage:
   centerplayer:
+    description:
+    usage:
+  lobby:
+    description:
+    usage:
+    aliases: [hub, l]
+  help:
     description:
     usage:
