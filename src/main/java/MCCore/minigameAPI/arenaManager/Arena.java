@@ -4,6 +4,7 @@ import MCCore.Core;
 import MCCore.events.ArenaWorldGeneratedEvent;
 import MCCore.events.GameStateChangeEvent;
 import MCCore.events.PlayerRemovedFromArenaEvent;
+import MCCore.minigameAPI.ConnectedParty;
 import MCCore.minigameAPI.GameState;
 import MCCore.sockets.Messages;
 import MCCore.utils.AbilityHandler;
@@ -12,22 +13,22 @@ import MCCore.utils.Scoreboard.PlayerScoreboard;
 import MCCore.utils.Scoreboard.ScoreboardUtils;
 import MCCore.utils.SlimeTools;
 import MCCore.utils.WorldTools;
-import com.comphenix.protocol.PacketType;
 import com.infernalsuite.aswm.api.world.SlimeWorld;
 import org.bukkit.*;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.*;
 
 public class Arena {
     public static final ItemStack leaveTool = Items.makeItem(Material.HOPPER_MINECART, 1, ChatColor.RED+"Return To Lobby"+ChatColor.YELLOW+" (Click)");
-    public static final ItemStack requeueTool = Items.makeItem(Material.EMERALD, 1, ChatColor.GREEN+"Play Again"+ChatColor.YELLOW+" (Click)");
+    //public static final ItemStack requeueTool = Items.makeItem(Material.EMERALD, 1, ChatColor.GREEN+"Play Again"+ChatColor.YELLOW+" (Click)");
 
     int minPlayers = 0;
     int countdownDuration = 10;
@@ -37,31 +38,33 @@ public class Arena {
     SlimeWorld arenaWorld;
 
     String templateWorldName;
-    GameState gameState = GameState.STARTING;
-    private final List<OfflinePlayer> startPlayers = new ArrayList<>();
+    GameState gameState = GameState.CONNECTING;
+    private final Set<Player> startPlayers = new HashSet<>();
 
     private final List<Player> playingPlayers = new ArrayList<>();
 
-    private final HashSet<Player> spectators = new HashSet<>();
+    private final Set<Player> spectators = new HashSet<>();
     private final ArenaCountdown countdown = new ArenaCountdown(this);
-
-    private final HashSet<Scoreboard> scoreboards = new HashSet<>();
 
     private int queueID;
 
     private OfflinePlayer host;
+
+    private String privateSettings;
+    private ArrayList<ConnectedParty> connectedParties = new ArrayList<>();
 
     private boolean isInEndingProcess = false;
 
     private boolean allowSpectatorInteraction = false;
 
     private boolean isUsuable = true;
-
+    private boolean isManualWorld = false;
 
 //Constructor
-    public Arena(int queueID, OfflinePlayer host) {
+    public Arena(int queueID, OfflinePlayer host, String privateSettings) {
         this.queueID = queueID;
         this.host = host;
+        this.privateSettings = privateSettings;
     }
 
 //Setters
@@ -77,6 +80,10 @@ public class Arena {
         this.countdownDuration = duration;
     }
 
+    public void isManualWorld(boolean isManualWorld){
+        this.isManualWorld = isManualWorld;
+    }
+
     public void setMinigame(String minigameName, String mode){
         this.minigameName = minigameName;
         this.mode = mode;
@@ -85,13 +92,6 @@ public class Arena {
     public void setCountdownStyle(CountdownStyle countdownStyle){
         this.countdownStyle = countdownStyle;
     }
-    public void storeBoard(Scoreboard scoreboard){
-        scoreboards.add(scoreboard);
-    }
-
-    public void unstoreBoard(Scoreboard scoreboard){
-        scoreboards.remove(scoreboard);
-    }
 
     protected void setStateToPlaying(){
         GameState pastGameState = this.gameState;
@@ -99,10 +99,10 @@ public class Arena {
         String[] out = new String[]{Messages.MINIGAMEAPI_STARTARENA.getID()
                 , String.valueOf(queueID)};
         Core.getClient().sendMessage(out);
-        for (OfflinePlayer p : startPlayers){
+        for (Player p : startPlayers){
             if (p.isOnline()){
-                ArenaManager.refreshPlayer((Player) p, GameMode.ADVENTURE);
-                playingPlayers.add((Player) p);
+                ArenaManager.refreshPlayer(p, GameMode.ADVENTURE);
+                playingPlayers.add(p);
             }
         }
 
@@ -130,6 +130,7 @@ public class Arena {
         new BukkitRunnable(){
             public void run(){
                 ArenaManager.deleteArena(arena, null);
+                Bukkit.getPluginManager().callEvent(new GameStateChangeEvent(arena, GameState.STOPPED, GameState.ENDING));
             }
         }.runTaskLater(Core.getInstance(), arenaDeletionDelayTicks);
 
@@ -209,6 +210,10 @@ public class Arena {
         return templateWorldName;
     }
 
+    public boolean isManualWorld() {
+        return isManualWorld;
+    }
+
     public int getMinPlayers(){
         return minPlayers;
     }
@@ -233,19 +238,26 @@ public class Arena {
         return arenaWorld;
     }
 
+    public World getBukkitWorld(){
+        if (arenaWorld == null){
+            return null;
+        }
+        return Bukkit.getWorld(arenaWorld.getName());
+    }
+
     public GameState getGameState(){
         return gameState;
     }
 
-    public List<OfflinePlayer> getStartPlayers() {
-        return startPlayers;
+    public Set<Player> getStartPlayers() {
+        return new HashSet<>(startPlayers);
     }
 
-    public List<Player> getOnlineStartPlayers(){
-        List<Player> players = new ArrayList<>();
-        for (OfflinePlayer p : startPlayers){
+    public Set<Player> getOnlineStartPlayers(){
+        Set<Player> players = new HashSet<>();
+        for (Player p : startPlayers){
             if (p.isOnline()){
-                players.add((Player) p);
+                players.add( p);
             }
         }
         return players;
@@ -256,7 +268,7 @@ public class Arena {
     }
 
     public Set<Player> getSpectatingPlayers() {
-        return spectators;
+        return new HashSet<>(spectators);
     }
 
     public Set<Player> getArenaPlayers(){
@@ -266,14 +278,15 @@ public class Arena {
         return players;
     }
 
-    public HashSet<Scoreboard> getScoreboards() {
-        return scoreboards;
-    }
 
     public boolean isPlayerSpectating(Player p){
         if (spectators.contains(p)) return true;
         else{
-            MinigamePlayerProfile profile = MinigamePlayerProfile.getPlayerProfile(p);
+            ArenaContainer container = ArenaContainer.getArenaContainer(this);
+            if (container == null){
+                return false;
+            }
+            MinigamePlayerProfile profile = container.getPlayerProfile(p);
             if (profile != null){
                 return profile.isRespawning;
             }
@@ -288,20 +301,21 @@ public class Arena {
         p.setShoulderEntityRight(null);
         p.setWalkSpeed(0.2f);
         p.setFlySpeed(0.1f);
+        p.setGameMode(GameMode.ADVENTURE);
         p.setInvulnerable(true);
         p.setAllowFlight(true);
         p.setFlying(true);
-        p.setGameMode(GameMode.ADVENTURE);
         p.getInventory().clear();
         p.setCanPickupItems(false);
-        p.getInventory().setItem(4, requeueTool);
+        p.getInventory().setItem(4, leaveTool);
         p.getInventory().setHeldItemSlot(0);
         Collection<PotionEffect> potions = p.getActivePotionEffects();
         for (PotionEffect effect : potions){
             p.removePotionEffect(effect.getType());
         }
-        p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, PotionEffect.INFINITE_DURATION, 0));
-        p.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, PotionEffect.INFINITE_DURATION, 0));
+        p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, PotionEffect.INFINITE_DURATION, 0, false, false, false));
+        p.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, PotionEffect.INFINITE_DURATION, 0, false, false, false));
+        p.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, PotionEffect.INFINITE_DURATION, 0, false, false, false));
     //Hide Player from Playing Players
         for (Player player : playingPlayers){
             player.hidePlayer(Core.getInstance(), p);
@@ -319,7 +333,11 @@ public class Arena {
     }
 
     public void makePlayerTempSpectate(Player p){
-        MinigamePlayerProfile profile = MinigamePlayerProfile.getPlayerProfile(p);
+        ArenaContainer container = ArenaContainer.getArenaContainer(this);
+        if (container == null){
+            return;
+        }
+        MinigamePlayerProfile profile = container.getPlayerProfile(p);
         if (profile.isRespawning()) return;
         p.setShoulderEntityLeft(null);
         p.setShoulderEntityRight(null);
@@ -342,7 +360,11 @@ public class Arena {
     }
 
     public void revivePlayer(Player p, GameMode gameMode){
-        MinigamePlayerProfile profile = MinigamePlayerProfile.getPlayerProfile(p);
+        ArenaContainer container = ArenaContainer.getArenaContainer(this);
+        if (container == null){
+            return;
+        }
+        MinigamePlayerProfile profile = container.getPlayerProfile(p);
         if (!profile.isRespawning()) return;
         p.closeInventory();
         p.setInvulnerable(false);
@@ -358,30 +380,91 @@ public class Arena {
         }
     }
 
-    public void addPlayer(Player p){
-        if (startPlayers.contains(p)) return;
-        startPlayers.add(p);
-        ArenaManager.refreshPlayer(p, GameMode.ADVENTURE);
-        for (OfflinePlayer o : startPlayers){
-            if (o.isOnline()){
-                Player oPlayer = (Player) o;
-                oPlayer.showPlayer(Core.getInstance(), p);
-                p.showPlayer(Core.getInstance(), oPlayer);
+    public void addConnectedParty(ConnectedParty party){
+        for (ConnectedParty connectedParty : new ArrayList<>(connectedParties)){
+        //Don't add identical parties (if a player leaves and rejoins)
+            if (connectedParty.equals(party)){
+                return;
+            }
+        //Replace parties if the leader is the same, but the parties aren't identical
+            if (connectedParty.getMembers().get(0).equals(party.getMembers().get(0))){
+                connectedParties.remove(connectedParty);
+                break;
             }
         }
+        connectedParties.add(party);
+    }
+
+    public void addPlayer(Player p){
+        if (startPlayers.contains(p)){
+            return;
+        }
+        startPlayers.add(p);
+
+        for (Player o : Bukkit.getOnlinePlayers()){
+            if (startPlayers.contains(o)){
+                p.showPlayer(Core.getInstance(), o);
+                o.showPlayer(Core.getInstance(), p);
+            }
+            else{
+                p.hidePlayer(Core.getInstance(), o);
+                o.hidePlayer(Core.getInstance(), p);
+            }
+        }
+        p.playSound(p, Sound.ENTITY_PLAYER_LEVELUP, 1, 2);
         p.getInventory().setHeldItemSlot(0);
-        p.getInventory().setItem(4, leaveTool);
-        p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 99999, 0));
-        p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 99999, 0));
-        p.teleport(Core.getInstance().getMinigameWaitingWorld().getSpawnLocation());
+        p.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, PotionEffect.INFINITE_DURATION, 255, false, false, false));
+
+        Location minigameTP = Core.getInstance().getMinigameWaitingWorld().getSpawnLocation().clone();
+        minigameTP.setPitch(-90);
+        p.teleport(minigameTP);
+        ArenaManager.refreshPlayer(p, GameMode.SPECTATOR);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                if (!p.isOnline()) return;
+                ArmorStand stand = null;
+                for (ArmorStand as : minigameTP.getNearbyEntitiesByType(ArmorStand.class, 8)){
+                    stand = as;
+                    break;
+                }
+                if (stand != null){
+                    p.setSpectatorTarget(stand);
+                }
+                new BukkitRunnable(){
+                    @Override
+                    public void run() {
+                        if (!p.isOnline()) return;
+                        if (p.getSpectatorTarget() == null && p.getWorld().equals(Core.getInstance().getMinigameWaitingWorld())){
+                            p.setGameMode(GameMode.ADVENTURE);
+
+                            p.teleport(minigameTP);
+                        }
+                    }
+                }.runTaskLater(Core.getInstance(), 1);
+            }
+        }.runTaskLater(Core.getInstance(), 2);
     }
 
     public void removePlayer(Player p, PlayerRemovedFromArenaEvent.RemoveCause cause){
-        startPlayers.remove(p);
+        if (gameState == GameState.CONNECTING){
+            startPlayers.remove(p);
+        }
         playingPlayers.remove(p);
         spectators.remove(p);
-        ArenaManager.refreshPlayer(p, GameMode.ADVENTURE);
-        Bukkit.getPluginManager().callEvent(new PlayerRemovedFromArenaEvent(this, p, cause));
+        if (cause == PlayerRemovedFromArenaEvent.RemoveCause.JOINEDNEW && p.isOnline()){
+            List<Entity> passengers = new ArrayList<>(p.getPassengers());
+            for (Entity passenger : passengers){
+                p.removePassenger(passenger);
+            }
+            Entity vehicle = p.getVehicle();
+            p.leaveVehicle();
+            new PlayerRemovedFromArenaEvent(this, p, cause, passengers, vehicle).callEvent();
+        }
+        else{
+            new PlayerRemovedFromArenaEvent(this, p, cause).callEvent();
+        }
+        ArenaManager.refreshPlayer(p, GameMode.SPECTATOR);
         for (Player o : getArenaPlayers()){
             PlayerScoreboard board = ScoreboardUtils.getPlayerScoreboard(o);
             PlayerScoreboard.UpdatingValue.ARENA_PLAYINGPLAYERS.updateValue(board, this);
@@ -406,33 +489,52 @@ public class Arena {
         return host;
     }
 
+    public String getPrivateSettings(){
+        return privateSettings;
+    }
+
+    public ArrayList<ConnectedParty> getConnectedParties(){
+        return connectedParties;
+    }
+
     public boolean isPrivate(){
         return host != null;
     }
 
     void deleteArena(){
         queueID = 0;
+
     //Delete Stats
-        for (OfflinePlayer p : startPlayers){
-            MinigamePlayerProfile profile = MinigamePlayerProfile.getPlayerProfile(p);
-            if (profile != null){
-                profile.deleteProfile();
-            }
-            AbilityHandler.removePlayerData(startPlayers);
-        }
+
+        AbilityHandler.removePlayerData(startPlayers);
         playingPlayers.clear();
         startPlayers.clear();
         spectators.clear();
+        connectedParties.clear();
         host = null;
         isUsuable = false;
-        Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD+"Removed slime world "+ ChatColor.AQUA+arenaWorld.getName()+ChatColor.GOLD+" from cache!");
-        String arenaWorldName = arenaWorld.getName();
-        arenaWorld = null;
-        WorldTools.destroyWorld(Bukkit.getWorld(arenaWorldName));
+
+        ArenaContainer container = ArenaContainer.getArenaContainer(this);
+        if (container != null){
+            container.profiles.clear();
+        }
+
+        if (!isManualWorld){
+            if (arenaWorld != null){
+                Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD+"Removed slime world "+ ChatColor.AQUA+arenaWorld.getName()+ChatColor.GOLD+" from cache!");
+                String arenaWorldName = arenaWorld.getName();
+                arenaWorld = null;
+                WorldTools.destroyWorld(Bukkit.getWorld(arenaWorldName));
+            }
+        }
     }
 
     public boolean isUsuable(){
         return isUsuable;
+    }
+
+    public boolean isEndingOrNotUsable(){
+        return isInEndingProcess() || !isUsuable();
     }
 
     protected void doCountdown(){
