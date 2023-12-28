@@ -126,7 +126,6 @@ public class EntityParticleRotationRedstone {
     public void spawn(){
         forceStopped = false;
         new BukkitRunnable(){
-
             double currentAngle = 0;
             public void run(){
                 Location loc = entity.getLocation().clone();
@@ -149,14 +148,19 @@ public class EntityParticleRotationRedstone {
                 Vector offsetVector = offset.getDirection().normalize().multiply(radius);
 
                 Location particleLoc;
-                if (clockwise) particleLoc = loc.add(offsetVector.rotateAroundAxis(extendVector, Math.toRadians(currentAngle)).normalize().multiply(radius));
-                else particleLoc = loc.add(offsetVector.rotateAroundAxis(extendVector, Math.toRadians(currentAngle*-1)).normalize().multiply(radius));
+                if (clockwise){
+                    particleLoc = loc.add(offsetVector.rotateAroundAxis(extendVector, Math.toRadians(currentAngle)).normalize().multiply(radius));
+                }
+                else{
+                    particleLoc = loc.add(offsetVector.rotateAroundAxis(extendVector, Math.toRadians(currentAngle)).normalize().multiply(radius*-1));
+                }
 
                 Color color = colors.get(random.nextInt(colors.size()));
                 particleLoc.getWorld().spawnParticle(Particle.REDSTONE, particleLoc, amount, 0,0,0, new Particle.DustOptions(color, particleSize));
                 loc.add(extendVector);
-                if (clockwise) currentAngle+=angle;
-                else currentAngle-=angle;
+
+                currentAngle+=angle;
+
                 if ((currentAngle > (360*maxRevolutions) && maxRevolutions != 0)|| forceStopped){
                     cancel();
                 }

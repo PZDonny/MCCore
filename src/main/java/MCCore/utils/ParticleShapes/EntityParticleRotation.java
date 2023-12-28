@@ -144,15 +144,19 @@ public class EntityParticleRotation {
                 Vector offsetVector = offset.getDirection().normalize().multiply(radius);
 
                 Location particleLoc;
-                if (clockwise) particleLoc = loc.add(offsetVector.rotateAroundAxis(extendVector, Math.toRadians(currentAngle)).normalize().multiply(radius));
-                else particleLoc = loc.add(offsetVector.rotateAroundAxis(extendVector, Math.toRadians(currentAngle*-1)).normalize().multiply(radius));
+                if (clockwise){
+                    particleLoc = loc.add(offsetVector.rotateAroundAxis(extendVector, Math.toRadians(currentAngle)).normalize().multiply(radius));
+                }
+                else{
+                    particleLoc = loc.add(offsetVector.rotateAroundAxis(extendVector, Math.toRadians(currentAngle)).normalize().multiply(radius*-1));
+                }
 
                 Particle particle = particles.get(random.nextInt(particles.size()));
                 particleLoc.getWorld().spawnParticle(particle, particleLoc, amount, 0,0,0, extra);
                 loc.add(extendVector);
-                if (clockwise) currentAngle+=angle;
-                else currentAngle-=angle;
-                if ((currentAngle > (360*maxRevolutions) && maxRevolutions != 0)|| forceStopped){
+
+                currentAngle+=angle;
+                if ((currentAngle > (360*maxRevolutions) && maxRevolutions != 0) || forceStopped){
                     cancel();
                 }
             }

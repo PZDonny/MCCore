@@ -4,13 +4,11 @@ import MCCore.Core;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class DirectionalParticleHelixRedstone {
 
@@ -85,7 +83,6 @@ public class DirectionalParticleHelixRedstone {
 
 
     public void spawn(){
-
         Location loc = location.clone();
         Location offset = location.clone();
         offset.setPitch(location.getPitch()+90F);
@@ -109,9 +106,69 @@ public class DirectionalParticleHelixRedstone {
                     cancel();
                 }
             }
-
         }.runTaskTimer(Core.getInstance(),0, ticks);
     }
 
+    public void spawn(Player player){
+        if (!player.isOnline()) return;
+        Location loc = location.clone();
+        Location offset = location.clone();
+        offset.setPitch(location.getPitch()+90F);
 
+        Vector extendVector = loc.getDirection().multiply(forwardSpacing);
+        Vector offsetVector = offset.getDirection().normalize().multiply(radius);
+
+        new BukkitRunnable(){
+            double currentAngle = 0;
+            public void run(){
+                Location particleLoc;
+                if (clockwise) particleLoc = loc.clone().add(offsetVector.rotateAroundAxis(extendVector, Math.toRadians(angle)).normalize().multiply(radius));
+                else particleLoc = loc.clone().add(offsetVector.rotateAroundAxis(extendVector, Math.toRadians(angle*-1)).normalize().multiply(radius));
+
+                Color color = colors.get(random.nextInt(colors.size()));
+                player.spawnParticle(Particle.REDSTONE, particleLoc, amount, 0,0,0, new Particle.DustOptions(color, particleSize));
+                loc.add(extendVector);
+
+                currentAngle+=angle;
+                if (currentAngle > maxRevolutions*360 && maxRevolutions != 0){
+                    cancel();
+                }
+            }
+        }.runTaskTimer(Core.getInstance(),0, ticks);
+    }
+
+    public void spawn(Collection<Player> players){
+        Location loc = location.clone();
+        Location offset = location.clone();
+        offset.setPitch(location.getPitch()+90F);
+
+        Vector extendVector = loc.getDirection().multiply(forwardSpacing);
+        Vector offsetVector = offset.getDirection().normalize().multiply(radius);
+
+        new BukkitRunnable(){
+            double currentAngle = 0;
+            public void run(){
+                Location particleLoc;
+                if (clockwise){
+                    particleLoc = loc.clone().add(offsetVector.rotateAroundAxis(extendVector, Math.toRadians(angle)).normalize().multiply(radius));
+                }
+                else{
+                    particleLoc = loc.clone().add(offsetVector.rotateAroundAxis(extendVector, Math.toRadians(angle)).normalize().multiply(radius*-1));
+                }
+
+                Color color = colors.get(random.nextInt(colors.size()));
+                for (Player player : players){
+                    if (!player.isOnline()) continue;
+                    player.getWorld().spawnParticle(Particle.REDSTONE, particleLoc, amount, 0,0,0, new Particle.DustOptions(color, particleSize));
+                }
+
+                loc.add(extendVector);
+
+                currentAngle+=angle;
+                if (currentAngle > maxRevolutions*360 && maxRevolutions != 0){
+                    cancel();
+                }
+            }
+        }.runTaskTimer(Core.getInstance(),0, ticks);
+    }
 }
