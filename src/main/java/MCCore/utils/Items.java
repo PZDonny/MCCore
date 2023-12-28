@@ -836,6 +836,84 @@ public final class Items {
         }
     }
 
+    public static boolean isFlower(Material material){
+        switch(material){
+            case DANDELION:
+            case POPPY:
+            case BLUE_ORCHID:
+            case ALLIUM:
+            case AZURE_BLUET:
+            case RED_TULIP:
+            case ORANGE_TULIP:
+            case WHITE_TULIP:
+            case PINK_TULIP:
+            case OXEYE_DAISY:
+            case CORNFLOWER:
+            case LILY_OF_THE_VALLEY:
+            case WITHER_ROSE:
+            case TORCHFLOWER:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public static boolean isTallFlower(Material material){
+        switch(material){
+            case LILAC:
+            case ROSE_BUSH:
+            case PEONY:
+            case PITCHER_PLANT:
+            case SUNFLOWER:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public static boolean isPottedPlant(Material material){
+        return material.name().startsWith("POTTED_");
+        /*switch(material){
+            case POTTED_ALLIUM:
+            case POTTED_ACACIA_SAPLING:
+            case POTTED_AZALEA_BUSH:
+            case POTTED_BAMBOO:
+            case POTTED_AZURE_BLUET:
+            case POTTED_BIRCH_SAPLING:
+            case POTTED_BLUE_ORCHID:
+            case POTTED_CACTUS:
+            case POTTED_CORNFLOWER:
+            case POTTED_BROWN_MUSHROOM:
+            case POTTED_CHERRY_SAPLING:
+            case POTTED_DANDELION:
+            case POTTED_CRIMSON_FUNGUS:
+            case POTTED_CRIMSON_ROOTS:
+            case POTTED_FERN:
+            case POTTED_DEAD_BUSH:
+            case POTTED_DARK_OAK_SAPLING:
+            case POTTED_FLOWERING_AZALEA_BUSH:
+            case POTTED_JUNGLE_SAPLING:
+            case POTTED_LILY_OF_THE_VALLEY:
+            case POTTED_MANGROVE_PROPAGULE:
+            case POTTED_OAK_SAPLING:
+            case POTTED_ORANGE_TULIP:
+            case POTTED_OXEYE_DAISY:
+            case POTTED_POPPY:
+            case POTTED_PINK_TULIP:
+            case POTTED_RED_MUSHROOM:
+            case POTTED_RED_TULIP:
+            case POTTED_TORCHFLOWER:
+            case POTTED_SPRUCE_SAPLING:
+            case POTTED_WARPED_FUNGUS:
+            case POTTED_WARPED_ROOTS:
+            case POTTED_WHITE_TULIP:
+            case POTTED_WITHER_ROSE:
+                return true;
+            default:
+                return false;
+        }*/
+    }
+
     public static boolean isMusicDisc(Material material){
         switch(material){
             case MUSIC_DISC_5:
