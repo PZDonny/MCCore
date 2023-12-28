@@ -10,6 +10,8 @@ import java.util.HashMap;
 
 public abstract class GUI{
     private ClickCancelType clickCancelType = ClickCancelType.ALWAYS;
+
+    private boolean removeOnClose = true;
     Inventory inventory;
     static final HashMap<Inventory, GUI> allGUIs = new HashMap<>();
     final HashMap<ItemStack, GUIItem> allGUIItems = new HashMap<>();
@@ -36,6 +38,14 @@ public abstract class GUI{
 
     public void setItem(int slot, ItemStack item){
         inventory.setItem(slot, item);
+    }
+
+    public void removeOnClose(boolean removeOnClose){
+        this.removeOnClose = removeOnClose;
+    }
+
+    public boolean isRemovedOnClose() {
+        return removeOnClose;
     }
 
     public void openToPlayer(Player p){
