@@ -24,13 +24,17 @@ public class MongoUtils {
     private static MongoDatabase db;
 
     private static MongoDatabase minigameDB;
+    private static MongoClient client;
 
     private static MongoCollection<Document> settingsCollection;
-    private static HashMap<UUID, Document> settingsCache = new HashMap<>();
+    private static final HashMap<UUID, Document> settingsCache = new HashMap<>();
 
 
     private static boolean connected = false;
-    static void connectToMongo(String cstring, String mainDatabaseName, String playtestDatabaseName, String minigameDatabaseName) {
+    public static void connectToMongo(String cstring, String mainDatabaseName, String playtestDatabaseName, String minigameDatabaseName) {
+        if (connected){
+            return;
+        }
         new Thread(() ->{
             try{
                 ConnectionString connectionString = new ConnectionString(cstring);
@@ -40,7 +44,7 @@ public class MongoUtils {
                                 .version(ServerApiVersion.V1)
                                 .build())
                         .build();
-                MongoClient client = MongoClients.create(settings);
+                client = MongoClients.create(settings);
                 if (Core.isPlaytest()){
                     Bukkit.getConsoleSender().sendMessage(Core.prefix+ ChatColor.YELLOW+"Utilizing Playtest Database!");
                     db = client.getDatabase(playtestDatabaseName);
@@ -57,7 +61,7 @@ public class MongoUtils {
                 connected = true;
                 new BukkitRunnable() {
                     public void run() {
-                        Bukkit.getServer().getPluginManager().callEvent(new MongoConnectedEvent(db, minigameDB));
+                        new MongoConnectedEvent(db, minigameDB).callEvent();
                     }
                 }.runTask(Core.getInstance());
             } catch (MongoException e){
@@ -70,6 +74,11 @@ public class MongoUtils {
 //Check Connection Status
     public static boolean isConnected(){
         return connected;
+    }
+
+    public static void disconnect(){
+        client.close();
+        connected = false;
     }
 
 //Get Collection
@@ -122,7 +131,20 @@ public class MongoUtils {
         return false;
     }
 
+    public static boolean collectionHasDocument(MongoCollection<Document> collection, Document document){
+        for (Document doc : collection.find()){
+            if (doc.equals(document)) return true;
+        }
+        return false;
+    }
 
+    public static void replacePlayerDocument(OfflinePlayer player, Document replaceDocument, MinigameHandler minigameHandler){
+        new Thread(() ->{
+            Bson filter = new Document("player", player.getUniqueId());
+            minigameHandler.getPlayerCollection().replaceOne(filter, replaceDocument, new ReplaceOptions().upsert(true));
+        }).start();
+
+    }
 
 //Update Player Many
     public static void updatePlayerMany(Map<String, Object> values, UUID playerUUID, MongoCollection<Document> collection, Map<UUID, Document> cacheMap){
@@ -137,7 +159,7 @@ public class MongoUtils {
                 }
                 if (newValue.isEmpty()) return;
                 Bson updateOperation = new Document ("$set", newValue);
-                collection.updateOne(doc, updateOperation); //Update Doc
+                collection.updateOne(new Document("player", playerUUID.toString()), updateOperation); //Update Doc
 
                 if (cacheMap != null && Bukkit.getPlayer(playerUUID) != null && Bukkit.getPlayer(playerUUID).isOnline()){
                     for (String value : values.keySet()){
@@ -149,14 +171,6 @@ public class MongoUtils {
         }.runTaskAsynchronously(Core.getInstance());
     }
 
-    public static void replacePlayerDocument(OfflinePlayer player, Document replaceDocument, MinigameHandler minigameHandler){
-        new Thread(() ->{
-            Bson filter = new Document("player", player.getUniqueId());
-            minigameHandler.getPlayerCollection().replaceOne(filter, replaceDocument, new ReplaceOptions().upsert(true));
-        }).start();
-
-    }
-
     public static void updatePlayerMany(Map<String, Object> values, OfflinePlayer player, MinigameHandler minigameHandler){
         new BukkitRunnable(){
             public void run(){
@@ -164,12 +178,16 @@ public class MongoUtils {
                 if (doc == null) return;
                 Document newValue = new Document();
                 for (String value : values.keySet()){
-                    if (doc.get(value).equals(values.get(value))) continue;
+                    if (doc.get(value).equals(values.get(value))){
+                        continue;
+                    }
                     newValue.append(value, values.get(value));
                 }
-                if (newValue.isEmpty()) return;
-                Bson updateOperation = new Document ("$set", newValue);
-                minigameHandler.getPlayerCollection().updateOne(doc, updateOperation); //Update Doc
+                if (newValue.isEmpty()){
+                    return;
+                }
+                Bson updateOperation = new Document("$set", newValue);
+                minigameHandler.getPlayerCollection().updateOne(new Document("player", player.getUniqueId().toString()), updateOperation); //Update Doc
 
                 if (player.isOnline()){
                     for (String value : values.keySet()){
@@ -181,6 +199,65 @@ public class MongoUtils {
         }.runTaskAsynchronously(Core.getInstance());
     }
 
+    public static void updatePlayerManyWithDBDocument(Map<String, Object> values, OfflinePlayer player, MinigameHandler minigameHandler){
+        new BukkitRunnable(){
+            public void run(){
+                Document doc = getPlayerDocumentFromDB(player.getUniqueId(), minigameHandler);
+                if (doc == null) return;
+                Document newValue = new Document();
+                for (String value : values.keySet()){
+                    if (doc.get(value).equals(values.get(value))){
+                        continue;
+                    }
+                    newValue.append(value, values.get(value));
+                }
+                if (newValue.isEmpty()){
+                    return;
+                }
+                Bson updateOperation = new Document("$set", newValue);
+                minigameHandler.getPlayerCollection().updateOne(new Document("player", player.getUniqueId().toString()), updateOperation); //Update Doc
+
+                if (player.isOnline()){
+                    minigameHandler.setPlayerCache((Player) player, getPlayerDocumentFromDB(player.getUniqueId(), minigameHandler));
+                }
+            }
+        }.runTaskAsynchronously(Core.getInstance());
+    }
+
+    public static void updatePlayerManyWithDBDocument(Map<String, Object> values, OfflinePlayer player, Document doc, MinigameHandler minigameHandler){
+        new BukkitRunnable(){
+            public void run(){
+                if (doc == null) return;
+                Document newValue = new Document();
+                for (String value : values.keySet()){
+                    if (doc.get(value).equals(values.get(value))){
+                        continue;
+                    }
+                    newValue.append(value, values.get(value));
+                }
+                if (newValue.isEmpty()){
+                    return;
+                }
+                Bson updateOperation = new Document("$set", newValue);
+                minigameHandler.getPlayerCollection().updateOne(new Document("player", player.getUniqueId().toString()), updateOperation); //Update Doc
+
+                if (player.isOnline()){
+                    minigameHandler.setPlayerCache((Player) player, getPlayerDocumentFromDB(player.getUniqueId(), minigameHandler));
+                }
+            }
+        }.runTaskAsynchronously(Core.getInstance());
+    }
+
+//Update Player Settings One
+
+    public static void updatePlayerSettings(String mongoValue, Object updateValue, UUID playerUUID){
+        updatePlayerOne(mongoValue, updateValue, playerUUID, settingsCollection, settingsCache);
+    }
+
+    public static void updatePlayerSettingsMany(Map<String, Object> values, UUID playerUUID){
+        updatePlayerMany(values, playerUUID, settingsCollection, settingsCache);
+    }
+
 //Update Player One
     public static void updatePlayerOne(String mongoValue, Object updatedValue, UUID playerUUID, MongoCollection<Document> collection, Map<UUID, Document> cacheMap){
         new BukkitRunnable(){
@@ -190,7 +267,7 @@ public class MongoUtils {
                 if (doc.get(mongoValue).equals(updatedValue)) return;
                 Document newValue = new Document(mongoValue, updatedValue); //New Values
                 Bson updateOperation = new Document ("$set", newValue);
-                collection.updateOne(doc, updateOperation); //Update Doc
+                collection.updateOne(new Document("player", playerUUID.toString()), updateOperation); //Update Doc
 
                 if (cacheMap != null && Bukkit.getPlayer(playerUUID) != null && Bukkit.getPlayer(playerUUID).isOnline()){
                     doc.replace(mongoValue, updatedValue);
@@ -208,7 +285,7 @@ public class MongoUtils {
                 if (doc.get(mongoValue).equals(updatedValue)) return;
                 Document newValue = new Document(mongoValue, updatedValue); //New Values
                 Bson updateOperation = new Document ("$set", newValue);
-                minigameHandler.getPlayerCollection().updateOne(doc, updateOperation); //Update Doc
+                minigameHandler.getPlayerCollection().updateOne(new Document("player", player.getUniqueId().toString()), updateOperation); //Update Doc
 
                 if (player.isOnline()){
                     doc.replace(mongoValue, updatedValue);
@@ -260,15 +337,15 @@ public class MongoUtils {
         }
         return document;
     }
-    public static Document getPlayerDocument(UUID uuid, MongoCollection<Document> collection, Map<UUID, Document> cacheMap){
+    public static Document getPlayerDocument(UUID playerUUID, MongoCollection<Document> collection, Map<UUID, Document> cacheMap){
         Document document;
         Player p;
-        p = Bukkit.getPlayer(uuid);
+        p = Bukkit.getPlayer(playerUUID);
         if (p != null && p.isOnline()){
-            document = cacheMap.get(uuid);
+            document = cacheMap.get(playerUUID);
         }
         else{
-            document = collection.find(new Document("player", uuid.toString())).first();
+            document = collection.find(new Document("player", playerUUID.toString())).first();
         }
         return document;
     }
@@ -283,6 +360,14 @@ public class MongoUtils {
             document = collection.find(new Document("player", player.getUniqueId().toString())).first();
         }
         return document;
+    }
+
+    public static Document getPlayerDocumentFromDB(UUID playerUUID, MinigameHandler minigameHandler){
+        return getPlayerDocumentFromDB(playerUUID, minigameHandler.getPlayerCollection());
+    }
+
+    public static Document getPlayerDocumentFromDB(UUID playerUUID, MongoCollection<Document> collection){
+        return collection.find(new Document("player", playerUUID.toString())).first();
     }
 
     public static <T> List<T> getClonedMongoList(Document document, String listName, Class<T> classType){
