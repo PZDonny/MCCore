@@ -22,7 +22,7 @@ public class PreviewBorder implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!sender.hasPermission("mc.previewborder")) {
             sender.sendMessage(ChatColor.RED+ "You do not have permission to do this command");
-            return false;
+            return true;
         }
 
         if (!(sender instanceof Player)){
@@ -57,11 +57,21 @@ public class PreviewBorder implements CommandExecutor {
     private void previewBorder(Player p, double size, int duration){
         if (previewers.contains(p)){
             p.sendMessage(ChatColor.RED+"You are already viewing a world border, please wait!");
+            return;
         }
-        if (size < 1){
+        else if (size < 1){
             p.sendMessage(ChatColor.RED+"World border size cannot be smaller than 1!");
+            return;
         }
-        p.sendMessage(ChatColor.YELLOW+"Displaying world border for 5 seconds");
+        else if (duration < 1){
+            p.sendMessage(ChatColor.RED+"The duration cannot be less than 1 second!");
+            return;
+        }
+        else if (duration > 20){
+            duration = 20;
+            p.sendMessage(ChatColor.GRAY+"The duration cannot be greater than 20 secodns");
+        }
+        p.sendMessage(ChatColor.YELLOW+"Displaying world border for "+duration+" seconds");
         WorldBorder border = Bukkit.createWorldBorder();
         border.setCenter(p.getLocation());
         border.setSize(size);
