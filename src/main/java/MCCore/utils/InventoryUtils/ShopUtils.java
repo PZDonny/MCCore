@@ -11,23 +11,32 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ShopUtils {
-    public static void resetCosmetic(Player p, String mongoValue, Object resetValue, String cosmeticCategory){
+    public static void resetCosmetic(Player p, String mongoValue, Object resetValue, String cosmeticCategory, MinigameHandler handler){
         p.sendMessage(ChatColor.GREEN + "Successfully reset "+cosmeticCategory+" to default!");
         p.playSound(p, Sound.BLOCK_NOTE_BLOCK_BIT, 1, 2f);
         p.closeInventory();
-        MongoUtils.updatePlayerOne(mongoValue, resetValue, p, MinigameHandler.getInstance());
+        MongoUtils.updatePlayerOne(mongoValue, resetValue, p, handler);
     }
 
-    public static void purchaseCosmetic(Player p, String itemName, String mongoValue, String cosmeticsMongoList, String currencyMongoKey, int playerCurrencyCount, int price){
-        p.sendMessage(ChatColor.GREEN+"You have unlocked "+ChatColor.YELLOW+itemName+ChatColor.GREEN+"!");
+    public static void purchaseCosmetic(Player p, String displayName, String mongoValue, String cosmeticsMongoList, int playerCurrencyCount, int price, MongoUtils.CurrencyType type, MinigameHandler handler){
+        p.sendMessage(ChatColor.GREEN+"You have unlocked "+ChatColor.YELLOW+displayName+ChatColor.GREEN+"!");
         p.playSound(p, Sound.BLOCK_NOTE_BLOCK_BIT, 1, 2f);
         p.closeInventory();
         HashMap<String, Object> values = new HashMap<>();
-        List<String> list = new ArrayList<>(MinigameHandler.getInstance().getPlayerCacheDocument(p).getList(cosmeticsMongoList, String.class));
+        List<String> list = new ArrayList<>(handler.getPlayerCacheDocument(p).getList(cosmeticsMongoList, String.class));
         list.add(mongoValue);
-        values.put("shards", playerCurrencyCount-price);
+        values.put(type.getMongoKey(), playerCurrencyCount-price);
         values.put(cosmeticsMongoList, list);
-        MongoUtils.updatePlayerMany(values, p, MinigameHandler.getInstance());
+        MongoUtils.updatePlayerMany(values, p, handler);
+    }
+
+    public static void unlockCosmetic(Player p, String displayName, String mongoValue, String cosmeticsMongoList, MinigameHandler handler){
+        p.sendMessage(ChatColor.GREEN+"You have unlocked "+ChatColor.YELLOW+displayName+ChatColor.GREEN+"!");
+        p.playSound(p, Sound.BLOCK_NOTE_BLOCK_BIT, 1, 2f);
+        p.closeInventory();
+        List<String> list = new ArrayList<>(handler.getPlayerCacheDocument(p).getList(cosmeticsMongoList, String.class));
+        list.add(mongoValue);
+        MongoUtils.updatePlayerOne(cosmeticsMongoList, list, p, handler);
     }
 
     public static void notEnough(Player p){
@@ -43,10 +52,10 @@ public class ShopUtils {
         p.closeInventory();
     }
 
-    public static void selectCosmetic(Player p, String itemName, String selectedMongoValue, Object updateValue){
-        p.sendMessage(ChatColor.AQUA+"You have selected "+ChatColor.YELLOW+itemName+ChatColor.AQUA+"!");
+    public static void selectCosmetic(Player p, String displayName, String selectedMongoValue, Object updateValue, MinigameHandler handler){
+        p.sendMessage(ChatColor.AQUA+"You have selected "+ChatColor.YELLOW+displayName+ChatColor.AQUA+"!");
         p.playSound(p, Sound.BLOCK_NOTE_BLOCK_BIT, 1, 2f);
         p.closeInventory();
-        MongoUtils.updatePlayerOne(selectedMongoValue, updateValue, p, MinigameHandler.getInstance());
+        MongoUtils.updatePlayerOne(selectedMongoValue, updateValue, p, handler);
     }
 }
