@@ -2,18 +2,22 @@ package MCCore.cosmetics.shieldSkins;
 
 
 import MCCore.cosmetics.Cosmetic;
+import MCCore.cosmetics.shieldSkins.holidaySkins.Christmas;
+import MCCore.cosmetics.shieldSkins.holidaySkins.Valentines;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;;
+import org.bukkit.inventory.meta.Damageable;;import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 public abstract class ShieldSkin extends Cosmetic {
 
     private ShieldPattern shieldPattern;
-
+    private static ShieldSkin valentines = new Valentines();
+    private static ShieldSkin christmas = new Christmas();
 
     public ShieldSkin(String skinName, ShieldPattern shieldPattern){
         super(skinName);
@@ -75,5 +79,21 @@ public abstract class ShieldSkin extends Cosmetic {
     }
     public ShieldPattern getShieldPattern() {
         return shieldPattern;
+    }
+
+    public static boolean attemptApplySpecial(ItemStack shield){
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date date = new Date();
+        String dateString = formatter.format(date);
+        if (dateString.contains("02/14")){
+            valentines.applySkin(shield);
+            return true;
+        }
+        else if (dateString.contains("12/25")){
+            christmas.applySkin(shield);
+            return true;
+        }
+
+        return false;
     }
 }
