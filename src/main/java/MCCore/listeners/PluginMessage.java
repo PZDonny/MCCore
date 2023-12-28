@@ -1,5 +1,6 @@
 package MCCore.listeners;
 
+import MCCore.utils.PlayerUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
@@ -28,8 +29,8 @@ public class PluginMessage implements PluginMessageListener {
         if (channel.equals("mccore:changechat")){
             try {
                 UUID uuid = UUID.fromString(in.readUTF());
-                int chat = in.readInt();
-                Chat.playerChatChannels.replace(uuid, chat);
+                int chatChannel = in.readInt();
+                PlayerUtils.setPlayerChatChannel(uuid, chatChannel);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
