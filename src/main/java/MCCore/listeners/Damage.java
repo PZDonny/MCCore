@@ -15,8 +15,7 @@ public class Damage implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onDamage(EntityDamageEvent e){
         Entity entity = e.getEntity();
-        if (entity instanceof Player){
-            Player p = (Player) entity;
+        if (entity instanceof Player p){
         //Minigame Waiting World
             if (Core.getInstance().getMinigameWaitingWorld() != null){
                 if (p.getWorld().equals(Core.getInstance().getMinigameWaitingWorld())){
@@ -25,9 +24,11 @@ public class Damage implements Listener {
                 }
             }
         //Ability Fall Damage Resistance
-            if (e.getCause().equals(EntityDamageEvent.DamageCause.FALL) && AbilityHandler.isPlayerFallDamageResistant(p)){
-                e.setCancelled(true);
-                return;
+            if (e.getCause().equals(EntityDamageEvent.DamageCause.FALL)){
+                if (AbilityHandler.isPlayerFallDamageResistant(p)){
+                    e.setCancelled(true);
+                    return;
+                }
             }
         }
 
