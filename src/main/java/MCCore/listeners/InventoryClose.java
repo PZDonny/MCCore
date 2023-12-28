@@ -23,6 +23,9 @@ public class InventoryClose implements Listener {
             if (guiItem == null) continue;
             guiItem.remove();
         }
-        gui.remove();
+        if (gui.isRemovedOnClose()){
+            gui.remove();
+        }
+
     }
 }
