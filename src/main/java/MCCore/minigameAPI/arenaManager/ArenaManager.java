@@ -1,13 +1,13 @@
 package MCCore.minigameAPI.arenaManager;
 
 import MCCore.Core;
-import MCCore.events.ArenaCreatedEvent;
 import MCCore.events.ArenaDeletedEvent;
 import MCCore.events.PlayerRemovedFromArenaEvent;
+import MCCore.minigameAPI.ConnectedParty;
+import MCCore.minigameAPI.GameState;
 import MCCore.minigameAPI.RamThresholdManager;
 import MCCore.sockets.Messages;
-import MCCore.utils.PlayerBalancerAPI;
-import MCCore.utils.SlimeTools;
+import MCCore.utils.PlayerUtils;
 import com.infernalsuite.aswm.api.world.SlimeWorld;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
@@ -24,61 +24,93 @@ import java.util.*;
 public class ArenaManager {
 
     private static final Map<SlimeWorld, Arena> activeArenas = new HashMap<>();
+    private static final Map<Integer, Arena> activeManualWorldArenas = new HashMap<>();
     private static final Map<UUID, Arena> playerTargetArenas = new HashMap<>();
 
 
-    public static void addPlayerToHashArena(Player p){
+    private static void setQueueTargetArena(Collection<UUID> uuids, Arena arena){
+        for (UUID uuid : uuids){
+            OfflinePlayer p = Bukkit.getOfflinePlayer(uuid);
+            if (p.isOnline()){
+                new BukkitRunnable(){
+                    @Override
+                    public void run() {
+                        arena.addPlayer((Player) p);
+                    }
+                }.runTask(Core.getInstance());
+            }
+            else{
+                playerTargetArenas.put(uuid, arena);
+            }
+        }
+    }
+
+    public static void setQueueTargetArena(Collection<UUID> uuids, int queueID){
+        for (Arena arena : activeArenas.values()){
+            //if (arena.getMode().equals(mode) && arena.getPlayers().size()+uuids.size() <= max){
+            if (arena.getQueueID() == queueID){
+                setQueueTargetArena(uuids, arena);
+                if (uuids.size() > 1){
+                    arena.addConnectedParty(new ConnectedParty(uuids));
+                }
+                return;
+            }
+        }
+    }
+
+    public static Arena getQueueTargetArena(UUID uuid){
+        return playerTargetArenas.get(uuid);
+    }
+
+    private static void removePlayerTargetArena(Player p){
+        playerTargetArenas.remove(p.getUniqueId());
+    }
+
+    public static void addPlayerToTargetArena(Player p){
         Arena arena = playerTargetArenas.get(p.getUniqueId());
         if (arena == null || !arena.isUsuable()){
             //do smthn
             return;
         }
         arena.addPlayer(p);
-        removeHashPlayer(p.getUniqueId());
+        removePlayerTargetArena(p);
     }
 
-    public static boolean addPlayersToAvaliableArena(List<UUID> uuids, int queueID){
-        for (Arena arena : activeArenas.values()){
-            //if (arena.getMode().equals(mode) && arena.getPlayers().size()+uuids.size() <= max){
-            if (arena.getQueueID() == queueID){
-                addHashPlayers(uuids, arena);
-                return true;
+
+
+    private static void removeQueueTargetArena(Arena arena){
+        for (UUID uuid : new HashSet<>(playerTargetArenas.keySet())){
+            if (playerTargetArenas.get(uuid).equals(arena)){
+                playerTargetArenas.remove(uuid);
             }
         }
-    //If a new arena must be created
-        return false;
     }
 
 
-    public static void createArena(Arena arena, List<UUID> players, boolean onlyUseDesiredWorld){
-        //SlimeWorld worldCloned = world.clone(world.getName()+"_"+ arena.getQueueID(), null);
-        new BukkitRunnable() {
-            public void run() {
-                /*SlimeTools.getSlimePlugin().loadWorld(worldCloned);
-                activeArenas.put(worldCloned, arena);
-                arena.setArenaWorld(worldCloned);
-            //Template World Name
-                arena.setTemplateWorldName(world.getName());*/
-                //Arena Created Event
-                Bukkit.getPluginManager().callEvent(new ArenaCreatedEvent(arena));
-                new BukkitRunnable(){
-                    public void run(){
-                        for (UUID uuid : new ArrayList<>(players)){
-                            Player p = Bukkit.getPlayer(uuid);
-                            if (p != null && p.isOnline()){
-                                players.remove(uuid);
-                                arena.addPlayer(p);
-                            }
-                        }
-                        if (!players.isEmpty()) addHashPlayers(players, arena);
-                        arena.doCountdown();
+
+
+
+    public static void startArena(Arena arena, Collection<UUID> players){
+        new BukkitRunnable(){
+            public void run(){
+                for (UUID uuid : new ArrayList<>(players)){
+                    Player p = Bukkit.getPlayer(uuid);
+                //Players already online
+                    if (p != null && p.isOnline()){
+                        players.remove(uuid);
+                        arena.addPlayer(p);
                     }
-                }.runTaskLater(Core.getInstance(), 20);
+                }
+            //Offline Players
+                if (!players.isEmpty()){
+                    setQueueTargetArena(players, arena);
+                }
+                arena.doCountdown();
             }
-        }.runTask(Core.getInstance());
+        }.runTaskLater(Core.getInstance(), 10);
     }
 
-    public static void deleteArena(Arena arena, String cause){
+    static void deleteArena(Arena arena, String cause){
         if (cause != null){
             Bukkit.getConsoleSender().sendMessage(cause);
         }
@@ -86,8 +118,16 @@ public class ArenaManager {
             public void run(){
                 Bukkit.getPluginManager().callEvent(new ArenaDeletedEvent(arena));
 
-            //Remove players from World
-                if (!arena.getArenaPlayers().isEmpty()){
+                if (arena.getGameState() == GameState.CONNECTING){
+                    for (Player p : arena.getOnlineStartPlayers()){
+                        if (cause != null){
+                            p.sendMessage(cause);
+                        }
+                        PlayerUtils.sendToLobby(p);
+                    }
+                }
+                else{
+                //Remove players from Arena and World
                     for (Player p : arena.getArenaPlayers()){
                         if (cause != null){
                             p.sendMessage(cause);
@@ -95,21 +135,29 @@ public class ArenaManager {
                         for (Entity e : p.getPassengers()){
                             p.removePassenger(e);
                         }
+
+                        Arena targetArena = getQueueTargetArena(p.getUniqueId());
+                        if (targetArena == null || targetArena.equals(arena)){
+                            PlayerUtils.sendToLobby(p);
+                        }
                         p.teleport(Core.getInstance().getMinigameWaitingWorld().getSpawnLocation());
-                        PlayerBalancerAPI.connectPlayerToFallback(p);
+                        ArenaManager.refreshPlayer(p, GameMode.SPECTATOR);
                     }
                 }
 
-
-                removeHashPlayers(arena);
+                removeQueueTargetArena(arena);
 
                 String[] out = new String[]{Messages.MINIGAMEAPI_STOPARENA.getID(), String.valueOf(arena.getQueueID())};
                 Core.getClient().sendMessage(out);
 
-                activeArenas.remove(arena.getArenaWorld());
+                if (arena.isManualWorld()){
+                    activeManualWorldArenas.remove(arena.getQueueID());
+                }
+                else{
+                    activeArenas.remove(arena.getArenaWorld());
+                }
                 arena.deleteArena();
                 ramThresholdCheck();
-
             }
         }.runTask(Core.getInstance());
     }
@@ -122,20 +170,13 @@ public class ArenaManager {
                 if (manager == null || manager.isStopped() || !manager.isRestartingSoon()){
                     return;
                 }
-                if (activeArenas.size() == 0){
-                    String message = Core.prefix+ChatColor.RED+"All arenas have ended their matches, restarting NOW!";
-                    Bukkit.getConsoleSender().sendMessage(message);
-                    Bukkit.shutdown();
+                if (activeArenas.size() == 0) {
+                    manager.restartServer();
                 }
-                /*else{
-                    System.out.println(activeArenas.size());
-                    for (Arena arena : activeArenas.values()){
-                        System.out.println(arena.getTemplateWorldName());
-                    }
-                }*/
             }
         }.runTaskLater(Core.getInstance(), 30);
     }
+
 
     public static void addArena(SlimeWorld world, Arena arena){
         activeArenas.put(world, arena);
@@ -146,29 +187,9 @@ public class ArenaManager {
     }
 
 
-    private static void addHashPlayers(List<UUID> players, Arena arena){
-        for (UUID uuid : players){
-            OfflinePlayer p = Bukkit.getOfflinePlayer(uuid);
-            if (p.isOnline()) arena.addPlayer((Player) p);
-            else playerTargetArenas.put(uuid, arena);
-        }
-    }
-
-
-
-    private static void removeHashPlayer(UUID uuid){
-        playerTargetArenas.remove(uuid);
-    }
-
-    private static void removeHashPlayers(Arena arena){
-        for (UUID uuid : new HashSet<>(playerTargetArenas.keySet())){
-            if (playerTargetArenas.get(uuid).equals(arena)) playerTargetArenas.remove(uuid);
-        }
-    }
-
-    public static void removePlayerFromArena(Player p, boolean removeFromHash, PlayerRemovedFromArenaEvent.RemoveCause cause){
-        if (removeFromHash){
-            removeHashPlayer(p.getUniqueId());
+    public static void removePlayerFromArena(Player p, boolean removeTargetArena, PlayerRemovedFromArenaEvent.RemoveCause cause){
+        if (removeTargetArena){
+            removePlayerTargetArena(p);
         }
         Arena arena = getArenaOfPlayer(p);
         if (arena != null){
@@ -192,16 +213,30 @@ public class ArenaManager {
             if (sw != null && sw.getName().equals(p.getWorld().getName())){
                 return arena;
             }
-
-            if (arena.getArenaPlayers().contains(p)){
-                return arena;
+            if (arena.getGameState() == GameState.CONNECTING){
+                if (arena.getOnlineStartPlayers().contains(p)){
+                    return arena;
+                }
             }
+            else{
+                if (arena.getArenaPlayers().contains(p)){
+                    return arena;
+                }
+            }
+
         }
         return null;
     }
 
+    public static Arena getManualWorldArena(int queueID){
+        return activeManualWorldArenas.get(queueID);
+    }
+
 
     public static void refreshPlayer(Player p, GameMode gameMode){
+        if (!p.isOnline()){
+            return;
+        }
     //UI/Visuals
         p.getInventory().clear();
         p.setShoulderEntityLeft(null);
@@ -209,6 +244,8 @@ public class ArenaManager {
         p.setLevel(0);
         p.setExp(0);
         p.setFoodLevel(20);
+        p.setSaturation(5);
+        p.setExhaustion(0);
         p.setArrowsInBody(0);
         p.setBeeStingersInBody(0);
         p.setFireTicks(0);
