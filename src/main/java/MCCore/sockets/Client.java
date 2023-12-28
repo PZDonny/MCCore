@@ -33,7 +33,6 @@ public class Client {
                 this.output = new ObjectOutputStream(socket.getOutputStream());
                 this.input = new ObjectInputStream(socket.getInputStream());
                 listenForMessage();
-                //String[] out = new String[]{"spigot", String.valueOf(Bukkit.getServer().getPort())};
                 String serverType;
                 if (Core.isLobbyServer()){
                     serverType = "spigot_lobby";
@@ -43,7 +42,7 @@ public class Client {
                 }
                 String[] out = new String[]{serverType, Core.getServerID(), String.valueOf(Bukkit.getServer().getPort())};
                 sendMessage(out);
-                sendKeepAlivePackets();
+                sendPlayerCount();
                 Bukkit.getConsoleSender().sendMessage(new TextComponent(Core.prefix+ ChatColor.GREEN+"Successfully connected to data proxy!"));
 
                 if (!ClientReconnector.hasInstance()){
@@ -66,9 +65,16 @@ public class Client {
             this.output = new ObjectOutputStream(socket.getOutputStream());
             this.input = new ObjectInputStream(socket.getInputStream());
             listenForMessage();
-            String[] out = new String[]{"spigot", Core.getServerID(), String.valueOf(Bukkit.getServer().getPort())};
+            String serverType;
+            if (Core.isLobbyServer()){
+                serverType = "spigot_lobby";
+            }
+            else{
+                serverType = "spigot";
+            }
+            String[] out = new String[]{serverType, Core.getServerID(), String.valueOf(Bukkit.getServer().getPort())};
             sendMessage(out);
-            sendKeepAlivePackets();
+            sendPlayerCount();
             Bukkit.getConsoleSender().sendMessage(new TextComponent(Core.prefix+ ChatColor.GREEN+"Successfully connected to data proxy!"));
             if (!ClientReconnector.hasInstance()) new ClientReconnector(Core.getDataProxyIP(), Core.getPort(), this);
         } catch (IOException e) {
@@ -79,8 +85,8 @@ public class Client {
         }
     }
 
-    //Doesn't allow socket to timeout
-    private void sendKeepAlivePackets(){
+    //Keep alive and Player Count Updater
+    private void sendPlayerCount(){
         keepAliveTimer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -88,9 +94,9 @@ public class Client {
                     cancel();
                     return;
                 }
-                sendMessage(new String[]{"0"});
+                sendMessage(new String[]{Messages.SPIGOT_PLAYERCOUNT.getID(), String.valueOf(Bukkit.getOnlinePlayers().size())});
             }
-        },15000, 15000);
+        },0, 3000);
     }
 
     public boolean isSocketConnected(){
@@ -121,13 +127,24 @@ public class Client {
                 }
                 try{
                     Object[] objectArray = (Object[]) input.readObject();
-                    if (objectArray instanceof String[]){
-                        String[] message = (String[]) objectArray;
-                        if (message[0].contains("mgapi")) MinigameAPIMessages.run(message);
-                        else if (message[0].equalsIgnoreCase(Messages.DISCONNECT.getID())) disconnect();
+
+                //String Arrays
+                    if (objectArray instanceof String[] message){
+                        if (message[0].contains("mgapi")){
+
+                        }
+                        else if (message[0].equalsIgnoreCase(Messages.DISCONNECT.getID())){
+                            disconnect();
+                        }
                     }
+
+
+                //Object Arrays
                     else {
                         String tag = (String) objectArray[0];
+                        if (tag.contains("mgapi")){
+                            MinigameAPIMessages.run(objectArray);
+                        }
                         if (tag.equals(Messages.NBAPI_GETSONGNAMES.getID())){
                             ArrayList<String> songNames = (ArrayList<String>) objectArray[1];
                             String requestTag = (String) objectArray[2];
@@ -147,6 +164,13 @@ public class Client {
                                     Bukkit.getPluginManager().callEvent(new SongReceivedEvent(song, requestTag));
                                 }
                             }.runTask(Core.getInstance());
+                        }
+                        else if (tag.equalsIgnoreCase(Messages.NETWORK_DATA.getID())){
+                            int players = (int) objectArray[1];
+                            Core.setNetworkPlayerCount(players);
+                            for (int i = 2; i < objectArray.length; i++){
+                                new SentMinigame((String) objectArray[i]);
+                            }
                         }
                     }
                 } catch (IOException e) {
