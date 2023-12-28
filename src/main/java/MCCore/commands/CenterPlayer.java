@@ -18,7 +18,7 @@ public class CenterPlayer implements CommandExecutor {
             return true;
         }
 
-        if (!p.hasPermission("mc.centerplayer")){
+        if (!p.hasPermission("minigame.setup")){
             p.sendMessage(ChatColor.RED+"You do not have permission to execute this command!");
             return true;
         }
