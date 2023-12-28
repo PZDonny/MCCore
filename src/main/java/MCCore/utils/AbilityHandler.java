@@ -15,12 +15,12 @@ import javax.annotation.Nonnull;
 import java.util.*;
 
 public class AbilityHandler {
-    private static final HashMap<UUID, UUID> entityAbilities = new HashMap<>();
-    private static final Map<UUID, UUID> abilityDamager = new HashMap<>();
-    private static final Map<UUID, Long> primaryCooldowns = new HashMap<>();
-    private static final Map<UUID, Long> secondaryCooldowns = new HashMap<>();
-    private static final HashSet<UUID> fallDamageResistant = new HashSet<>();
-    private static final Map<UUID, Long> abilitiesDisabled = new HashMap<>();
+    protected static final HashMap<UUID, UUID> entityAbilities = new HashMap<>();
+    protected static final Map<UUID, UUID> abilityDamager = new HashMap<>();
+    protected static final Map<UUID, Long> primaryCooldowns = new HashMap<>();
+    protected static final Map<UUID, Long> secondaryCooldowns = new HashMap<>();
+    protected static final HashSet<UUID> fallDamageResistant = new HashSet<>();
+    protected static final Map<UUID, Long> abilitiesDisabled = new HashMap<>();
 
     public enum CooldownType{
         PRIMARY("primary", primaryCooldowns),
@@ -95,13 +95,11 @@ public static void setEntityAbilityCaster(UUID abilityEntity, UUID caster){
 
     public static void setAbilityDamager(UUID victim, UUID attacker){
         if (victim != null & attacker != null) PlayerUtils.sendHPToPlayer(Bukkit.getPlayer(attacker), Bukkit.getPlayer(victim), 2);
-        if (abilityDamager.containsKey(victim)) abilityDamager.replace(victim, attacker);
-        if (!(abilityDamager.containsKey(victim))) abilityDamager.put(victim, attacker);
+        abilityDamager.put(victim, attacker);
     }
 
     public static UUID getAbilityDamager(UUID victim){
-        if (abilityDamager.containsKey(victim)) return abilityDamager.get(victim);
-        return null;
+        return abilityDamager.get(victim);
     }
 
     public static void unsetAbilityDamager(UUID victim){
@@ -210,6 +208,15 @@ public static void setEntityAbilityCaster(UUID abilityEntity, UUID caster){
         return true;
     }
 
+    public static boolean isOnCooldown(Player p, CooldownType cooldownType, String prefix, String message){
+        if (!cooldownType.getMap().containsKey(p.getUniqueId()) || cooldownType.getMap().get(p.getUniqueId()) < System.currentTimeMillis()){
+            return false;
+        }
+        p.sendMessage(prefix+message);
+        p.playSound(p, Sound.BLOCK_NOTE_BLOCK_BIT, 1, 0.5f);
+        return true;
+    }
+
 
 //Fall Damage Resistance
     public static void makePlayerFallDamageResistant(Player p, boolean autoRemove){
@@ -217,7 +224,14 @@ public static void setEntityAbilityCaster(UUID abilityEntity, UUID caster){
         if (!autoRemove) return;
         new BukkitRunnable(){
             public void run(){
-                if (p.isOnGround()) removePlayerFallDamageResistance(p);
+                if (p.isOnGround()){
+                    new BukkitRunnable(){
+                        @Override
+                        public void run() {
+                            removePlayerFallDamageResistance(p);
+                        }
+                    }.runTaskLater(Core.getInstance(), 1);
+                }
             }
         }.runTaskTimer(Core.getInstance(), 3, 2);
     }
@@ -228,7 +242,7 @@ public static void setEntityAbilityCaster(UUID abilityEntity, UUID caster){
     }
 
     public static boolean isPlayerFallDamageResistant(Player p){
-        return fallDamageResistant.contains(p);
+        return fallDamageResistant.contains(p.getUniqueId());
     }
 
     public static void removePlayerData(UUID player){
@@ -239,8 +253,8 @@ public static void setEntityAbilityCaster(UUID abilityEntity, UUID caster){
         abilitiesDisabled.remove(player);
     }
 
-    public static void removePlayerData(Collection<OfflinePlayer> players){
-        for (OfflinePlayer p : players){
+    public static void removePlayerData(Collection<Player> players){
+        for (Player p : players){
             removePlayerData(p.getUniqueId());
         }
     }
