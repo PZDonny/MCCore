@@ -1,6 +1,7 @@
 package MCCore.commands;
 
 import MCCore.Core;
+import MCCore.minigameAPI.arenaManager.ArenaManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -11,42 +12,36 @@ import org.bukkit.entity.Player;
 public class Fly implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!sender.hasPermission("mc.fly.use")){
+        if (!sender.hasPermission("mc.fly")){
             sender.sendMessage(ChatColor.RED + "You do not have permission to do this command");
-            return false;
+            return true;
+        }
+        if (!(sender instanceof Player p)) { //Console w/ no args
+            sender.sendMessage(ChatColor.RED + "You can only execute this command in-game");
+            return true;
         }
 
-        Player t;
+        if (ArenaManager.getArenaOfPlayer(p) != null && p.hasPermission("mc.fly.admin")){
+            sender.sendMessage(ChatColor.RED+"You cannot execute this command while in an arena. You must be admin or higher!");
+            return true;
+        }
 
         if (args.length > 0) { //Setting another player's flight
-            t = Bukkit.getServer().getPlayerExact(args[0]);
-            if (t == null) {
+            p = Bukkit.getServer().getPlayerExact(args[0]);
+            if (p == null) {
                 sender.sendMessage(ChatColor.YELLOW + args[0] + ChatColor.RED + " is not online!");
-                return false;
+                return true;
             }
 
-            if (sender.hasPermission("mc.fly.staff")) {
-                doFlight(t, sender);
+            if (sender.hasPermission("mc.fly.admin")) {
+                doFlight(p, sender);
             }
-
+            else{
+                sender.sendMessage(ChatColor.RED+"You cannot set the flight of other players. You must be admin or higher!");
+            }
         }
         else {
-            if (!(sender instanceof Player)) { //Console w/ no args
-                sender.sendMessage(ChatColor.RED + "You can only set the flight of players in console!");
-                return false;
-            }
-
-            t = (Player) sender;
-            if (Core.isLobbyServer()) {
-                doFlight(t, null);
-            }
-            else {
-                if (!(t.hasPermission("mc.fly.staff"))){
-                    sender.sendMessage(ChatColor.RED + "You cannot fly here!");
-                    return false;
-                }
-                doFlight(t, null);
-            }
+            doFlight(p, null);
         }
         return true;
     }
