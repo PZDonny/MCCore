@@ -16,12 +16,15 @@ import java.util.UUID;
 
 public class RankUtils {
 
-    private static final LuckPerms LPAPI = LuckPermsProvider.get();
+    private static LuckPerms LPAPI = null;
     private static final HashMap<UUID, String> cachedPrefixes = new HashMap<>();
 
     private static final HashMap<UUID, String> cachedGroupNames = new HashMap<>();
 
 
+    public static void registerLuckPerms(){
+        LPAPI = LuckPermsProvider.get();
+    }
     public static String getPlayerGroupName(Player p){
         if (cachedGroupNames.containsKey(p.getUniqueId())){
             return cachedGroupNames.get(p.getUniqueId());
