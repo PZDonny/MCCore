@@ -57,7 +57,7 @@ public class MongoUtils {
                 minigameDB = client.getDatabase(minigameDatabaseName);
                 settingsCollection = db.getCollection("settings");
 
-                Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA+"Successfully connected to"+ChatColor.GREEN+ " MongoDB!");
+                Bukkit.getConsoleSender().sendMessage(Core.prefix+ChatColor.AQUA+"Successfully connected to"+ChatColor.GREEN+ " MongoDB!");
                 connected = true;
                 new BukkitRunnable() {
                     public void run() {
@@ -66,7 +66,7 @@ public class MongoUtils {
                 }.runTask(Core.getInstance());
             } catch (MongoException e){
                 connected = false;
-                Bukkit.getConsoleSender().sendMessage(ChatColor.RED+"There was an error connecting to the MongoDB Database!");
+                Bukkit.getConsoleSender().sendMessage(Core.prefix+ChatColor.RED+"There was an error connecting to the MongoDB Database!");
             }
         }).start();
     }
