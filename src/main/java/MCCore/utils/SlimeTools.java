@@ -17,11 +17,13 @@ public class SlimeTools {
     private static SlimePlugin slimePlugin;
     private static SlimeLoader slimeLoader;
 
-    public static boolean setSlimeVariables(){
+    public static boolean registerSlime(){
         if (Core.isSlimeInstalled()){
             slimePlugin = (SlimePlugin) Bukkit.getPluginManager().getPlugin("SlimeWorldManager");
             slimeLoader = slimePlugin.getLoader("mongodb");
-            if (slimeLoader == null) return false;
+            if (slimeLoader == null){
+                return false;
+            }
             return true;
         }
         return false;
