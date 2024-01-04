@@ -266,17 +266,20 @@ public class PlayerScoreboard {
 
 
     public enum UpdatingValue{
-        PROFILE_KILLS,
-        PROFILE_DEATHS,
-        ARENA_PLAYINGPLAYERS,
-        ARENA_SPECTATINGPLAYERS;
+        PROFILE_KILLS(),
+        PROFILE_DEATHS(),
+        ARENA_PLAYINGPLAYERS(),
+        ARENA_SPECTATINGPLAYERS(),
+        ONLINE_PLAYERS();
+
 
         public String getId() {
             return name().toLowerCase()+"_uv";
         }
 
+
         public void updateValue(PlayerScoreboard playerScoreboard, Object object){
-            if (playerScoreboard == null || object == null){
+            if (playerScoreboard == null){
                 return;
             }
             switch(this){
@@ -294,6 +297,11 @@ public class PlayerScoreboard {
                     }
                 }
 
+                case ONLINE_PLAYERS -> {
+                    String value = String.valueOf(Bukkit.getOnlinePlayers().size());
+                    playerScoreboard.updateValue(getId(), ChatColor.YELLOW+value);
+                }
+
                 case ARENA_PLAYINGPLAYERS -> {
                     if (object instanceof Arena arena){
                         String value = String.valueOf(arena.getPlayingPlayers().size());
@@ -307,27 +315,6 @@ public class PlayerScoreboard {
                         playerScoreboard.updateValue(getId(), ChatColor.YELLOW+value);
                     }
                 }
-            }
-        }
-
-        public void updateValue(Player player){
-            PlayerScoreboard board = ScoreboardUtils.getPlayerScoreboard(player);
-            if (board == null){
-                return;
-            }
-            if (this.equals(ARENA_PLAYINGPLAYERS) || this.equals(ARENA_SPECTATINGPLAYERS)){
-                Arena arena = ArenaManager.getArenaOfPlayer(player);
-                if (arena == null) return;
-                updateValue(board, arena);
-            }
-            else{
-                ArenaContainer container = ArenaContainer.getArenaContainer(player);
-                if (container == null){
-                    return;
-                }
-                MinigamePlayerProfile profile = container.getPlayerProfile(player);
-                if (profile == null) return;
-                updateValue(board, profile);
             }
         }
     }
