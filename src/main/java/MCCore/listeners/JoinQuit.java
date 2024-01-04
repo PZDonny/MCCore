@@ -25,7 +25,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class JoinQuit implements Listener {
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent e){
         Player p = e.getPlayer();
         if (Core.isMongoAllowed()){
@@ -44,6 +44,10 @@ public class JoinQuit implements Listener {
             e.joinMessage(null);
             p.teleport(Core.getInstance().getMinigameWaitingWorld().getSpawnLocation());
             ArenaManager.addPlayerToTargetArena(p);
+        }
+        for (Player o : Bukkit.getOnlinePlayers()){
+            PlayerScoreboard board = ScoreboardUtils.getPlayerScoreboard(o);
+            PlayerScoreboard.UpdatingValue.ONLINE_PLAYERS.updateValue(board, null);
         }
     }
 
@@ -101,5 +105,14 @@ public class JoinQuit implements Listener {
         if (Core.isMinigameEnabled()){
             e.quitMessage(null);
         }
+        new BukkitRunnable(){
+            public void run(){
+                for (Player o : Bukkit.getOnlinePlayers()){
+                    PlayerScoreboard board = ScoreboardUtils.getPlayerScoreboard(o);
+                    PlayerScoreboard.UpdatingValue.ONLINE_PLAYERS.updateValue(board, null);
+                }
+            }
+        }.runTaskLater(Core.getInstance(), 1);
+
     }
 }
