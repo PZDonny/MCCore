@@ -13,7 +13,7 @@ public class ChunkUnload implements Listener {
     public void onUnload(ChunkUnloadEvent e){
         World w = e.getWorld();
         Arena arena = ArenaManager.getArena(w.getName());
-        if (arena != null && !arena.isUsuable()){
+        if (arena != null && !arena.isUsable()){
             e.setSaveChunk(false);
         }
     }
