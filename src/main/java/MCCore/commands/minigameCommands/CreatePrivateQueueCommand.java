@@ -19,7 +19,7 @@ public class CreatePrivateQueueCommand implements CommandExecutor {
             return true;
         }
         if (!sender.hasPermission("mc.privatequeue")){
-            sender.sendMessage(new TextComponent(ChatColor.RED+"You do not have permission to create a private queue!"));
+            sender.sendMessage(new TextComponent(ChatColor.RED+"You must be "+ChatColor.LIGHT_PURPLE+"Ender"+ChatColor.RED+" rank or higher to create a private queue!"));
             return true;
         }
         if (args.length < 2){

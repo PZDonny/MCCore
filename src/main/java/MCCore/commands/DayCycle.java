@@ -13,11 +13,10 @@ public class DayCycle implements CommandExecutor {
             sender.sendMessage(ChatColor.RED + "You do not have permission to do this command");
             return false;
         }
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player p)) {
             sender.sendMessage(ChatColor.RED + "You cannot do this in the console!");
             return false;
         }
-        Player p = (Player) sender;
         if (cmd.getName().equalsIgnoreCase("day")) {
             p.getWorld().setTime(1000);
             p.sendMessage(ChatColor.YELLOW+"The time has been set to "+ChatColor.GREEN+"Day");
@@ -34,8 +33,6 @@ public class DayCycle implements CommandExecutor {
             p.getWorld().setTime(18000);
             p.sendMessage(ChatColor.YELLOW+"The time has been set to "+ChatColor.BLUE+"Midnight");
         }
-
-
 
         return true;
     }

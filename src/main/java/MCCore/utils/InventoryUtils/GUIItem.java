@@ -25,7 +25,9 @@ public class GUIItem {
 
 
     void executeAction(@NotNull InventoryClickEvent event){
-        if (action == null) return;
+        if (action == null){
+            return;
+        }
         action.accept(event);
     }
 

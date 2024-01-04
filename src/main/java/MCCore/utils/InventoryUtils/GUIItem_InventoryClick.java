@@ -12,8 +12,12 @@ public class GUIItem_InventoryClick implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onClick(InventoryClickEvent event){
-        if (!(event.getWhoClicked() instanceof Player)) return;
-        if (event.getCurrentItem() == null) return;
+        if (!(event.getWhoClicked() instanceof Player)){
+            return;
+        }
+        if (event.getCurrentItem() == null){
+            return;
+        }
         GUI gui = GUI.getGUI(event.getInventory());
 
         if (gui == null || event.getClickedInventory() == null){
