@@ -17,7 +17,9 @@ public class ProjectileRandomness implements Listener {
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void onProjectileLaunch(ProjectileLaunchEvent e) {
-        if (!Core.projectileRandomness) return;
+        if (!Core.projectileRandomness){
+            return;
+        }
 
         //Makes projectiles shoot simillar to 1.8 instead of being affected by player velocity
         //Arrows shot from a bow and non-Multishot crossbows will shoot more naturally
@@ -26,9 +28,7 @@ public class ProjectileRandomness implements Listener {
         Projectile projectile = e.getEntity();
         ProjectileSource shooter = projectile.getShooter();
 
-        if (shooter instanceof Player) {
-            Player p = (Player) shooter;
-
+        if (shooter instanceof Player p) {
             Vector pVec = p.getEyeLocation().getDirection().normalize();
             Vector projectileDirection = projectile.getVelocity();
             double prevSpeed = projectileDirection.length();
