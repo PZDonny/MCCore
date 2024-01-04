@@ -9,6 +9,7 @@ import MCCore.minigameAPI.RamThresholdManager;
 import MCCore.minigameAPI.arenaManager.ArenaManager;
 import MCCore.sockets.Client;
 import MCCore.utils.InventoryUtils.GUIItem_InventoryClick;
+import MCCore.utils.RankUtils;
 import MCCore.utils.SlimeTools;
 import dev.iiahmed.disguise.DisguiseManager;
 import net.kyori.adventure.text.Component;
@@ -53,6 +54,8 @@ public final class Core extends JavaPlugin {
     private static boolean isSlimeInstalled = true;
     private static boolean isNBAPIInstalled = true;
 
+    private static boolean isChatCooldownEnabled;
+
     private static String mainDatabaseName;
     private static String playtestDatabaseName;
     private static String minigameDatabaseName;
@@ -73,6 +76,9 @@ public final class Core extends JavaPlugin {
         if (!Bukkit.getPluginManager().isPluginEnabled("LuckPerms")) {
             getLogger().severe("MCCore cannot utilize the LuckPerms Utilities!");
             getLogger().severe("*** LuckPerms is not installed or not enabled. ***");
+        }
+        else{
+            RankUtils.registerLuckPerms();
         }
 
         //WorldGuard
@@ -95,7 +101,9 @@ public final class Core extends JavaPlugin {
             isSlimeInstalled = false;
         }
         else {
-            if (!SlimeTools.setSlimeVariables()) isSlimeInstalled = false;
+            if (!SlimeTools.registerSlime()){
+                isSlimeInstalled = false;
+            }
         }
 
 
@@ -112,6 +120,7 @@ public final class Core extends JavaPlugin {
         getServer().getConsoleSender().sendMessage(prefix + ChatColor.GREEN + "ENABLED");
 
         DisguiseManager.setPlugin(this);
+        DisguiseManager.getProvider().allowOverrideChat(false);
 
         //Commands
         getCommand("gmc").setExecutor(new GamemodeCommand());
@@ -151,7 +160,8 @@ public final class Core extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ChunkUnload(), this);
         getServer().getPluginManager().registerEvents(new WorldChange(), this);
         getServer().getPluginManager().registerEvents(new Sneak(), this);
-        getServer().getPluginManager().registerEvents(new MCCore.listeners.Command(), this);
+        getServer().getPluginManager().registerEvents(new CommandListener(), this);
+        getServer().getPluginManager().registerEvents(new Teleport(), this);
 
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "mccore:lobby");
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "mccore:lobbydequeue");
@@ -232,18 +242,20 @@ public final class Core extends JavaPlugin {
         serverID = getConfig().getString("dataProxyConnection.spigotServerID");
         isDataProxyAllowed = getConfig().getBoolean("dataProxyConnection.enabled");
         isLobbyServer = getConfig().getBoolean("dataProxyConnection.isLobbyServer");
+        isChatCooldownEnabled = getConfig().getBoolean("chatCooldownEnabled");
 
-    //Minigames
+
+    //Data Proxy Messaging
         if (isDataProxyAllowed){
-            isMinigameEnabled = getConfig().getBoolean("minigames.enabled");
             getServer().getConsoleSender().sendMessage(Component.text(ChatColor.GREEN+"Data proxy connection enabled!"));
         }
         else{
             getServer().getConsoleSender().sendMessage(Component.text(ChatColor.RED+"Data proxy connection disabled!"));
-            getServer().getConsoleSender().sendMessage(Component.text(ChatColor.RED+"The MinigameAPI will not be functional due to data proxy connection being disabled!"));
-            isMinigameEnabled = false;
         }
 
+
+    //Minigames
+        isMinigameEnabled = getConfig().getBoolean("minigames.enabled");
         //Enabled
         if (isMinigameEnabled){
             for (World w : Bukkit.getWorlds()){
@@ -323,6 +335,10 @@ public final class Core extends JavaPlugin {
 
     public static boolean isMongoAllowed() {
         return connectToMongo;
+    }
+
+    public static boolean isChatCooldownEnabled() {
+        return isChatCooldownEnabled;
     }
 
     public static String getConnectionString() {
