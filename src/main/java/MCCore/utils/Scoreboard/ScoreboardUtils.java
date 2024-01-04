@@ -2,6 +2,8 @@ package MCCore.utils.Scoreboard;
 
 import org.bukkit.entity.Player;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -27,5 +29,11 @@ public final class ScoreboardUtils {
             return minutes+":0"+seconds;
         }
         return minutes+":"+seconds;
+    }
+
+    public static String getCurrentDateForLine(){
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+        Date date = new Date();
+        return formatter.format(date);
     }
 }
