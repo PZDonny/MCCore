@@ -48,7 +48,14 @@ public abstract class ArenaContainer {
         if (timeLeft > durationInSeconds){
             this.timeLeft = durationInSeconds;
         }
-        KeyedBossBar bar = BossBarTools.getBossBar(arena.getArenaWorld().getName());
+        String barID;
+        if (arena.isManualWorld()){
+            barID = arena.getManualWorld().getName();
+        }
+        else{
+            barID = arena.getArenaWorld().getName();
+        }
+        KeyedBossBar bar = BossBarTools.getBossBar(barID);
         if (bar != null){
             bar.setTitle(ChatColor.WHITE+"Time Remaining : "+ChatColor.AQUA+(int) (Math.ceil((double) gameDuration/60))+" Minutes");
         }
@@ -84,7 +91,13 @@ public abstract class ArenaContainer {
                     startMatchTimer();
                     isStarted = true;
                     if (sendTimeRemaining){
-                        String barID = arena.getArenaWorld().getName();
+                        String barID;
+                        if (arena.isManualWorld()){
+                            barID = arena.getManualWorld().getName();
+                        }
+                        else{
+                            barID = arena.getArenaWorld().getName();
+                        }
                         String message = ChatColor.WHITE+"Time Remaining : "+ChatColor.AQUA+(int) (Math.ceil((double) gameDuration/60))+" Minutes";
                         BossBarTools.sendBossBarTimed(arena.getPlayingPlayers(), barID, message, BarColor.BLUE, BarStyle.SOLID, gameDuration);
                     }
@@ -169,18 +182,22 @@ public abstract class ArenaContainer {
 
 
     public static ArenaContainer getArenaContainer(Arena arena){
-        if (arena == null) return null;
-        if (!allContainedArenas.containsKey(arena)) return null;
+        if (arena == null || !allContainedArenas.containsKey(arena)){
+            return null;
+        }
+
         return allContainedArenas.get(arena);
     }
 
     public static ArenaContainer getArenaContainer(Player p){
-        return (getArenaContainer(ArenaManager.getArenaOfPlayer(p)));
+        return getArenaContainer(ArenaManager.getArenaOfPlayer(p));
     }
 
+
     public static <T> T getArenaContainer(Arena arena, Class<T> clazz){
-        if (arena == null) return null;
-        if (!allContainedArenas.containsKey(arena)) return null;
+        if (arena == null || !allContainedArenas.containsKey(arena)){
+            return null;
+        }
         ArenaContainer container = allContainedArenas.get(arena);
         if (clazz.isInstance(container)){
             return clazz.cast(container);

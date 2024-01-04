@@ -31,11 +31,13 @@ public class Arena {
     //public static final ItemStack requeueTool = Items.makeItem(Material.EMERALD, 1, ChatColor.GREEN+"Play Again"+ChatColor.YELLOW+" (Click)");
 
     int minPlayers = 0;
+    int maxPlayers = 0;
     int countdownDuration = 10;
     CountdownStyle countdownStyle = CountdownStyle.BOSSBAR;
     String minigameName = "";
     String mode = "";
     SlimeWorld arenaWorld;
+    World manualWorld;
 
     String templateWorldName;
     GameState gameState = GameState.CONNECTING;
@@ -57,7 +59,7 @@ public class Arena {
 
     private boolean allowSpectatorInteraction = false;
 
-    private boolean isUsuable = true;
+    private boolean isUsable = true;
     private boolean isManualWorld = false;
 
 //Constructor
@@ -76,12 +78,24 @@ public class Arena {
         this.minPlayers = minPlayers;
     }
 
+    public void setMaximumPlayers(int maximumPlayers){
+        this.maxPlayers = maximumPlayers;
+    }
+
     public void setCountdownDuration(int duration){
         this.countdownDuration = duration;
     }
 
-    public void isManualWorld(boolean isManualWorld){
-        this.isManualWorld = isManualWorld;
+
+    public boolean setManualWorld(World world){
+        boolean valid = ArenaManager.addManualArena(this, world);
+        if (!valid){
+            return false;
+        }
+        this.isManualWorld = true;
+        this.manualWorld = world;
+        return true;
+
     }
 
     public void setMinigame(String minigameName, String mode){
@@ -96,9 +110,11 @@ public class Arena {
     protected void setStateToPlaying(){
         GameState pastGameState = this.gameState;
         this.gameState = GameState.PLAYING;
-        String[] out = new String[]{Messages.MINIGAMEAPI_STARTARENA.getID()
-                , String.valueOf(queueID)};
-        Core.getClient().sendMessage(out);
+        if (Core.isDataProxyAllowed()){
+            String[] out = new String[]{Messages.MINIGAMEAPI_STARTARENA.getID(), String.valueOf(queueID)};
+            Core.getClient().sendMessage(out);
+        }
+
         for (Player p : startPlayers){
             if (p.isOnline()){
                 ArenaManager.refreshPlayer(p, GameMode.ADVENTURE);
@@ -174,20 +190,8 @@ public class Arena {
                                 chunk.setForceLoaded(false);
                             }
                             if (autoGameRules) {
-                                bukkitWorld.setGameRule(GameRule.DISABLE_RAIDS, true);
-                                bukkitWorld.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
-                                bukkitWorld.setGameRule(GameRule.DO_INSOMNIA, false);
-                                bukkitWorld.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-                                bukkitWorld.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
-                                bukkitWorld.setGameRule(GameRule.MOB_GRIEFING, false);
-                                bukkitWorld.setGameRule(GameRule.DO_MOB_SPAWNING, false);
-                                bukkitWorld.setGameRule(GameRule.DO_PATROL_SPAWNING, false);
-                                bukkitWorld.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
-                                bukkitWorld.setGameRule(GameRule.SPAWN_RADIUS, 0);
-                                bukkitWorld.setGameRule(GameRule.DO_FIRE_TICK, false);
-                                bukkitWorld.setGameRule(GameRule.FORGIVE_DEAD_PLAYERS, true);
-                                bukkitWorld.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
-                                bukkitWorld.setDifficulty(Difficulty.NORMAL);
+                                WorldTools.setGamerulesToMinigame(bukkitWorld);
+
                             }
                             cancel();
                         }
@@ -214,8 +218,22 @@ public class Arena {
         return isManualWorld;
     }
 
+    public void isManualWorld(boolean isManualWorld) {
+        this.isManualWorld = isManualWorld;
+        if (isManualWorld){
+            ArenaManager.addInactiveManualArena(this);
+        }
+        else{
+            ArenaManager.removeInactiveManualArena(this);
+        }
+
+    }
+
     public int getMinPlayers(){
         return minPlayers;
+    }
+    public int getMaxPlayers(){
+        return maxPlayers;
     }
 
     public int getCountdownDuration(){
@@ -236,6 +254,10 @@ public class Arena {
 
     public SlimeWorld getArenaWorld(){
         return arenaWorld;
+    }
+
+    public World getManualWorld(){
+        return manualWorld;
     }
 
     public World getBukkitWorld(){
@@ -395,22 +417,25 @@ public class Arena {
         connectedParties.add(party);
     }
 
-    public void addPlayer(Player p){
+    public void addPlayer(Player p, GameMode gameMode, boolean hidePlayers){
         if (startPlayers.contains(p)){
             return;
         }
         startPlayers.add(p);
 
-        for (Player o : Bukkit.getOnlinePlayers()){
-            if (startPlayers.contains(o)){
-                p.showPlayer(Core.getInstance(), o);
-                o.showPlayer(Core.getInstance(), p);
-            }
-            else{
-                p.hidePlayer(Core.getInstance(), o);
-                o.hidePlayer(Core.getInstance(), p);
+        if (hidePlayers){
+            for (Player o : Bukkit.getOnlinePlayers()){
+                if (startPlayers.contains(o)){
+                    p.showPlayer(Core.getInstance(), o);
+                    o.showPlayer(Core.getInstance(), p);
+                }
+                else{
+                    p.hidePlayer(Core.getInstance(), o);
+                    o.hidePlayer(Core.getInstance(), p);
+                }
             }
         }
+
         p.playSound(p, Sound.ENTITY_PLAYER_LEVELUP, 1, 2);
         p.getInventory().setHeldItemSlot(0);
         p.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, PotionEffect.INFINITE_DURATION, 255, false, false, false));
@@ -418,32 +443,38 @@ public class Arena {
         Location minigameTP = Core.getInstance().getMinigameWaitingWorld().getSpawnLocation().clone();
         minigameTP.setPitch(-90);
         p.teleport(minigameTP);
-        ArenaManager.refreshPlayer(p, GameMode.SPECTATOR);
-        new BukkitRunnable(){
-            @Override
-            public void run() {
-                if (!p.isOnline()) return;
-                ArmorStand stand = null;
-                for (ArmorStand as : minigameTP.getNearbyEntitiesByType(ArmorStand.class, 8)){
-                    stand = as;
-                    break;
-                }
-                if (stand != null){
-                    p.setSpectatorTarget(stand);
-                }
-                new BukkitRunnable(){
-                    @Override
-                    public void run() {
-                        if (!p.isOnline()) return;
-                        if (p.getSpectatorTarget() == null && p.getWorld().equals(Core.getInstance().getMinigameWaitingWorld())){
-                            p.setGameMode(GameMode.ADVENTURE);
-
-                            p.teleport(minigameTP);
-                        }
+        ArenaManager.refreshPlayer(p, gameMode);
+        if (gameMode == GameMode.SPECTATOR){
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    if (!p.isOnline()){
+                        return;
                     }
-                }.runTaskLater(Core.getInstance(), 1);
-            }
-        }.runTaskLater(Core.getInstance(), 2);
+                    ArmorStand stand = null;
+                    for (ArmorStand as : minigameTP.getNearbyEntitiesByType(ArmorStand.class, 8)){
+                        stand = as;
+                        break;
+                    }
+                    if (stand != null){
+                        p.setSpectatorTarget(stand);
+                    }
+                    new BukkitRunnable(){
+                        @Override
+                        public void run() {
+                            if (!p.isOnline()){
+                                return;
+                            }
+                            if (p.getSpectatorTarget() == null && p.getWorld().equals(Core.getInstance().getMinigameWaitingWorld())){
+                                p.setGameMode(GameMode.ADVENTURE);
+                                p.teleport(minigameTP);
+                            }
+                        }
+                    }.runTaskLater(Core.getInstance(), 1);
+                }
+            }.runTaskLater(Core.getInstance(), 2);
+        }
+
     }
 
     public void removePlayer(Player p, PlayerRemovedFromArenaEvent.RemoveCause cause){
@@ -512,7 +543,8 @@ public class Arena {
         spectators.clear();
         connectedParties.clear();
         host = null;
-        isUsuable = false;
+        privateSettings = null;
+        isUsable = false;
 
         ArenaContainer container = ArenaContainer.getArenaContainer(this);
         if (container != null){
@@ -527,17 +559,25 @@ public class Arena {
                 WorldTools.destroyWorld(Bukkit.getWorld(arenaWorldName));
             }
         }
+        else{
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD+"Manual arena world match has finalized! ("+ ChatColor.AQUA+manualWorld.getName()+ChatColor.GOLD+")");
+            manualWorld = null;
+        }
     }
 
-    public boolean isUsuable(){
-        return isUsuable;
+    public boolean isUsable(){
+        return isUsable;
     }
 
     public boolean isEndingOrNotUsable(){
-        return isInEndingProcess() || !isUsuable();
+        return isInEndingProcess() || !isUsable();
     }
 
     protected void doCountdown(){
         countdown.start(countdownStyle, countdownDuration);
+    }
+
+    public ArenaCountdown getArenaCountdown(){
+        return countdown;
     }
 }

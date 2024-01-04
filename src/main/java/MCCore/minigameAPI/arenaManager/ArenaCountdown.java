@@ -20,12 +20,21 @@ public class ArenaCountdown {
 
     Arena arena;
 
+    private boolean isStarted = false;
+
     ArenaCountdown(Arena arena){
         this.arena = arena;
     }
 
+    public boolean isStarted(){
+        return isStarted;
+    }
+
     void start(CountdownStyle style, int countdownTime){
-        if (countdownTime <= 0) return;
+        if (countdownTime <= 0){
+            return;
+        }
+        isStarted = true;
         String defaultMSG = ChatColor.YELLOW+"Connecting players... "+ChatColor.WHITE;
 
 
@@ -83,12 +92,16 @@ public class ArenaCountdown {
     private void attemptStart(){
         if (!arena.isManualWorld()){
             if (arena.getArenaWorld() == null || Bukkit.getWorld(arena.getArenaWorld().getName()) == null){
-                ArenaManager.deleteArena(arena, ChatColor.RED+"An unexpected error occurred when attempting to start minigame!");
+                ArenaManager.deleteArena(arena, ChatColor.RED+"An unexpected error occurred when attempting to start this minigame. Game cancelled!");
                 return;
             }
 
             if (arena.getOnlineStartPlayers().size() < arena.getMinPlayers()){
                 ArenaManager.deleteArena(arena, ChatColor.RED+"Insufficient player count. Game cancelled!");
+                return;
+            }
+            if (arena.isManualWorld() && arena.getManualWorld() == null){
+                ArenaManager.deleteArena(arena, ChatColor.RED+"Manual worlds not loaded. Game cancelled!");
                 return;
             }
 
@@ -123,7 +136,7 @@ public class ArenaCountdown {
         return bar;
     }
 
-    public void sendBossBarTimed(String barID, String message, BarColor color, BarStyle style, long duration){
+    private void sendBossBarTimed(String barID, String message, BarColor color, BarStyle style, long duration){
         KeyedBossBar bar = createBossBar(message, barID, color, style);
         new BukkitRunnable(){
             double i = 0;

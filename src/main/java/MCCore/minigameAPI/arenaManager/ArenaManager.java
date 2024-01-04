@@ -1,6 +1,7 @@
 package MCCore.minigameAPI.arenaManager;
 
 import MCCore.Core;
+import MCCore.events.ArenaCreatedEvent;
 import MCCore.events.ArenaDeletedEvent;
 import MCCore.events.PlayerRemovedFromArenaEvent;
 import MCCore.minigameAPI.ConnectedParty;
@@ -24,7 +25,8 @@ import java.util.*;
 public class ArenaManager {
 
     private static final Map<SlimeWorld, Arena> activeArenas = new HashMap<>();
-    private static final Map<Integer, Arena> activeManualWorldArenas = new HashMap<>();
+    private static final Map<World, Arena> activeManualWorldArenas = new HashMap<>();
+    private static final ArrayList<Arena> inactiveManualWorldArenas = new ArrayList<>();
     private static final Map<UUID, Arena> playerTargetArenas = new HashMap<>();
 
 
@@ -35,7 +37,7 @@ public class ArenaManager {
                 new BukkitRunnable(){
                     @Override
                     public void run() {
-                        arena.addPlayer((Player) p);
+                        arena.addPlayer((Player) p, GameMode.SPECTATOR, true);
                     }
                 }.runTask(Core.getInstance());
             }
@@ -68,11 +70,11 @@ public class ArenaManager {
 
     public static void addPlayerToTargetArena(Player p){
         Arena arena = playerTargetArenas.get(p.getUniqueId());
-        if (arena == null || !arena.isUsuable()){
+        if (arena == null || !arena.isUsable()){
             //do smthn
             return;
         }
-        arena.addPlayer(p);
+        arena.addPlayer(p, GameMode.SPECTATOR, true);
         removePlayerTargetArena(p);
     }
 
@@ -98,12 +100,16 @@ public class ArenaManager {
                 //Players already online
                     if (p != null && p.isOnline()){
                         players.remove(uuid);
-                        arena.addPlayer(p);
+                        arena.addPlayer(p, GameMode.SPECTATOR, true);
                     }
                 }
             //Offline Players
                 if (!players.isEmpty()){
                     setQueueTargetArena(players, arena);
+                }
+
+                if (arena.isManualWorld()){
+                    new ArenaCreatedEvent(arena).callEvent();
                 }
                 arena.doCountdown();
             }
@@ -147,11 +153,15 @@ public class ArenaManager {
 
                 removeQueueTargetArena(arena);
 
-                String[] out = new String[]{Messages.MINIGAMEAPI_STOPARENA.getID(), String.valueOf(arena.getQueueID())};
-                Core.getClient().sendMessage(out);
+                if (Core.isDataProxyAllowed()){
+                    String[] out = new String[]{Messages.MINIGAMEAPI_STOPARENA.getID(), String.valueOf(arena.getQueueID())};
+                    Core.getClient().sendMessage(out);
+                }
+
 
                 if (arena.isManualWorld()){
-                    activeManualWorldArenas.remove(arena.getQueueID());
+                    inactiveManualWorldArenas.remove(arena);
+                    activeManualWorldArenas.remove(arena.getManualWorld());
                 }
                 else{
                     activeArenas.remove(arena.getArenaWorld());
@@ -182,8 +192,37 @@ public class ArenaManager {
         activeArenas.put(world, arena);
     }
 
+    static boolean addManualArena(Arena arena, World world){
+        if (activeManualWorldArenas.containsKey(world)){
+            return false;
+        }
+        activeManualWorldArenas.put(world, arena);
+        inactiveManualWorldArenas.remove(arena);
+        return true;
+    }
+
+    static void addInactiveManualArena(Arena arena){
+        if (arena.isManualWorld()){
+            inactiveManualWorldArenas.add(arena);
+        }
+    }
+
+    static void removeInactiveManualArena(Arena arena){
+        if (arena.isManualWorld()){
+            inactiveManualWorldArenas.add(arena);
+        }
+    }
+
     public static Collection<Arena> getActiveArenas(){
         return activeArenas.values();
+    }
+
+    public static Collection<Arena> getActiveManualArenas(){
+        return activeManualWorldArenas.values();
+    }
+
+    public static Collection<Arena> getInactiveManualArenas(){
+        return new ArrayList<>(inactiveManualWorldArenas);
     }
 
 
@@ -198,9 +237,23 @@ public class ArenaManager {
     }
 
 
-    public static Arena getArena(String slimeWorldName){
+    public static Arena getArena(String worldName){
+        for (Arena arena : inactiveManualWorldArenas){
+            World w = arena.getManualWorld();
+            if (w != null && w.getName().equalsIgnoreCase(worldName)){
+                return arena;
+            }
+        }
+
+        for (Arena arena : activeManualWorldArenas.values()){
+            World w = arena.getManualWorld();
+            if (w != null && w.getName().equalsIgnoreCase(worldName)){
+                return arena;
+            }
+        }
+
         for (SlimeWorld world : activeArenas.keySet()){
-            if (world.getName().equals(slimeWorldName)){
+            if (world.getName().equalsIgnoreCase(worldName)){
                 return activeArenas.get(world);
             }
         }
@@ -208,28 +261,48 @@ public class ArenaManager {
     }
 
     public static Arena getArenaOfPlayer(Player p){
-        for (Arena arena : activeArenas.values()){
-            SlimeWorld sw = arena.getArenaWorld();
-            if (sw != null && sw.getName().equals(p.getWorld().getName())){
+        if (p == null){
+            return null;
+        }
+        for (Arena arena : inactiveManualWorldArenas){
+            if (doesArenaContainPlayer(p, arena, null) != null){
                 return arena;
             }
-            if (arena.getGameState() == GameState.CONNECTING){
-                if (arena.getOnlineStartPlayers().contains(p)){
-                    return arena;
-                }
-            }
-            else{
-                if (arena.getArenaPlayers().contains(p)){
-                    return arena;
-                }
-            }
+        }
 
+        for (Arena arena : activeManualWorldArenas.values()){
+            World w = arena.getManualWorld();
+            if (w != null && doesArenaContainPlayer(p, arena, w.getName()) != null){
+                return arena;
+            }
+        }
+
+        for (Arena arena : activeArenas.values()){
+            SlimeWorld sw = arena.getArenaWorld();
+            if (sw != null && doesArenaContainPlayer(p, arena, sw.getName()) != null){
+                return arena;
+            }
         }
         return null;
     }
 
-    public static Arena getManualWorldArena(int queueID){
-        return activeManualWorldArenas.get(queueID);
+    private static Arena doesArenaContainPlayer(Player p, Arena arena, String worldName){
+        if (p == null){
+            return null;
+        }
+        if (worldName != null){
+            if (worldName.equalsIgnoreCase(p.getWorld().getName())){
+                return arena;
+            }
+        }
+
+        if (arena.getGameState() == GameState.CONNECTING && arena.getStartPlayers().contains(p)){
+            return arena;
+        }
+        else if (arena.getArenaPlayers().contains(p)){
+            return arena;
+        }
+        return null;
     }
 
 
