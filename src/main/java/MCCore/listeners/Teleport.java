@@ -19,7 +19,7 @@ public class Teleport implements Listener {
 
         Player p = e.getPlayer();
         Arena arena = ArenaManager.getArenaOfPlayer(p);
-        if (arena == null || arena.getGameState() == GameState.CONNECTING || arena.isEndingOrNotUsable()){
+        if (arena == null || arena.isEndingOrNotUsable()){
             return;
         }
 
