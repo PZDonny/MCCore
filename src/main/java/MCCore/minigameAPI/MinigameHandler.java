@@ -1,5 +1,6 @@
 package MCCore.minigameAPI;
 
+import MCCore.Core;
 import MCCore.MongoUtils;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
@@ -53,11 +54,11 @@ public class MinigameHandler {
                     if (MongoUtils.isConnected()){
                         playerCollection = MongoUtils.getCollection(collectionName);
                         if (playerCollection == null){
-                            failBuilder.append(ChatColor.DARK_GREEN)
+                            failBuilder.append(ChatColor.YELLOW)
                             .append(" (Collection does not exist)");
                             Bukkit.getConsoleSender().sendMessage(failBuilder.toString());
                         }
-                        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN+"Retrieved MongoDB Collection "+ChatColor.YELLOW+collectionName);
+                        Bukkit.getConsoleSender().sendMessage(Core.prefix+ChatColor.GREEN+"Retrieved MongoDB Collection "+ChatColor.YELLOW+collectionName);
                         return;
                     }
                     attempt++;
