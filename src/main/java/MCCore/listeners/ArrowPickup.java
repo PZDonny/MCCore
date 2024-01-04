@@ -19,7 +19,9 @@ public class ArrowPickup implements Listener {
         }
 
         Arena arena = ArenaManager.getArenaOfPlayer(p);
-        if (arena == null) return;
+        if (arena == null){
+            return;
+        }
 
         if (arena.isPlayerSpectating(p)){
             e.setCancelled(true);
