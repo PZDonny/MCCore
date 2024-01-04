@@ -24,14 +24,15 @@ public class MinigameAPIMessages {
         if (tag.equals(Messages.MINIGAMEAPI_CREATEARENA.getID())){
             String uuids = (String) message[1];
             int minPlayers = (int) message[2];
-            int queueID = (int) message[3];
-            String mode = (String) message[4];
-            String minigame = (String) message[5];
+            int maxPlayers = (int) message[3];
+            int queueID = (int) message[4];
+            String mode = (String) message[5];
+            String minigame = (String) message[6];
             OfflinePlayer host = null;
-            String privateSettings = (String) message[7];
-            ArrayList<String[]> connectedParties = (ArrayList<String[]>) message[8];
-            if (!message[6].equals("")){
-                host = Bukkit.getOfflinePlayer(UUID.fromString((String) message[6]));
+            String privateSettings = (String) message[8];
+            ArrayList<String[]> connectedParties = (ArrayList<String[]>) message[9];
+            if (!message[7].equals("")){
+                host = Bukkit.getOfflinePlayer(UUID.fromString((String) message[7]));
             }
 
             List<String> uuidsAsString = new ArrayList<>(Arrays.asList(uuids.replace(" ", "").replace("[", "").replace("]", "").split(",")));
@@ -56,6 +57,7 @@ public class MinigameAPIMessages {
                 Arena arena = new Arena(queueID, host, privateSettings);
                 arena.setMinigame(minigame, mode);
                 arena.setMinimumPlayers(minPlayers);
+                arena.setMaximumPlayers(maxPlayers);
                 ArenaManager.startArena(arena, playerList);
 
             //Get parties of players and add them to the arena
