@@ -2,7 +2,6 @@ package MCCore.listeners;
 
 import MCCore.Core;
 import MCCore.utils.PlayerUtils;
-import MCCore.utils.RankUtils;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import net.md_5.bungee.api.ChatColor;
@@ -57,23 +56,27 @@ public class Chat implements Listener {
             out.writeUTF(eventMessage);
             p.sendPluginMessage(Core.getInstance(), "mccore:partychat", out.toByteArray());
         }
-    //All Chat
-        else{
-            if (isPlayerOnCooldown(p)){
-                p.sendMessage(ChatColor.RED+"Please wait 3 seconds before sending another message.");
-                p.sendMessage(ChatColor.GRAY+""+ChatColor.ITALIC+"Purchase Iron rank for our server store to remove chat delay (/buy)");
-                e.setCancelled(true);
-                return;
-            }
-            if (p.hasPermission("mc.chatdelay")){
-                cooldown.put(p.getUniqueId(), System.currentTimeMillis()+3000);
-            }
 
+
+    //Local Chat
+        else{
+            if (Core.isChatCooldownEnabled()){
+                if (isPlayerOnCooldown(p)){
+                    p.sendMessage(ChatColor.RED+"Please wait 3 seconds before sending another message.");
+                    p.sendMessage(ChatColor.GRAY+""+ChatColor.ITALIC+"Purchase Iron rank from our server store to remove chat delay (/buy)");
+                    e.setCancelled(true);
+                    return;
+                }
+
+                if (p.hasPermission("mc.chatdelay")){
+                    cooldown.put(p.getUniqueId(), System.currentTimeMillis()+3000);
+                }
+            }
             StringBuilder builder = new StringBuilder();
             String[] message = eventMessage.split(" ");
 
-            //Chat Filter
-            filtering:
+        //Chat Filter
+        filtering:
             for (int i = 0; i < message.length; i++){
                 String word = message[i];
                 if (word.length() >= 3){
@@ -115,9 +118,7 @@ public class Chat implements Listener {
                 if (w.equals(Core.getInstance().getMinigameWaitingWorld())){
                     e.getRecipients().clear();
                     e.getRecipients().addAll(w.getPlayers());
-                    ChatColor color = RankUtils.getPlayerChatColor(p);
-                    String prefix = RankUtils.getPlayerPrefix(p);
-                    e.setFormat(prefix+color+p.getDisplayName()+ChatColor.GOLD+""+ChatColor.BOLD+" >> "+color+e.getMessage());
+                    e.setFormat(p.getDisplayName()+ChatColor.GOLD+""+ChatColor.BOLD+" >> "+ChatColor.WHITE+e.getMessage());
                     //e.setFormat(prefix+color+p.getDisplayName()+ChatColor.GOLD+""+ChatColor.BOLD+" >> "+color+e.getMessage());
                 }
             }
