@@ -7,7 +7,6 @@ import com.xxmicloxx.NoteBlockAPI.model.Song;
 import com.xxmicloxx.NoteBlockAPI.utils.NBSDecoder;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -43,7 +42,7 @@ public class Client {
                 String[] out = new String[]{serverType, Core.getServerID(), String.valueOf(Bukkit.getServer().getPort())};
                 sendMessage(out);
                 sendPlayerCount();
-                Bukkit.getConsoleSender().sendMessage(new TextComponent(Core.prefix+ ChatColor.GREEN+"Successfully connected to data proxy!"));
+                Bukkit.getConsoleSender().sendMessage(Component.text(Core.prefix+ ChatColor.GREEN+"Successfully connected to data proxy!"));
 
                 if (!ClientReconnector.hasInstance()){
                     new ClientReconnector(Core.getDataProxyIP(), Core.getPort(), this);
@@ -75,7 +74,7 @@ public class Client {
             String[] out = new String[]{serverType, Core.getServerID(), String.valueOf(Bukkit.getServer().getPort())};
             sendMessage(out);
             sendPlayerCount();
-            Bukkit.getConsoleSender().sendMessage(new TextComponent(Core.prefix+ ChatColor.GREEN+"Successfully connected to data proxy!"));
+            Bukkit.getConsoleSender().sendMessage(Component.text(Core.prefix+ ChatColor.GREEN+"Successfully connected to data proxy!"));
             if (!ClientReconnector.hasInstance()) new ClientReconnector(Core.getDataProxyIP(), Core.getPort(), this);
         } catch (IOException e) {
             if (!ClientReconnector.hasInstance()) new ClientReconnector(Core.getDataProxyIP(), Core.getPort(), null);
