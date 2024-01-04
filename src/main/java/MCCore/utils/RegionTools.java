@@ -36,6 +36,21 @@ public class RegionTools {
         return false;
     }
 
+    public static Location[] getRegionMinAndMaxPoints(World world, String region){
+        if (world == null){
+            return null;
+        }
+        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        ProtectedRegion rg = container.get(BukkitAdapter.adapt(world)).getRegion(region);
+        if (rg == null){
+            return null;
+        }
+        Location min = new Location(world, rg.getMinimumPoint().getX(), rg.getMinimumPoint().getY(), rg.getMinimumPoint().getZ());
+        Location max = new Location(world, rg.getMaximumPoint().getX(), rg.getMaximumPoint().getY(), rg.getMaximumPoint().getZ());
+
+        return new Location[]{min, max};
+    }
+
     public static Block[] getSelectedBlocks(Player player) {
         LocalSession worldEditSession = worldEdit.getSessionManager().findByName(player.getName());
         if (worldEditSession != null) {
