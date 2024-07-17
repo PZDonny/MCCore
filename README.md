@@ -1,6 +1,6 @@
 # **MCCore**
 
-Sequestered Minecraft Server plugin library and MongoDB database connector (when enabled in config).
+DonnyPZ's Minecraft PaperMC Plugin library and MongoDB database connector.
 > Maven dependency at the bottom
 
 **Plugin Dependencies**
