@@ -1,10 +1,12 @@
 name: MCCore
 version: '${project.version}'
-main: MCCore.Core
-api-version: 1.19
-softdepend: [LuckPerms, WorldGuard, SlimeWorldManager, NoteBlockAPI]
+main: net.donnypz.mccore.Core
+api-version: 1.20
+softdepend: [LuckPerms, WorldGuard, NoteBlockAPI, ProtocolLib]
+loadbefore: [DisplayEntityUtils]
 commands:
   corereload:
+    permission: "core.reload"
     description:
     usage:
   gmc:
@@ -50,27 +52,6 @@ commands:
   previewborder:
     description:
     usage:
-  play:
-    description:
-    usage:
-  privatequeue:
-    description:
-    usage:
-    aliases: [pq]
-  joinprivate:
-    description:
-    usage:
-    aliases: [jp]
-  realname:
-    description:
-    usage:
   centerplayer:
-    description:
-    usage:
-  lobby:
-    description:
-    usage:
-    aliases: [hub, l]
-  help:
     description:
     usage:
