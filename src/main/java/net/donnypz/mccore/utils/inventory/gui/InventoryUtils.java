@@ -1,7 +1,7 @@
 package net.donnypz.mccore.utils.inventory.gui;
 
-import net.donnypz.mccore.utils.ItemBuilder;
-import net.donnypz.mccore.utils.ItemUtils;
+import net.donnypz.mccore.utils.item.ItemBuilder;
+import net.donnypz.mccore.utils.item.ItemUtils;
 import net.donnypz.mccore.utils.inventory.cosmetic.FieldMinimumCondition;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

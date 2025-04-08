@@ -2,11 +2,11 @@ package net.donnypz.mccore.minigame;
 
 import io.papermc.paper.entity.TeleportFlag;
 import net.donnypz.mccore.minigame.arenaManager.Arena;
-import net.donnypz.mccore.utils.ItemUtils;
+import net.donnypz.mccore.utils.item.ItemUtils;
 import net.donnypz.mccore.utils.PlayerUtils;
 import net.donnypz.mccore.utils.inventory.gui.ChestGUI;
 import net.donnypz.mccore.utils.inventory.gui.GUIItem;
-import net.donnypz.mccore.utils.inventory.item.ItemAction;
+import net.donnypz.mccore.utils.item.ItemAction;
 import net.donnypz.mccore.utils.ui.scoreboard.PlayerScoreboard;
 import net.donnypz.mccore.utils.ui.scoreboard.ScoreboardUtils;
 import net.kyori.adventure.text.Component;

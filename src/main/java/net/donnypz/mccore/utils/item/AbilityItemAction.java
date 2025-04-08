@@ -1,10 +1,9 @@
-package net.donnypz.mccore.utils.inventory.item;
+package net.donnypz.mccore.utils.item;
 
 import net.donnypz.mccore.utils.AbilityHandler;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 public class AbilityItemAction extends ItemAction {

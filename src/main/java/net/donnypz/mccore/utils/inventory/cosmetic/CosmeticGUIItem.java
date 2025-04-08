@@ -3,8 +3,8 @@ package net.donnypz.mccore.utils.inventory.cosmetic;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.CountOptions;
 import net.donnypz.mccore.cosmetics.Cosmetic;
-import net.donnypz.mccore.utils.ItemBuilder;
-import net.donnypz.mccore.utils.ItemUtils;
+import net.donnypz.mccore.utils.item.ItemBuilder;
+import net.donnypz.mccore.utils.item.ItemUtils;
 import net.donnypz.mccore.utils.inventory.gui.GUIItem;
 import net.donnypz.playerdbutils.database.MongoUtils;
 import net.kyori.adventure.text.Component;
@@ -98,7 +98,7 @@ public class CosmeticGUIItem extends GUIItem {
 
         //Check if cosmetic is already unlocked
         MongoCollection<Document> unlockCollection = gui.unlockCollection;
-        Document unlockedCosmetic = unlockCollection.find(new Document("uuid", uuidString)
+        Document unlockedCosmetic = unlockCollection.find(new Document("player_uuid", uuidString)
                 .append(CosmeticGUI.COSMETIC_ID_FIELD, cosmetic.getValue())).first();
         boolean isUnlocked = unlockedCosmetic != null;
         if (isUnlocked){
@@ -150,7 +150,7 @@ public class CosmeticGUIItem extends GUIItem {
         }
 
         //Check if player has enough currency
-        if (cosmetic.hasPrice()){
+        if (cosmetic.hasCurrency()){
             String currencyField = cosmetic.getCurrencyField();
             int price = cosmetic.getPrice();
             int funds = playerDoc.getInteger(currencyField);
@@ -163,7 +163,7 @@ public class CosmeticGUIItem extends GUIItem {
             //Has Enough
             else{
                 unlockLore(lore, typeDisplayName, true);
-                return event -> CosmeticShopUtils.purchaseCosmetic((Player) event.getWhoClicked(), gui, cosmetic, playerDoc);
+                return event -> CosmeticShopUtils.purchaseCosmetic((Player) event.getWhoClicked(), gui, cosmetic);
             }
         }
 
@@ -213,7 +213,7 @@ public class CosmeticGUIItem extends GUIItem {
         List<Component> conditionLore = new ArrayList<>();
 
         //Currency Condition
-        if (cosmetic.hasPrice()){
+        if (cosmetic.hasCurrency()){
             conditionLore.add(MiniMessage.miniMessage().deserialize("<white>Price: <yellow>"+cosmetic.getPrice()).decoration(TextDecoration.ITALIC, false));
         }
         else{

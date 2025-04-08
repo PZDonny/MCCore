@@ -1,4 +1,4 @@
-package net.donnypz.mccore.utils.inventory.item;
+package net.donnypz.mccore.utils.item;
 
 import net.donnypz.mccore.minigame.arenaManager.Arena;
 import org.bukkit.entity.Player;

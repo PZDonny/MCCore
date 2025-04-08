@@ -1,6 +1,6 @@
 package net.donnypz.mccore.cosmetics.shieldSkins;
 
-import net.donnypz.mccore.utils.ItemUtils;
+import net.donnypz.mccore.utils.item.ItemUtils;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.Banner;

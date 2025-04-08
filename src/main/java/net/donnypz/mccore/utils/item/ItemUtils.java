@@ -1,4 +1,4 @@
-package net.donnypz.mccore.utils;
+package net.donnypz.mccore.utils.item;
 
 import io.papermc.paper.block.BlockPredicate;
 import io.papermc.paper.datacomponent.DataComponentTypes;

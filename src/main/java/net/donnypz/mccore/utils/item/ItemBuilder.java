@@ -1,4 +1,4 @@
-package net.donnypz.mccore.utils;
+package net.donnypz.mccore.utils.item;
 
 import io.papermc.paper.datacomponent.item.Consumable;
 import io.papermc.paper.datacomponent.item.FoodProperties;
