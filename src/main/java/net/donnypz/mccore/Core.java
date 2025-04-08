@@ -5,7 +5,6 @@ import net.donnypz.mccore.cosmetics.CosmeticRegistry;
 import net.donnypz.mccore.listeners.*;
 import net.donnypz.mccore.minigame.ArenaItemActionRegistry;
 import net.donnypz.mccore.minigame.arenaManager.ArenaManager;
-import net.donnypz.mccore.packets.CoreProtocolPacketListener;
 import net.donnypz.mccore.utils.WorldUtils;
 import net.donnypz.mccore.utils.inventory.gui.Listener_InventoryClick;
 import net.donnypz.mccore.utils.inventory.gui.Listener_InventoryClose;
@@ -50,7 +49,6 @@ public final class Core extends JavaPlugin implements Listener {
     static boolean isSlimeInstalled = false;
     static boolean isNBAPIInstalled = true;
     static boolean isLPAPIInstalled = true;
-    static boolean isProtocolLibInstalled = true;
 
     @Override
     public void onEnable() {
@@ -58,7 +56,6 @@ public final class Core extends JavaPlugin implements Listener {
 
         //Register Optional Dependencies
         isNBAPIInstalled = Bukkit.getPluginManager().isPluginEnabled("NoteBlockAPI");
-        isProtocolLibInstalled = Bukkit.getPluginManager().isPluginEnabled("ProtocolLib");
         isSlimeInstalled = SlimeUtils.registerSlime();
         isLPAPIInstalled = Bukkit.getPluginManager().isPluginEnabled("LuckPerms");
         if (isLPAPIInstalled){
@@ -179,14 +176,13 @@ public final class Core extends JavaPlugin implements Listener {
     public static boolean isSlimeInstalled() {
         return isSlimeInstalled;
     }
+
     public static boolean isNBAPIInstalled() {
         return isNBAPIInstalled;
     }
+
     public static boolean isLuckPermsInstalled() {
         return isLPAPIInstalled;
-    }
-    public static boolean isProtocolLibInstalled(){
-        return isProtocolLibInstalled;
     }
 
     public static boolean isMongoEnabled() {
@@ -218,10 +214,6 @@ public final class Core extends JavaPlugin implements Listener {
         if (Core.isMongoEnabled()){
             MongoUtils.createConnection(connectionString);
         }
-
-        //Register Packet Listener
-        if (isProtocolLibInstalled) CoreProtocolPacketListener.registerOutgoing();
-
 
 
         for (World w : Bukkit.getWorlds()) templateWorldSetup(w);
