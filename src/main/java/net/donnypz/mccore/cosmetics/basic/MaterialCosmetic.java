@@ -1,5 +1,7 @@
-package net.donnypz.mccore.cosmetics;
+package net.donnypz.mccore.cosmetics.basic;
 
+import net.donnypz.mccore.cosmetics.Cosmetic;
+import net.donnypz.mccore.cosmetics.CosmeticRegistry;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 

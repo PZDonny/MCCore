@@ -1,11 +1,13 @@
-package net.donnypz.mccore.cosmetics;
+package net.donnypz.mccore.cosmetics.basic;
 
+import net.donnypz.mccore.cosmetics.Cosmetic;
+import net.donnypz.mccore.cosmetics.CosmeticRegistry;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Projectile;
 
 import java.util.LinkedHashMap;
 
-public abstract class ProjectileTrail extends Cosmetic{
+public abstract class ProjectileTrail extends Cosmetic {
 
     private static final LinkedHashMap<String, ProjectileTrail> allProjectileTrails = new LinkedHashMap<>();
 

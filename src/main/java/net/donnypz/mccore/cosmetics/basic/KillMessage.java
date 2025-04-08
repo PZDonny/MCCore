@@ -1,11 +1,13 @@
-package net.donnypz.mccore.cosmetics;
+package net.donnypz.mccore.cosmetics.basic;
 
+import net.donnypz.mccore.cosmetics.Cosmetic;
+import net.donnypz.mccore.cosmetics.CosmeticRegistry;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.entity.Player;
 
-public class KillMessage extends Cosmetic{
+public class KillMessage extends Cosmetic {
 
     private Component messagePrefix = Component.empty();
     private Component messageSuffix = Component.empty();
