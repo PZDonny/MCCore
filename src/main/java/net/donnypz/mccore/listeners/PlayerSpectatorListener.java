@@ -2,8 +2,8 @@ package net.donnypz.mccore.listeners;
 
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import net.donnypz.mccore.Core;
-import net.donnypz.mccore.minigame.arenaManager.Arena;
-import net.donnypz.mccore.minigame.arenaManager.ArenaManager;
+import net.donnypz.mccore.minigame.arena.Arena;
+import net.donnypz.mccore.minigame.arena.ArenaManager;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Openable;
 import org.bukkit.block.data.type.DecoratedPot;

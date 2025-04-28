@@ -1,11 +1,9 @@
 package net.donnypz.mccore.cosmetics;
 
-import net.donnypz.mccore.utils.inventory.cosmetic.DocumentCountCondition;
-import net.donnypz.mccore.utils.inventory.cosmetic.FieldMinimumCondition;
+import net.donnypz.mccore.cosmetics.conditions.CosmeticCondition;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,62 +11,59 @@ import java.util.HashSet;
 
 public abstract class Cosmetic{
     private final String cosmeticName;
-    private Object value;
+    private Object selectValue;
     private Component cosmeticDisplayName = Component.empty();
-    private String currencyField;
-    private int price = -1;
+    private Currency currency;
     private String permission;
-    private final HashSet<FieldMinimumCondition> fieldMinimumConditions = new HashSet<>();
-    private final HashSet<DocumentCountCondition> documentCountConditions = new HashSet<>();
+    private Material displayMaterial = Material.STICK;
+    private final HashSet<CosmeticCondition> unlockConditions = new HashSet<>();
 
-    private Material displayMaterial;
-
-    public Cosmetic(String cosmeticName, CosmeticRegistry registry){
+    public Cosmetic(@NotNull String cosmeticName, CosmeticRegistry registry){
         this.cosmeticName = cosmeticName;
-        this.setValue(cosmeticName);
+        this.setSelectValue(cosmeticName);
         if (registry != null){
             registry.registerCosmetic(this);
         }
     }
 
-    public @Nullable Material getDisplayMaterial() {
-        return displayMaterial;
-    }
-
-    public Cosmetic setDisplayMaterial(Material displayMaterial) {
+    public Cosmetic setDisplayMaterial(@NotNull Material displayMaterial) {
         this.displayMaterial = displayMaterial;
         return this;
     }
 
-    public Component getCosmeticDisplayName(){
-        return cosmeticDisplayName;
+    public @NotNull Material getDisplayMaterial() {
+        return displayMaterial;
     }
 
-    public Cosmetic setCosmeticDisplayName(Component cosmeticDisplayName) {
+    public Cosmetic setCosmeticDisplayName(@NotNull Component cosmeticDisplayName) {
         this.cosmeticDisplayName = cosmeticDisplayName;
         return this;
     }
 
-    public Cosmetic setCosmeticDisplayName(String cosmeticDisplayName) {
+    public Cosmetic setCosmeticDisplayName(@NotNull String cosmeticDisplayName) {
         return setCosmeticDisplayName(Component.text(cosmeticDisplayName, NamedTextColor.YELLOW));
     }
 
-    public @NotNull String getCurrencyField(){
-        return currencyField;
+    public @NotNull Component getCosmeticDisplayName(){
+        return cosmeticDisplayName;
     }
 
-    public int getPrice() {
-        return price;
-    }
-
-    public Cosmetic setPrice(@NotNull String currencyField, int price) {
-        this.currencyField = currencyField;
-        this.price = price;
+    public Cosmetic setCurrency(@NotNull Currency currency){
+        this.currency = currency;
         return this;
     }
 
-    public boolean hasPrice(){
-        return currencyField != null;
+    public Cosmetic setCurrency(int price, @NotNull String currencyField, @NotNull String displayName) {
+        this.currency = new Currency(price, currencyField, displayName);
+        return this;
+    }
+
+    public @Nullable Currency getCurrency(){
+        return currency;
+    }
+
+    public boolean hasCurrency(){
+        return currency != null;
     }
 
     public Cosmetic setPermission(@NotNull String permission){
@@ -84,51 +79,41 @@ public abstract class Cosmetic{
         return permission != null;
     }
 
-    @ApiStatus.Internal
-    public void addFieldMinimumCondition(FieldMinimumCondition fieldMinimumCondition){
-        fieldMinimumConditions.add(fieldMinimumCondition);
-    }
 
-    public Cosmetic addFieldMinimumCondition(FieldMinimumCondition fieldMinimumCondition, Number minimumValue){
-        fieldMinimumCondition.addCosmetic(this, minimumValue);
+    public Cosmetic addCondition(@NotNull CosmeticCondition condition){
+        unlockConditions.add(condition);
         return this;
     }
 
-    public void addDocumentCountCondition(DocumentCountCondition documentCountCondition){
-        documentCountConditions.add(documentCountCondition);
+    public boolean hasConditions(){
+        return !unlockConditions.isEmpty();
     }
 
-
-    public boolean hasCosmeticConditions(){
-        return !fieldMinimumConditions.isEmpty();
+    public boolean hasCondition(@NotNull CosmeticCondition condition){
+        return unlockConditions.contains(condition);
     }
 
-    public boolean hasCosmeticCondition(FieldMinimumCondition condition){
-        return fieldMinimumConditions.contains(condition);
-    }
-    public HashSet<FieldMinimumCondition> getFieldMinimumConditions() {
-        return new HashSet<>(fieldMinimumConditions);
+    public HashSet<CosmeticCondition> getConditions() {
+        return new HashSet<>(unlockConditions);
     }
 
-    public HashSet<DocumentCountCondition> getDocumentCountConditions(){
-        return new HashSet<>(documentCountConditions);
-    }
-
-    public Cosmetic setValue(int value){
-        this.value = value;
+    public Cosmetic setSelectValue(int selectValue){
+        this.selectValue = selectValue;
         return this;
     }
 
-    public Cosmetic setValue(String value){
-        this.value = value;
+    public Cosmetic setSelectValue(@NotNull String value){
+        this.selectValue = value;
         return this;
     }
 
-    public Object getValue(){
-        return this.value;
+    public Object getSelectValue(){
+        return this.selectValue;
     }
 
     public String getCosmeticName() {
         return cosmeticName;
     }
+
+    public record Currency(int price, @NotNull String currencyField, @NotNull String displayName){};
 }

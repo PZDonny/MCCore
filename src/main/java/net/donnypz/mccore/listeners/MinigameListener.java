@@ -2,8 +2,8 @@ package net.donnypz.mccore.listeners;
 
 import net.donnypz.mccore.Core;
 import net.donnypz.mccore.events.PlayerRemovedFromArenaEvent;
-import net.donnypz.mccore.minigame.arenaManager.Arena;
-import net.donnypz.mccore.minigame.arenaManager.ArenaManager;
+import net.donnypz.mccore.minigame.arena.Arena;
+import net.donnypz.mccore.minigame.arena.ArenaManager;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;

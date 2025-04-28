@@ -1,7 +1,7 @@
 package net.donnypz.mccore.listeners;
 
 import net.donnypz.mccore.Core;
-import net.donnypz.mccore.utils.RankUtils;
+import net.donnypz.mccore.utils.misc.RankUtils;
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;
@@ -91,7 +91,6 @@ public class ChatListener implements Listener {
         //With Rank Prefix
         if (Core.isLuckPermsInstalled()){
             Component prefix = RankUtils.getPlayerPrefix(p);
-
             e.renderer(new ChatRenderer() {
                 @Override
                 public @NotNull Component render(@NotNull Player source, @NotNull Component sourceDisplayName, @NotNull Component message, @NotNull Audience viewer) {

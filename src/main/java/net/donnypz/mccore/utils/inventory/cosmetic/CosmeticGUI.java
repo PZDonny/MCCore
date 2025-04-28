@@ -7,6 +7,7 @@ import org.bson.Document;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 public class CosmeticGUI extends ChestGUI {
@@ -17,15 +18,13 @@ public class CosmeticGUI extends ChestGUI {
     final String selectedField;
     String cosmeticTypeDisplayName;
 
-    static final String COSMETIC_ID_FIELD = "cosmetic_id";
-
     public CosmeticGUI(int rows,
-                       Component title,
+                       @NotNull Component title,
                        @NotNull Player player,
                        @NotNull MongoCollection<Document> playerCollection,
                        @NotNull MongoCollection<Document> unlockCollection,
                        @NotNull String selectedField,
-                       String cosmeticTypeDisplayName) {
+                       @NotNull String cosmeticTypeDisplayName) {
         super(rows, title);
         this.playerUUID = player.getUniqueId();
         this.playerCollection = playerCollection;

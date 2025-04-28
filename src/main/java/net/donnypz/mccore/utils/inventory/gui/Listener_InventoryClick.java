@@ -47,8 +47,7 @@ public class Listener_InventoryClick implements Listener {
         }
 
         GUIItem item = gui.getGUIItem(event.getSlot());
-        //if (item == null || !item.hasAction() || !item.item.equals(event.getCurrentItem())){
-        if (item == null || !item.hasAction()){
+        if (item == null || !item.hasClickAction()){
             return;
         }
 

@@ -1,7 +1,6 @@
 package net.donnypz.mccore.events;
 
-import net.donnypz.mccore.utils.AbilityHandler;
-import org.bukkit.boss.BossBar;
+import net.donnypz.mccore.utils.ability.AbilityHandler;
 import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;

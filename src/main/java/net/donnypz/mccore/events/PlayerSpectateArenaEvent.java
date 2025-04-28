@@ -1,6 +1,6 @@
 package net.donnypz.mccore.events;
 
-import net.donnypz.mccore.minigame.arenaManager.Arena;
+import net.donnypz.mccore.minigame.arena.Arena;
 import org.bukkit.entity.Player;
 
 public class PlayerSpectateArenaEvent extends ArenaEvent {

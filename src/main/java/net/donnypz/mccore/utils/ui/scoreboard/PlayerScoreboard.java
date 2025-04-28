@@ -1,7 +1,7 @@
 package net.donnypz.mccore.utils.ui.scoreboard;
 
-import net.donnypz.mccore.minigame.arenaManager.Arena;
-import net.donnypz.mccore.minigame.arenaManager.MinigamePlayerProfile;
+import net.donnypz.mccore.minigame.arena.Arena;
+import net.donnypz.mccore.minigame.arena.MinigamePlayerProfile;
 import io.papermc.paper.scoreboard.numbers.NumberFormat;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

@@ -1,7 +1,14 @@
 package net.donnypz.mccore.cosmetics;
 
-import net.donnypz.mccore.utils.inventory.cosmetic.FieldMinimumCondition;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import net.donnypz.mccore.cosmetics.conditions.CosmeticCondition;
+import net.donnypz.mccore.database.MongoUtils;
+import org.bson.Document;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -10,45 +17,35 @@ public abstract class CosmeticRegistry {
 
     protected static final HashSet<CosmeticRegistry> registries = new HashSet<>();
     private final LinkedHashMap<String, Cosmetic> cosmeticStorage = new LinkedHashMap<>();
+    private MongoCollection<Document> unlockCollection;
 
     public CosmeticRegistry(){
         registries.add(this);
-
     }
 
     protected abstract void registerCosmetics();
 
-    public static void loadAllRegistries(){
-        for (CosmeticRegistry registry : registries){
-            try{
-                registry.registerCosmetics();
-            }
-            catch(IllegalStateException e){
-                Bukkit.getLogger().warning("Failed to register a cosmetic registry! Was a plugin disabled?");
-            }
-
-        }
-    }
-
     Cosmetic registerCosmetic(Cosmetic cosmetic){
-        if (!cosmeticStorage.containsKey(cosmetic.getCosmeticName())){
-            cosmeticStorage.put(cosmetic.getCosmeticName(), cosmetic);
+        String cosmeticName = cosmetic.getCosmeticName();
+        if (!cosmeticStorage.containsKey(cosmeticName)){
+            cosmeticStorage.put(cosmeticName, cosmetic);
         }
         return cosmetic;
     }
 
-    public void autoSetDatabaseSelectValues(){
-        ArrayList<Cosmetic> cosmetics = new ArrayList<>(cosmeticStorage.values());
-        for (int i = 0; i < cosmetics.size(); i++){
-            cosmetics.get(i).setValue(i+1);
-        }
+    /**
+     * Set the collection that will hold unlocked cosmetics of players. Only call this after the server has connected to MongoDB
+     * @param unlockCollection the collection to assoiciate with this registry
+     */
+    public void setUnlockCollection(MongoCollection<Document> unlockCollection){
+        this.unlockCollection = unlockCollection;
     }
 
-    public Cosmetic getCosmetic(String cosmeticName){
+    public Cosmetic getCosmetic(@NotNull String cosmeticName){
         return cosmeticStorage.get(cosmeticName);
     }
 
-    public <T> T getCosmetic(String cosmeticName, Class<T> cosmeticClass){
+    public <T> T getCosmetic(@NotNull String cosmeticName, Class<T> cosmeticClass){
         Cosmetic cosmetic = cosmeticStorage.get(cosmeticName);
         if (cosmetic == null){
             return null;
@@ -61,25 +58,27 @@ public abstract class CosmeticRegistry {
         }
     }
 
-    public Cosmetic getCosmetic(Object mongoSelectValue){
-        for (Cosmetic cosmetic : cosmeticStorage.values()){
-            if (cosmetic.getValue().equals(mongoSelectValue)){
-                return cosmetic;
-            }
-        }
-        return null;
+
+    /**
+     * Get cosmetics that contain the provided {@link CosmeticCondition}
+     * @param cosmeticCondition
+     * @return a list of cosmetics
+     */
+    public List<Cosmetic> getCosmetics(CosmeticCondition cosmeticCondition){
+        return getCosmetics(cosmeticCondition, Cosmetic.class);
     }
 
-
-    public List<Cosmetic> getCosmetics(FieldMinimumCondition fieldMinimumCondition){
-        return getCosmetics(fieldMinimumCondition, Cosmetic.class);
-    }
-
-    public <T> List<T> getCosmetics(FieldMinimumCondition fieldMinimumCondition, Class<T> cosmeticClass){
+    /**
+     * Get cosmetics that contain the provided {@link CosmeticCondition}
+     * @param cosmeticCondition
+     * @param cosmeticClass
+     * @return a list of cosmetics
+     */
+    public <T> List<T> getCosmetics(CosmeticCondition cosmeticCondition, Class<T> cosmeticClass){
         List<T> cosmetics = new ArrayList<>();
 
         for (Cosmetic cosmetic : cosmeticStorage.values()){
-            if (cosmetic.hasCosmeticCondition(fieldMinimumCondition)) {
+            if (cosmetic.hasCondition(cosmeticCondition)) {
                 cosmetics.add(cosmeticClass.cast(cosmetic));
             }
         }
@@ -87,55 +86,32 @@ public abstract class CosmeticRegistry {
     }
 
 
-    public List<Cosmetic> getCosmetics(FieldMinimumCondition... fieldMinimumConditions){
-        return getCosmetics(Cosmetic.class, fieldMinimumConditions);
+    /**
+     * Get cosmetics that contain at least one of the provided {@link CosmeticCondition}
+     * @param cosmeticConditions
+     * @return a list of cosmetics
+     */
+    public List<Cosmetic> getCosmetics(CosmeticCondition... cosmeticConditions){
+        return getCosmetics(Cosmetic.class, cosmeticConditions);
     }
 
     /**
-     * Get cosmetics that contain at least one of the cosmetic conditions
+     * Get cosmetics that contain at least one of the provided {@link CosmeticCondition}
+     * @param cosmeticConditions
+     * @param cosmeticClass
+     * @return a list of cosmetics
      */
-    public <T> List<T> getCosmetics(Class<T> cosmeticClass, FieldMinimumCondition... fieldMinimumConditions){
+    public <T> List<T> getCosmetics(Class<T> cosmeticClass, CosmeticCondition... cosmeticConditions){
         List<T> cosmetics = new ArrayList<>();
 
         for (Cosmetic cosmetic : cosmeticStorage.values()){
-            for (FieldMinimumCondition condition : fieldMinimumConditions){
-                if (cosmetic.hasCosmeticCondition(condition)) {
+            for (CosmeticCondition condition : cosmeticConditions){
+                if (cosmetic.hasCondition(condition)) {
                     cosmetics.add(cosmeticClass.cast(cosmetic));
                     break;
                 }
             }
 
-        }
-        return cosmetics;
-    }
-
-
-    public List<Cosmetic> getCosmeticsWithConditionField(String mongoField){
-        List<Cosmetic> cosmetics = new ArrayList<>();
-        for (Cosmetic cosmetic : cosmeticStorage.values()){
-            for (FieldMinimumCondition cond : cosmetic.getFieldMinimumConditions()){
-                if (cond.hasField(mongoField)){
-                    cosmetics.add(cosmetic);
-                    break;
-                }
-            }
-        }
-        return cosmetics;
-    }
-
-    public List<Cosmetic> getCosmeticsWithConditionField(Collection<String> mongoFields){
-        List<Cosmetic> cosmetics = new ArrayList<>();
-        for (Cosmetic cosmetic : cosmeticStorage.values()){
-            condition:
-            for (FieldMinimumCondition cond : cosmetic.getFieldMinimumConditions()){
-                for (String field : mongoFields){
-                    if (cond.hasField(field)){
-                        cosmetics.add(cosmetic);
-                        break condition;
-                    }
-                }
-
-            }
         }
         return cosmetics;
     }
@@ -160,5 +136,24 @@ public abstract class CosmeticRegistry {
 
     public SequencedSet<String> getCosmeticNames(){
         return cosmeticStorage.sequencedKeySet();
+    }
+
+    public MongoCollection<Document> getUnlockCollection(){
+        return unlockCollection;
+    }
+
+    public static void loadRegistries(){
+        for (CosmeticRegistry registry : registries){
+            try{
+                registry.registerCosmetics();
+            }
+            catch(IllegalStateException e){
+                Bukkit.getLogger().warning("Failed to register a cosmetic registry! Was a plugin disabled?");
+            }
+        }
+    }
+
+    public static HashSet<CosmeticRegistry> getRegistries(){
+        return registries;
     }
 }

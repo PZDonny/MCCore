@@ -1,6 +1,6 @@
 package net.donnypz.mccore.utils.item;
 
-import net.donnypz.mccore.minigame.arenaManager.ArenaManager;
+import net.donnypz.mccore.minigame.arena.ArenaManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

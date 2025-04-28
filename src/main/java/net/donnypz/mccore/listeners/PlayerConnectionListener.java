@@ -1,13 +1,14 @@
 package net.donnypz.mccore.listeners;
 
 import net.donnypz.mccore.Core;
+import net.donnypz.mccore.database.MongoUtils;
+import net.donnypz.mccore.database.PlayerData;
 import net.donnypz.mccore.events.*;
-import net.donnypz.mccore.minigame.arenaManager.ArenaManager;
-import net.donnypz.mccore.utils.RankUtils;
+import net.donnypz.mccore.minigame.arena.ArenaManager;
+import net.donnypz.mccore.utils.misc.RankUtils;
 import net.donnypz.mccore.utils.ui.actionbar.ActionBarUtils;
 import net.donnypz.mccore.utils.ui.scoreboard.PlayerScoreboard;
 import net.donnypz.mccore.utils.ui.scoreboard.ScoreboardUtils;
-import net.donnypz.playerdbutils.database.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -18,7 +19,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class PlayerConnectionListener implements Listener {
 
@@ -53,9 +53,14 @@ public class PlayerConnectionListener implements Listener {
     @EventHandler(priority = EventPriority.LOW)
     public void onQuit(PlayerQuitEvent e){
         Player p = e.getPlayer();
+
+        //Remove Cached Player Data
+        PlayerData.remove(e.getPlayer());
+
         ChatListener.removeCooldown(p);
         ActionBarUtils.removePlayerCancel(p);
         ArenaManager.removePlayerFromArena(p, PlayerRemovedFromArenaEvent.RemoveCause.DISCONNECT);
+
         PlayerScoreboard scoreboard = ScoreboardUtils.getPlayerScoreboard(p.getUniqueId());
         if (scoreboard != null){
             scoreboard.delete();
@@ -65,13 +70,12 @@ public class PlayerConnectionListener implements Listener {
         if (Core.isConnectionMessageHidden()){
             e.quitMessage(null);
         }
-        new BukkitRunnable(){
-            public void run(){
-                for (Player o : Bukkit.getOnlinePlayers()){
-                    PlayerScoreboard board = ScoreboardUtils.getPlayerScoreboard(o);
-                    PlayerScoreboard.UpdatingValue.ONLINE_PLAYERS.updateValue(board, null);
-                }
+
+        Bukkit.getScheduler().runTaskLater(Core.getInstance(), () -> {
+            for (Player o : Bukkit.getOnlinePlayers()){
+                PlayerScoreboard board = ScoreboardUtils.getPlayerScoreboard(o);
+                PlayerScoreboard.UpdatingValue.ONLINE_PLAYERS.updateValue(board, null);
             }
-        }.runTaskLater(Core.getInstance(), 1);
+        }, 1);
     }
 }

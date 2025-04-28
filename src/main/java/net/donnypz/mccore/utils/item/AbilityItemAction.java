@@ -1,6 +1,6 @@
 package net.donnypz.mccore.utils.item;
 
-import net.donnypz.mccore.utils.AbilityHandler;
+import net.donnypz.mccore.utils.ability.AbilityHandler;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnegative;

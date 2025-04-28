@@ -1,6 +1,5 @@
 package net.donnypz.mccore.utils.inventory.gui;
 
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
@@ -82,16 +81,12 @@ public abstract class GUI{
 
     public void remove(){
         onRemoval();
-        GUI.allGUIs.remove(inventory);
+        allGUIs.remove(inventory);
         for (GUIItem item : new ArrayList<>(allGUIItems.values())){
             item.remove();
         }
         inventory.clear();
-
-
-        for (HumanEntity entity : new ArrayList<>(inventory.getViewers())){
-            entity.closeInventory();
-        }
+        inventory.close();
         isValid = false;
     }
 

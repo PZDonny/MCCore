@@ -12,14 +12,14 @@ public class GUIItem {
     GUI gui;
     int slot;
 
-    protected Consumer<InventoryClickEvent> action;
+    protected Consumer<InventoryClickEvent> clickAction;
 
-    public GUIItem(@NotNull GUI gui, int slot, @NotNull ItemStack item, Consumer<InventoryClickEvent> action){
+    public GUIItem(@NotNull GUI gui, int slot, @NotNull ItemStack item, Consumer<InventoryClickEvent> clickAction){
         this.item = item;
         this.gui = gui;
         this.slot = slot;
         this.gui.getInventory().setItem(slot, this.item);
-        this.action = action;
+        this.clickAction = clickAction;
         GUIItem existing = gui.getGUIItem(slot);
         if (existing != null){
             existing.remove();
@@ -29,10 +29,10 @@ public class GUIItem {
 
 
     void executeAction(@NotNull InventoryClickEvent event){
-        if (action == null){
+        if (clickAction == null){
             return;
         }
-        action.accept(event);
+        clickAction.accept(event);
     }
 
     public void changeItemStack(ItemStack itemStack){
@@ -46,8 +46,8 @@ public class GUIItem {
         return item;
     }
 
-    public boolean hasAction(){
-        return action != null;
+    public boolean hasClickAction(){
+        return clickAction != null;
     }
 
 
@@ -55,6 +55,6 @@ public class GUIItem {
         gui.allGUIItems.remove(slot);
         item = null;
         gui = null;
-        action = null;
+        clickAction = null;
     }
 }

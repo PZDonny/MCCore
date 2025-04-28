@@ -1,8 +1,8 @@
 package net.donnypz.mccore.events;
 
 import net.donnypz.mccore.Core;
-import net.donnypz.mccore.minigame.arenaManager.Arena;
-import net.donnypz.mccore.minigame.arenaManager.ArenaContainer;
+import net.donnypz.mccore.minigame.arena.Arena;
+import net.donnypz.mccore.minigame.arena.ArenaContainer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 

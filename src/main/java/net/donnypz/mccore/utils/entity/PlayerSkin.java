@@ -1,0 +1,203 @@
+package net.donnypz.mccore.utils.entity;
+
+import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
+import java.util.UUID;
+
+public class PlayerSkin {
+
+    private static final HashMap<String, PlayerSkin> skins = new HashMap<>();
+
+    public static final PlayerSkin STEVE = new PlayerSkin("steve")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY4NzgwNzA5MDY2OSwKICAicHJvZmlsZUlkIiA6ICIyYzA3NmUzNDU0N2M0OWU2OTMwYzQzZDE2MDZmYjI1ZCIsCiAgInByb2ZpbGVOYW1lIiA6ICJsUmVzdSIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9iMTZjM2FkNGI4MTA4OTg0ZDc3YmMwNzk1YWI3NjQwODhlMDA5MTg3N2FjNmYxNDU0NTJhMGNkMWM4OWZjNmI2IgogICAgfQogIH0KfQ==")
+            .setSignature("TneYRcMf7nlauAvBAxxt6cfCJveJkbCzREWKJ7ldVCgsLP3n711NTRvpzqnskG38cE4a2+4++qtrh1Iu29Vue/j1OBXns1JT0KRIBwbsnwmKW+GrB9onq80pwNPu9SRuBUZy1qVnAodZQTX5qkHAFROgvqcWnMkEPTEjtExly3xVl4rJFcL7EiTCzuOcBp5O0kXClQnq7dEXgSoa389dMtLXdu3ighoLyHfqY0yOVeIMTQCYa+fu095rZ4NpplpYKWrgGhrR+AeMQ9zu9O57GpLeOmemsU5g32vBwIAisWkXpoRy+zbUQlvUcjjftluGinuRJF7W4cmXJcKPI68zok/rgrHZpAD+WGdDaV5HSLB2WyzBpcLQ28WiyvuoeMYBArZWrIIIUlKfnUEpI/OIIinfkkcO1T9z/lrQ6NiP9Zs6j8oG7GJJ8oyh2krAKwf1yzs4rkzl9pLokKmQ805Q88Hh3MyEOskDsm6u8qXo4QbqSVrDuu4+vFm9v5ZS1td0S4fXZDEYUepUas4JkMQIQnoTiSSM7kYjFU4FlKfc4WExr4cPkB6UDm8ZTP9WFGAD6RNg+yxdxZqrz8qy3XUuqoj9oez8Z51CZAILAmKuX+hBxsrEnV4WPkzQluP0bMXXanS2nnaeFhdri6nM6XjjYSB+Hf+5lP8+MQ27AF7rxFQ=")
+            ;
+
+    public static final PlayerSkin MASTERCHIEF = new PlayerSkin("masterchief")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY5MTY5MjQ5NzkwNiwKICAicHJvZmlsZUlkIiA6ICI4ZjM4NTczYTU1MmY0OGQwYTUyZjIwYzAwNmQ0MjU3NiIsCiAgInByb2ZpbGVOYW1lIiA6ICJLYW5pc3RlcmkxIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzU5OTgzZmIwMTU3NWMxZmI5MjdmODAxYmU3MjM5OTk1OGEwZjE5MDE0ZGU1MWRiMTIzNzczYmFkZjM1OGFlN2IiCiAgICB9CiAgfQp9")
+            .setSignature("eL7swG7EtbJXam1XAnEqN4mumuQk7SANjgp9CY8cvCaepqYIWCJUU4Fq7QWAHVRBTCOBvTcBiXj7wtvKQUHmp6c9JszJcIFnVyWn4cunYKz6C0I8PMWsNdJTgmh7SSL7oo4BpawLE59PN3ZSPtLPnUOX8qeGxF+o39XVrtTR+4OJOlIfcAVCsYQzJDFSA6zNvdrq2OuuAj7sobrzj5QXNDmzJMTYQgUSwbsP8e8GtxGzJ6QpmWuzfCBI75eo2e2D5SQqSPd0YQMYP7QMLl5Ew2MpXGrVHPBnF1k2W7vNu2tx0wcnjGoxhXmrcrNrzVp1RgBdAi1BPe1Co86it8dTfLRzwMM1fhUZ699qEs08xIM47b4RgnQ7PXGw2Z8B/XGJS5e1R6Ssm6YmROfZeYP5rQ181AVZykmbEIcnWbVq/NqvrGpgYEiviYVAegAEEXB8H07U+99gYk+RPQghDurHfHS6tiB3sE9TOuHaCI5Fz9X9QI1qtJxYGOeHSDkYUa7/RZWtzzsL37Vv7CqZwwPld3930TFwcdab1FmSxiROBhCrHwL7YocoAymFbQzo3GIGRaXitlZulvvgYX2H1nSK2kZ4n/9+ZRqV6baYCHcnGsziIP0xawCbgW1Jdb8wdBu82eN4Z/o+rMABku3YNCnzRJ/E7VoZQ4uJD3uqjEUOJiM=")
+            ;
+
+    public static final PlayerSkin SHERBERTKID = new PlayerSkin("sherbertkid")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY5MTY5MDUyNTYzMiwKICAicHJvZmlsZUlkIiA6ICIzOTg5OGFiODFmMjU0NmQxOGIyY2ExMTE1MDRkZGU1MCIsCiAgInByb2ZpbGVOYW1lIiA6ICI4YjJjYTExMTUwNGRkZTUwIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzU0NTE1NGY4OTNlYjE4ZGViOGY4Y2ZmYjMxMzIxMzExNDAzYjRiZmNmY2NhMjEzYTE0MThiODk4MDQxOGVlNGIiLAogICAgICAibWV0YWRhdGEiIDogewogICAgICAgICJtb2RlbCIgOiAic2xpbSIKICAgICAgfQogICAgfQogIH0KfQ==")
+            .setSignature("v4dBT03YhnPaHi9IiAYwL+2VwpLxDv53J3YSPXBUvQbZmhl8f+mr9f5qnPxWFLEUBoTvZWhzBtBHJ7FyljzOzEFnXrbYaBNDAJeKcEGPFBL8mhL3n5OXpSVcjgx56/s3JgHs2JTQ24nfHB2hxNJx/96QBiUUQ+hu4dsGaPiIA10R7EAmitvhIWwEtqecDD86Wr25nV0++itK3y5QxqZ972w59SQeA9lO9ikJKCLTDI+shSHqzzyjMHB+DzvyBA6KdXF6u5fb+jd63mDWyNzgeBdbYTBIhY1aNmb3ArU7q42z/7dPHh7tBxDqYdkVcGiVFMgz6uS7ixvMHbsKGYfmisKdquhiIUk10TicVqonwx28NuVnpQS6ub8yYKtpaONW7b2avitiCWMkdJE7dpz1b63gHNbr5fPX5gJY4+2dkrR9WMCi5B7ZU8exuOXb0vRlQTPI1zHhOG8jGsmxxqJVsgQ3Wnn83l2pfhV9p+DPiWm/EUv8gEYiDGlmbWyt70c9tYzq3WRgIPZWJt1+GcEIU4ZTFu/b+Ax0d3fbxTdr7GRCS5mFYDDoOziR8jr057LnQb/VIlIiOs3kOricbeEysyOYVAEBKyz7Aa+D7VG10FiMpuK+7AtoG2nNFThiudCMzK+yzKOrqfSlYX5hX3VFpo11xGzE8mzDEuhqqI4Qjqc=")
+            ;
+
+    public static final PlayerSkin HUNTRESSALEX = new PlayerSkin("huntressalex")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY4MDk2MjIxOTcxNiwKICAicHJvZmlsZUlkIiA6ICJiMjdjMjlkZWZiNWU0OTEyYjFlYmQ5NDVkMmI2NzE0YSIsCiAgInByb2ZpbGVOYW1lIiA6ICJIRUtUMCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS85NTgwM2YyZGM1MDhkZmEwMWNlMmI3ODU2ZTk3NDMxMzZjZWViZDE4MWIyMTRmZWM2MGRjYzJhOWI4MzhhM2EzIiwKICAgICAgIm1ldGFkYXRhIiA6IHsKICAgICAgICAibW9kZWwiIDogInNsaW0iCiAgICAgIH0KICAgIH0KICB9Cn0=")
+            .setSignature("X8Snj7GUyKrjjlZITRg9mFS9Y/6Tw/syaLJES619wuu+ir6gQa4LaMHvFFhsQzWryiZ93GLOSV356vSHVZmlQs17Ib8RsCjd3f+16VGqSb0nUvQmlht8sV7tMDsLHSSEwhe1SI/ujWL+2zd4I+WhI1sWYBCwKIx/4GLSy7g3lTrruJsAq8ZSY+AyvS1Pc7dfym2aGBsYqxy9YcgohCndGfhf74p6OJzFirrXO3eV7TDTP5BuQCZFxI4WlWSjAJSRTLf96unlyshAm9choC+rFh+Q5suAym/a8iUDXAja/DyOD7/RFB6g9hXoyIGFKeqb/5p7U6XWfek5nZH3nQfSyczSCozmSdFCbZAvIbREpFPeE5gcIR9/FdPh7HPDv7kAFtoV6vVWAR7UusxsHl9x+t01W5xgV/bR/htVMVeNyf5zsaa8WnDQohi9SY7cw7F95lTJt32NVM90fuOyfibXTJQgRqU1nCl4UTp7AHqB+z1rInMnB9pPKp7ahZagkDlb1LPvsxps1R2x1fLqjpP/CN/XS3cegZERS7F4Auci3eSsDWxJklz4d1EqyQLAHg9Dc3lAlHkLEdpSSCUJ7wIsNmjHLIWFcq044Mizn297GoVypK5y8PauMPOyRzwi0OencfJpjCb9HBHdf4G7sEsZdlb5ynlVwVUut8oCbAFq+qY=")
+            ;
+
+    public static final PlayerSkin KNIGHT = new PlayerSkin("knight")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY5MTY5OTI1MDA4NCwKICAicHJvZmlsZUlkIiA6ICIxMzAyMWNlNmEzNGU0ODI3ODhkNTczNTY5MWJmYzU1MSIsCiAgInByb2ZpbGVOYW1lIiA6ICJ2aWJlYm95IiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzRhZDgzYTlhZTJlNzdkYzllMGM3NWIwY2JkMzY0YmQwMjVjMGIyOGEwNDRlN2I2MjJhYThjMDYxY2Y3NGE3MDQiCiAgICB9CiAgfQp9")
+            .setSignature("AdqHJ9zjWO70gGpO+FcU8/jaNYNbv5Fml8ouPNnreJjpxp9K+uiBPEsdTDhpPezhd7UtwEbI4FNHxs33x1wHKTU5ur45yWUrqN03FPR0vjTQXxXjojkmjHQGypVy4Kw/FaJX15pRsodLkkS3UKY0TO7F/yP5blQnWT9eXIsG+JJ9N0buc9hKjQsLC7quhc+uxtF2KzNYRkWVsgGa6aS+SRgkUUHQEcHvwPzCv7ZkYWmaucgjdGaDsg4HgCBOSoU0KjpSd7sntCIp7yutoPEbgia711tk+e9H/oAaqlK2HeAnW8GluWHBOY+EzRtyZ/rqlXcDQ2IBeze7HuDwAhLlwAbOoVCldUjp0aQATgABCXJnitd+Ikj0V3Q53yzXxiY0B9Dq2VL4GPCr+hT0xENrPreGO/+HnF/UNCG+bXG2ffuVw9Jru59omEVTKrjQkR+2umImV7Mde5fZnRj0BTVsNCYan7JBUJ6EA3Jnes+i+ikNZFyWHQEnJxldJxgPJL0+jYSYhbzo9yhDF1D/Z0q/9d3vuzFgVCnY0a3XcwOKVTiprm2S5knzufg7rT7Zgm1jHMl246C/ngPJ6P09oEsbVWMBynBRznD9jvrFB5SZxdhdGbBcLxmYodU/8wRf5+3TuSkqOI6c1RhSCtpxaZGG87SVcHaAoAx8mvKlPanad/s=")
+            ;
+
+    public static final PlayerSkin DERPSTEVE = new PlayerSkin("derpsteve")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY5MTY3OTg1MTU2OSwKICAicHJvZmlsZUlkIiA6ICJmY2ZhYTg0MzA0YjE0NDUxOThkNWYxNzQ3ZjI0Y2Q5MCIsCiAgInByb2ZpbGVOYW1lIiA6ICJTdGV3eVdvbGZ5IiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzcyYTg0OGQxMTRiYmYxOTcwNTMxNGM4NTc5NWI0MGJlZGVkOThlMWU3YTQzMzNiYmY2MWUyMGZhOTlkMWUxMjEiCiAgICB9CiAgfQp9")
+            .setSignature("M/D5Zp72Rg/ufyQU+ZcNciFgtb7jQ4BHczqj4okY9q5aYSsm7GCdoFUJHC9MGXgpTBRw13/6QAGyVqaO/G/b5TBOk6QqF7NC+5d7QfIB5swpVCZPyd7EGL2Z2BmVkL1o9bSW+gzgZZXmU3bRh4b4AJL2VG36w180XBF+SGsJpD0cN3PV1awAxsw+tWZEJwec+uDtqkWYZXFQcu8Xi7nL0ZE6jrN2L8zMRiPNx1vAsA6nlqE9m5Tao/0okjbtM83+sgF/jnGL3UmeSmHtWoHj4EG+tEa4EgP++bsKLesvhL3gxtXzWX8Uu06C+VDjt2Gr3goFrk3tE1h0Y6BsVnFumgNL0haKLrNi0Mw5gYm41FnFWvtmvPnKQp39bN5KzorJVafPRzsEuS5Z4fmJfFIn6h1VRM8TjRiiUJ23vfA7q2Awt5LjUoK0aQrUzVMAl/MMQqCxIbtyZur4X8FE7dr5+fVtc7AqXeHEXtSz7EJXRkdBwIYMAsGC8esDwOYqqSpirhbT6Xe5vozmYXOfKfkGmfEoqaQCaKGgB0966IFqsd6VONXLkj3j5RqvDRpf8rAhORrfDYuJy6c6lZlpx+ywkcCtS+s8TRVCxEIN9utlGp/UeR98mdrDcZ8VyJOcSFZBV8eK3Hm6y9bROBIFTYhqv3CH14Wry0exkMs8ve4/QNM=")
+            ;
+
+    public static final PlayerSkin OLDGUY = new PlayerSkin("oldguy")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY5MTY4MDMwMzUxMSwKICAicHJvZmlsZUlkIiA6ICIyMDZlMWZkYjI5Yzk0NGYxOTQ5OTg4NzAwNTQxMGQ2NyIsCiAgInByb2ZpbGVOYW1lIiA6ICJoNHlsMzMiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWUyODUzNjBjNWE0NmFjYTlkZjA5Y2IxZjI5N2VhNGJiZDIzNmY0ODk0MjExYjFkNjk3NzQ3YTk4N2NjN2NlMyIsCiAgICAgICJtZXRhZGF0YSIgOiB7CiAgICAgICAgIm1vZGVsIiA6ICJzbGltIgogICAgICB9CiAgICB9CiAgfQp9")
+            .setSignature("lFmy897iRLb48lvv3oQTkgWcNRuw7BVer26MbsQTlWjmbYMjCBYC/gy6Ao+NTF7MbDbzP1GWoia6GINfaftAAcdGuNJCPwu2DmAn9cLrD1L2Ap1yAjj7mB/6Qeo3+6T+jRQIWktnnXtjNUOYdnDa3ArC/T3VV4bli0nrzWc1AZZL7dfbO0Lr4eguq5ed2xpMm+ENbFqxBgC7QY7ZSB6rtcPdSbXiVgaepTSYMioJn1BCLl0LCjUs3JiDWLrsL8J8qRuC03HwseQCu6Ty3U3938a3j4d0mBmor5ma+aT6/VUESV2FkDCCHIQSAzSEkiL4C9alwxd8I6EMYDgO4kE/JFiGBllhrEWqktDyio9akSB7AI650aQynqxbf43vsxy4QZxnk8GnuolQhzNz9ZaQwqrQl0sRsH4gFdliHbFJMueDl4h77QZVHkhQAIBWJuo7qEKEB+GyY6LfOPIlZ0nT4Hi4lP42DI/0rfojOQFIr2WLgXKxFZe6NJgo2e7MTBMVBD4bPQEUPPzYYX1Qv3e5EjlgLUVrkaet7/fGo7e64bpUFHdaIalvlv4DOAdVbtvZCunvR9vToigW+80LXX1Mp24AjzoaEEdMRjdU1Pnx623MGYXyw/E9wdYht9jydLHzDK1MCpPcHo4D8J8vF08UvGlhcCh5HDoxntJ2hLTo49o=")
+            ;
+
+    public static final PlayerSkin DERPGIRL = new PlayerSkin("derpgirl")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY5MTY4MTA1OTkxNCwKICAicHJvZmlsZUlkIiA6ICI3MGRkZjA3MjIyNDA0YTc3ODdmYzQ3ZmY5N2Y4YjhiYSIsCiAgInByb2ZpbGVOYW1lIiA6ICJMdWNhc0hvcnJvckdhbWVyIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2I3NTJjYjg0YjhmZjA1NDAzOWYzZmQ2NjQ2YzdkMTY1NTJkOTY5ZDA0YmEwNGUyNTk2Yzk0NmIwZTJiZWMyOWQiCiAgICB9CiAgfQp9")
+            .setSignature("dv0Gq0mIB6IAnNuqPXY4KjvgDwN9oAhBlfTnIpr2vgYceZo0G0IFOefSdAn+q31OkzFaSq9TtFxrnwUpud6bhs+o2dnt75VNTNP4cxRpxzfgd8PRDeexDWW3zCknxxZsrcwFW1wJm8I3JgtOPcBy1YMrzIC4nt3Il2+YawfcTmoQ1VwNFTi5eTCDRT5jgZleYlkis/evAIFUR3Kr2Qzv4ccFNhdCmcPikYXm7aAmA7x+auqA8Idrg/QTHYZpmTZEjKwyzipAGasF3x4mxWe/4ktlegG73YwUbGuyiY4Tsx+wkwXxJ2KF9V0GmKYRIaENBLu6EZMnwWwUwk48U/iPovd2kUGmI4ZtSa0T60w2svOW3GvCutmglHxV6YhERFzppRomDL15RAYYFsMqA47IHQ0oiwz1p7sNcrAx6iBCovFB/9Oo/SdSJxsUq+k+4w2I+phW65ziAqlwo7jEn8uq7D+HyH0kRrAcSM+0b20rbRgLOMhmYKN7J5Rhh6S3YRD9ZtS7rNkpPJpObfHqFZ6ay4eQAzjB2lp/45xzg3q6OdKhUGKvntSp/E9XitLWIZItTypyLLyex9T0MrPuQHcctUIgm/xFzDOPP5dWsClLxNTkRBa89HziUvDP5iG2swHWOkC8ZZugqZNh7vbHsoPdG0dbkm2EzToNadOsNJJijdg=")
+            ;
+
+    public static final PlayerSkin GRIMACE = new PlayerSkin("grimace")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY5MTY4NzUyNDUxNCwKICAicHJvZmlsZUlkIiA6ICIwMDc4NzVkOTI0ZWI0ZGMxODUxZGY5MWFiYTdmZjg3MSIsCiAgInByb2ZpbGVOYW1lIiA6ICJSZXphMkIyVCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS81MjhiNjY3MzVjYTY2YWZlODljNGZjYzdlYjlmNDExOWI4Y2ZhMjYzMjNhYTFhMTUxNWYyMzJmZGM3N2U0NGRhIgogICAgfQogIH0KfQ==")
+            .setSignature("t9ly6x0LBDRzy5B8UFAinhj2ojHy83VyQ6PDZwi6r6mlTEeA1v8oucf5j1FsA1JpbJyxEB1OblJPs7BTdKQY99sCg2Ia2f2aOw89TK6sdmJ8cLR9teowW+wv2yLDi/nCzXv5+/r0SOOAV0AHc9P4U+4iSB6zx+6qy+ysBEKywgyYIHhBjrabcpAqevwV4YZzLNWtTX8/gFFaja4fvQe1L5DRe6pk/9faVH2Ycyjj54bTCuXX1kEj+83d3W+ciBdKkjN1S+ui67WyqA7+ri7ZqncseVQD3+DCH0HMruvxN9Fv/5NAAp2mJS/AeUCXjIIcDRZTWhZcshKoPGcau7avbCPSaOFTziHnBtACpaLDoccqtFr+TOhBrPJ3u4NM3MxYoLYogNh3EXPbGrGRVRnhy30ttPrYcBcKvhM+B+Jtz3OELjMkU+Lk6zzKy1iaID4UEK8i6PrfjdN+NpEcox+Uf8MPw4i27AAkcpvarwvIlayZwewT3aahEqA7t9o0H+4uUpGgWFYXa3jMSQD+WmoFoE5qf9E6WChpFhXm5L2u5TOyvry0NocQoloEmYFZ7tC478GT08nNJo0dSX3UMT7WOHq2aTjUmyJ6jI6wRrgVPTJGhXhZYRaoeqtmvT2XfWfIj/xE8oToZPmH9BR+DqjWwMXOaK7LgDkrDaELKbr0AXY=")
+            ;
+
+    public static final PlayerSkin WALTERWHITE = new PlayerSkin("waterwhite")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY5MTY4ODQxNzgzNSwKICAicHJvZmlsZUlkIiA6ICIxZjgyNTE2M2U0NDY0YjI2OTZlOTcwNzQxOTZiNTYwOCIsCiAgInByb2ZpbGVOYW1lIiA6ICJUaGVCZXN0RGFkMSIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8yMzBhMjc0NDgxYThhZmRhYmIwNWJkOTQyNWU0N2UwZWYxNmZhMWQzNjllMGIyODI2M2Y4NzYyODA3MTc0Mjk0IgogICAgfQogIH0KfQ==")
+            .setSignature("VR/NsXTyMzdMc7oCJaphbVQwXKV1FtTUZJpZ0LeuawpbwUrP/qWmLQ2cOfyRNeEHcRT2vrvhnOcInJVfMLklrmklIdZdcxY/pPL8wcrcGnCSbVO3Dij+qwtfCqvYu55vhDryqMvj7S8GZoS7dAqtqFFYoXKeAM9YSJMMBx6/pVswMFM5l5A0t3Xm1eWgHPmn/6AtIeca0MFjlOhokBpn3itSz0SLWtj0Q8RCjXrrBlFuc/BYHXBm1Ww5Nu/hmknmCR5mfnsUBRmUJ9xx1SxF7R5xxvQZev/8lTdZq1T0Qk23PUiMJmgvwtDYQyjUvHohugrKJUnmDjPuSVD1Ol9POOVP5pTN1+bpQwBFO9vyUSlFWZZsEtIOfm8gXAvdVF444yeo/R3BmdInYIEkipTuLC+5iMf54tfQrr1mWIXMGf3TNqO38tisKUymXBgGGKTsELnwALRCOq5b8vubuM1S+f+z4aJtR9FS6wCqtgDwRaJ2KLBwOvWzglBxO+9nfhI2ZKk0IyTfg5zyQVgSqHaBgvrNVLHvi3UwJEKkeWC5Xn7ZI//UV6AATMp3AgVACuh3CrdOtUa7uMdnGQGbJgRVTAjaVzBmDoE+ldNi4kd8OLkY7gbAOoJojJE1jTkTlFC356nD2VK52FuwOhV4dBnpq0lC1b70yIHN0qqXWUKEZ9c=")
+            ;
+
+    public static final PlayerSkin NURSE = new PlayerSkin("nurse")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY5MTY5MDY0MTIyNCwKICAicHJvZmlsZUlkIiA6ICI5YTY3MjgwZGQzYmE0YTk3OGI4NDBiZjg0MTdmNDUzMCIsCiAgInByb2ZpbGVOYW1lIiA6ICJLb2FsYUxlQmVzdCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8yNGE3NmU3NzMxNjk2N2U5MDMzZWIyMjgzZGFmNmZjODc2ZjYwNGI4NjMzMDlmNjFhNzZmOGViOWU3ODVkODIiLAogICAgICAibWV0YWRhdGEiIDogewogICAgICAgICJtb2RlbCIgOiAic2xpbSIKICAgICAgfQogICAgfQogIH0KfQ==")
+            .setSignature("vd/N5xFciyfXE1QYY1Rk7PdXO/sVMyWeqRzMEjGfy+sxkYPyKl9CkzdTSNCvuTxx1j0uoGypm87jeSkibYTKDRCmsPSflW/NAD4Mz8NAcZGTutjvFkD+TCERF1ACPy3dk5VmsZ0jVeEW3FALshIXaTbwfdAoLsWB3GFS3NcaJm3olgR4qyAGO8UhdXYI1/kv6SyQ1j4GhI17QbLDt9aatpRJeBkRz5uRF2ebclYcML+bO6OiHW0n91bscC3oMEn4BSWMoRAG2Z0lD8fCZ2ZcYvJq1j+AJ2JesgKz29xBgbUm1aPRGzt7gqz33ALGSR86YkD2h8cbT6+981xbPfKWle24ujU6ak3NYnh01AD0fFCxxAV1H+v977bzXe4P+wbYFA28kJS2FpSoy0G/maFcaxhnThFU4gQeU/7DvDBVm8gsBqQAoxIqwFBifFndItfxqCWXmCEV/lhlDMOehQObiQU04P68MJiAsGdjpLFNLErxrZ+0F4sGBmYD8zmnSUI4SiWJWgDgItf0w07ozHAhyCZWBHDtSSL87xmpDyJRbhSyaAKGgypCOOFmS8EXFvr5CiTgEX5oMhi1rO6f8c/GZBEHhXxdAE2UkRlYJV6cbH5i56WLqLNIssgjghWzp4W0fn4j/6W2F0enAMOE6uDmAov4mAQF27/l7fnfdRcESXU=")
+            ;
+
+    public static final PlayerSkin DEMONGIRL = new PlayerSkin("demongirl")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY5MTY5MTQ0OTQ3NywKICAicHJvZmlsZUlkIiA6ICI5MWYwNGZlOTBmMzY0M2I1OGYyMGUzMzc1Zjg2ZDM5ZSIsCiAgInByb2ZpbGVOYW1lIiA6ICJTdG9ybVN0b3JteSIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8zNjE0MjVmZjQyNjczZjMzYTBiZjY4NTgxNWIwOWU2YTFkNTI4ZTBjN2M5OWRlMzA1OGVjODg0YzE1OWUzMDE5IiwKICAgICAgIm1ldGFkYXRhIiA6IHsKICAgICAgICAibW9kZWwiIDogInNsaW0iCiAgICAgIH0KICAgIH0KICB9Cn0=")
+            .setSignature("L4yjcwLB8JxQehjdCQBgIPu+h/kIKTqrZ7mAwM98KAxBBo9+lTj/pxRvg8TnQNMBwIpUAbNahe+FO35oM6sXLruooS/jBU4Sg2Brksh4TdqKalfTBvgeiWJg99ZuOt9Y8+giHAaIRNA/81mcUI2DUpPcGqjjqVrv9oSGak+N7shMDhGCGzVdXZFYKuzlA7fZS0nuva/GZ4f2yEeJDPOtydxhsUgJpNzFLYoXjykQxt6espVhimvVm+xa6lgKB/lBZDGi7/14YkW3pKTKfIujW9Bg9JYEqktHWhmxhj4jJaDEa74mWzGorp1qxMyHrZph7W3vY8KFyK8aKdOrR3k5RX1qVvNFizkO17I+pjUjzSq/3X4U81v1kNLyNQU0ot0z4VSLOb20zkPPbl60MCe9/x1wp3qHoI2ufcMpCVmRqcGdjIbfuz+qLrFr2PDlsYbZ39hb4r4Swc1PB/QqFnn01uw75sioJ/v6Q/i7NtdXXligi+t4Be+iA/4DfolZkYZ5OtkhrsGZgsS5Yk8hhNbWBeS6ttD9fqKRGKgDcC+mU+Jb5uaa+DmU/hoKMsbD2pvh93io71HJ4NXCi3voHXQ2U/Mqe2jhkMs5L/C8YYFLLNVbIlbM+Zu3liq4SBVeMb6yR2TZPu3mYmgRr99fpgHe9QQUyFRZrohzIhDrAt5I6rI=")
+            ;
+
+    public static final PlayerSkin PIKACHU = new PlayerSkin("pikachu")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY5MTY5NTc3MDY2MSwKICAicHJvZmlsZUlkIiA6ICIyMDZlMWZkYjI5Yzk0NGYxOTQ5OTg4NzAwNTQxMGQ2NyIsCiAgInByb2ZpbGVOYW1lIiA6ICJoNHlsMzMiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTM2ZjUwNDU4YTQ2MzY0YTM2NDFhYzA2ODRmMzc1NjdkMTBmZGNjNjY2YTY0YTA1YTUxZDlkNjc2OGMyNDNiMyIKICAgIH0KICB9Cn0=")
+            .setSignature("td1wV5/RlD/xBdnrIz1aMT/ZOb3pqpihDmNVIkOeWJuWaXWXi2WJHeA8xfbhrV9VFmVsLPhaomYT2yYeKkp/kzKU/Cua7FXYBWR00KJs3Cc/bnmdWVTWVUbuDGkbzP8HU6dNW+81swu+UHzhiqV+1/vwBCLa6Mx5V6Vll0s1Qz2R1hlJ2yPBBQ17aXjObo6B2DQdVCUIfx+Dy65pcqPDQVMsGP62oebbZZye+xCufvTRwsyon+0+XcVExPGAEUU4cVK/alPFcJCas7rywiRlKVkqrUQZkkvcvcoel5UlYQ1t6oL7uEgqCtEZvFl0Dvr9eagVruRXrdpB0gLl051GsnRhf4z/nZafmMJItJDGhniOR4w4OsPJEOfQRUjteOMuo3ez3XYV/SL5lDdereA/65wcF2KLPXn71TJcX4s04Ffjglx8KZ31WstRpW/bZH977f4bPfY6+YSUQSpqEDtDB6OvVL/D2ONSTwq1IUoqlT1mDQsgMaVJbgMX0K9MMG87NebDgXt7Cz6j5TVX0jnqyzsvtffz3Y9gRLgAqvrIwuVnfxdInQ97AawjqJ2WHKNSsrlr3wjty38a3u4spdR5nFBa/QQu/rMcXhDxCBOS2HX7eYL0HOVF6NzhgDArfTVPUoukijl89/nSy+SWlHD4FUdxGupCVHNrV9MOL1w3jUk=")
+            ;
+
+    public static final PlayerSkin BEEMAID = new PlayerSkin("beemaid")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY5MTY5NTc5MTc2OSwKICAicHJvZmlsZUlkIiA6ICIyM2YxYTU5ZjQ2OWI0M2RkYmRiNTM3YmZlYzEwNDcxZiIsCiAgInByb2ZpbGVOYW1lIiA6ICIyODA3IiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzFhMWE3NThiOGJjZDFlYzJmM2RhMGZiYWUxZjJiZGI5YzI0NDZjYjdkNDAyYTdlZmIwZDllNGZjNGRmYjZmOWEiLAogICAgICAibWV0YWRhdGEiIDogewogICAgICAgICJtb2RlbCIgOiAic2xpbSIKICAgICAgfQogICAgfQogIH0KfQ==")
+            .setSignature("GZzCq3aJm7eeMlkeFSPU89JUW6XI8q4+tZ4adyvDt9jNuoOnJoScC9BHJtEnY3x2klxX84+eQLpeuJsx55P7FmvGCevzle5UyMP7IP1FEhMOo2sgetyi2zL5CXSVjmTrOMfPFo1YhICs4s8fwCpppjtniG5IfDzD4i3a+fcGZ/qlxsVzaUBQUX5B5N97sBDCKISjYcCPCHCaVxvKpgEaTZR2zZ1FytBVBO6mDKP2B+lOGkgz7A+7vzR/dpgD/6xxCYZptx3/Igy6bXERIqSFv237OwIJvWnZZRzi6wXn+QRJpFw7ofq2y7Y4ipWubl+GUNfKv17As6E/15i0V9/8FmLIgFcYbK1jdWqIkkCmXeZxDnpV2ZRZegY/VsaEVaGTj5Es0FqvRS/FhrmqiwZxNHeGEmwyOm2uJC18sjJDnsu3CrVaNrsTwdGcZLXvVMMlJPo04C1PpsCnFXbjUjBt9ddbXwKH4nudSAnEfApmMgWaJRBRZTJnxs2oIOjtYbQCqDFcjBX0jz23p1TiogQahr6ucHdcEqBhAUgIsY3udZd0j6ttu3XTq36uQ453QBDDK8SulSrGTc7Ko5lK4cvEhIPs0njY7/jslFXNBVBoQkHDnajTUV67sNe9KLD0HK0vdkXanOMtnC664jNU0Azsfs4Mbvftj+sBc87uPNy43o0=")
+            ;
+
+    public static final PlayerSkin FINNJAKE = new PlayerSkin("finnjake")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY5MTcwMTc1NDQ1NiwKICAicHJvZmlsZUlkIiA6ICI4NzI1ZmUxYmQ2ZGU0N2ZmYTFkNThmZTQxM2RmN2NhNiIsCiAgInByb2ZpbGVOYW1lIiA6ICJnZ29yZXR0eCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS85YjYxNWY0Y2RmYWY1ZDQ4ZmU3YjUyNGI0YThlMDJhY2M3NjQyNmZmY2JlMzM5YmFlYmI1NjkzOWE0ODAwN2ZjIgogICAgfQogIH0KfQ==")
+            .setSignature("sjdDnRLvVzGSKREkH72C4OuesfrxUqTjzYDiwSbfBR041xCljd/fNkOOELBV0l0UXMiPM5Sijs8VZfYb+Z8K+EmE1PP+knCiS8ZxD4SSv3XCGwHkPaKHPXETRseCntiYw1Qckfy2M+VDC5Kc53dktcIz7y87dZn3lmWEaVAXHagPZKSoPkOd6HYNhRGmaf1tAO2zacdWS+0izb4yZxPDvKW4XjysFeCenbRsoSW7VasE14tBTSeRoCIFjDkQe4sGdYU5oDllPTD3hnxMx+Mj2Z0sgp5bu5ig0yHTGzAJNYmdsZpgPFPc1n1Lrf5VQ2aI6uU27DuqI87JJVU2RGxVg1skQpr0TxATQaO3zT5HT+KL1UTrJ5RsMqmKswu5/XOIZfmAGM/nJNKqffAtCQrW3pXrzQH/T9xx36329YEFZhLkNT6LBOlJgIqGlGhjBRNavQPEJeZABFtldfOCXMw7G7hG98OtW8PrHrQAE7F3aS9Pb3QwHV9TUCLtvvEa8ObFTMHHRGPQ+jaaIIqDUNtbfXT6UFzv5XAU5nnhFMlvOAEn/rxiHDqbHbwlCrd5v28lcPpnfkkUcgICkLHI+2sd5AxggNoO3y0Oqy052HwSsvJaZykX+e+mIabceh5VUNW34RuujkglGMGDUW+vuAYpaXlZlUy/EQ8qECbaS0vuCp4=")
+            ;
+
+    public static final PlayerSkin PEPSI = new PlayerSkin("pepsi")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY5MTY5ODk4MzIxNSwKICAicHJvZmlsZUlkIiA6ICIzOTdlMmY5OTAyNmI0NjI1OTcyNTM1OTNjODgyZjRmMyIsCiAgInByb2ZpbGVOYW1lIiA6ICJ4WnlkdWVMeCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9iMDk1NjNkYjI3Y2MxMGVhN2UwZjFhMWY0ZGNmZDgzNWVjMmE2NTc0YTIzMTEzNWU2MTNmNDlhYTZkODE2YmJlIgogICAgfQogIH0KfQ==")
+            .setSignature("oqSx21zetV610W+vWl1ANclGp/NYzQNsWQwXAgcYTv1MWWCn9X8OQKEXtxlPHC+Zinp6MpahlyDGXqp76u2CO9rcnusmQFSpt2awzhCzBK7UsGjrIvRQG3PaxBXNn0iXI/0FLELpJUM5XeB+V6aUnkz5E05aWzM9sTRryvzKTWiCPdUWknPWd78Sw30n96Nm+/HJPZaoeoMaLdoSuVb5aJyj88auEhNTa034jGO2G0O81e5Vl8lyzi50EvKYE5C7bN3ruqbsPiD9ggoRPqAk/AN3AiJGo3+LA2GpJjmbNH1NKdCZokX1l05fGPqzRAALJKujoUsObP5sFKOLvWlJJsJXuh68+FSzaNoafjBMO074cdTLoW1G7ReVrohKtCueCIbWQ5rCvWTeeOVusMJKHUG+tyFcTFRdx3mcPYUcgXuCESOhSGc7xZjNTVvEZJObke4ev6BaaylHoT9aMhzlZ+BG6I9pBlA/rjd+mx4naEgTPP3XroMltqF5D5rlxJhLKANHNeWKkFUd+yFlui2Sl2R4wT/mYAL+ZH3sGfna4LgofGo5wrCVFwYShqXt4AD67CqMIakasSztu02W1vNbXLecdxULC5DKwuAHVz/PPD+A+KXZL5U6CN125OCQMRjYuGbnYfGwyM6D4+Wsq1KSehyMWrIdsQmbXHYeqop/Dik=")
+            ;
+
+    public static final PlayerSkin GOJOBLINDFOLD = new PlayerSkin("gojoblindfold")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTYxNTY2MTMwNjE1NSwKICAicHJvZmlsZUlkIiA6ICI5MWYwNGZlOTBmMzY0M2I1OGYyMGUzMzc1Zjg2ZDM5ZSIsCiAgInByb2ZpbGVOYW1lIiA6ICJTdG9ybVN0b3JteSIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9iZTk2NDhjYjU0MzQ2MjJjZTkwNmE4ZDBhMjZlZTk1ZTIxNzI2N2QzYjU2MjhlNWIxZDAwOTZjMzYwNDQ3ZDc5IgogICAgfQogIH0KfQ==")
+            .setSignature("bd+XumswI+juojnDaY+hAlDrwh65vh1Jl8HnvkjdVxTmivYLQCnaga/rACs6pZkvisTyMjqtAxedw87g71WLZ/RLh0QCOVgwehIAMLaq9PFD5JX4qV2QprtPechB3vokWY8F7mXd2po16V4/f9V8LO5k14/U8+jM7T8z9FFNvt9crMe5W4dY760z0WJoFKKiMU8M/X0Jax95P2Ncvfcrmt6KAfBWrEfd0Qi4tzz+6A+jPhbbGR4PIXo9Yp51LPGwGAOqS4Plw2eo1mTguKduVjUyBH+MHHyawm0tK2OWu0OBsr5g34/6Pr4DBI/Y+hgMHCOX2iQT1c/x/PUL2f3NPpNMURukx/3iu5DlFUOXTByHsdQRkLS+oJSZQUbpTvibYIxCl20ihxCic7W7blfv4WLlDWxldTinqFRSf3Xqjk0RJuzoKpcEhU6V+BaoYwumY7wFMlMtgn24qzZm0TUbbVtg2akTFxaeiylFX+U8YAPi5+qa5DkkvvJzFHlo1sG5X3mX/7YpzlkVqQnMG3FmR2dbTMwzl4KZ6o/c3QgAr02/zZ31yPBoAZ17O+6bNCRxMvgtgsA0H0XX58Qprvmr9yuaaExBzyp7cprbz9fxKNzjSyEjY5vHgHpUC5KOG+3x6bkjPJI1fUjWG+Y5ULfiIYWWT2Ixwol3Rsf7vFtnxwE=")
+            ;
+
+    public static final PlayerSkin DUCK = new PlayerSkin("duck")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY5MTUzNTgxNjk0NCwKICAicHJvZmlsZUlkIiA6ICI4N2YzOGM1MWE4Yzc0MmNmYTY2YTgxNWExZTI2NzMzYiIsCiAgInByb2ZpbGVOYW1lIiA6ICJCZWR3YXJzQ3V0aWUiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTVhZDg5MDU1N2ZjODljMzU5MDJjNzFiMmFjMWQ4NTlhMWE1YzJhMjI0ZmZmOGZkYzA4MDYzZjRhNzFiYzIyOSIsCiAgICAgICJtZXRhZGF0YSIgOiB7CiAgICAgICAgIm1vZGVsIiA6ICJzbGltIgogICAgICB9CiAgICB9CiAgfQp9")
+            .setSignature("yYzIdbZgz77e0dCEeOs5hhhM1A5VMb/Ed7ejCwBHuGjGjORNtbxRzlRzjiho5MNVYbqiAw1DPvYf7o+j5AGDrDvUmJyeKfO97hUw8euePtfgMq7m8Rt7ZAy1WQ2RL04CUd61mzS34Sm8VeLxX8/vejKl/F8rXsc1FDjd0lUj03Zad07C3oWcCzzLzrIzwxPNmzO24NEcX02gmqsVozmDCljXpXUJqM2kU67aNTXYcjt3biXKDnHTiE3LJpcsgwSHcpc6Nhqr0qnH05BEqVW/msn2tNjqMrAIsi62Ygl5qqJ5VZR0Th0PgiNtEz1tYWvtuk/bAZnrBOdkAbP32LEZEfbodkRKI36oXuSFsf9y+4BmtDEeK8E8Ip/1PmXqaoVPZHJ5Bp6Jvbq3+7u0DOGqoy/xLzhrXH6KpDIwiuBjaSy8J4JbMJEkNOqdq1d0WCJZSKuCO0IzaaoCwcah3MFEJSnkcBzpIYDy+mqk5+4S/2Dyh/MMbRsxvKWnW/o1qYby/ukGLIAMwzxxjMO1NY2L0TqVL0X3bmKNFLoYEnswbqByAbAd7zf3r5KV+wvuaCGddPnlXtNZripPfeeV5gLWfIEv4UHDKGv6yN+PbrsqGTgDOZgmXgLxcCD3rFtUQorduiJT1loOvtVe7KZDYRIKpydoZ1n3+kGyA/f3xxH7wew=")
+            ;
+
+    public static final PlayerSkin BATTLEVILLAGER = new PlayerSkin("battlevillager")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY5MTcwMTI3NDgzMiwKICAicHJvZmlsZUlkIiA6ICI2NWMwYTVhN2JkMGM0ZDhkYmFmZTRlNzEwYWY2YTYwMiIsCiAgInByb2ZpbGVOYW1lIiA6ICJjcml6Q29uWnpaIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2ExMDViNjhhMTU3YzI5YjVjMjYxMWU4OGY5N2M4ZjZhZTBmMzE0YWY2ZGQ4MTE5NWRmMGFlNjMzMjQyYjU3YzgiCiAgICB9CiAgfQp9")
+            .setSignature("Mo+tvkQkUx3SbSSYHHu2F7qdNDEOySMPK/5X1n8JjKQIh0uQMEjcMRjebELVhpzfiHBjWQ0PmflMJ24Iq5eDUCufmWXKv59Zdle3fo69PL2s1l2zrgrKqqvJHkzceCahUJeVsRO+gjDnxLUkYPZcEW5A27hHcrrXBRTnbvvKazXAL5zEi5Zlnfu7MykXfZTAc6026O3uvA0lRi70xqtMCZXNl/Qp76rFLvdgrKOrZbMnBOhmzpaZlTLWnv+WatDjfDi/bxFnHaTiobKL+doD2RekjAZ/oeZ8YCBYreLjs+uIuxVri9UqLo58onOPpSFOnAQHRbc+2gzAxRRn/kc1VGkiXn3NWTxYgZGK0yoEUTYWeTNgIQjPIjwK0qc55/KBlix/lxX9aiDStfdI7uZwzZSZnH3bLN5paik+szPe26WvmjVUVM2RsmQDmihdY+8UUlVh3S5XoXMvqRU5YSi3HI4eOr2j5YFbr8OBxfX8ZlsByvsErs8gAiHsV7JwzhbA0hpYwfZVnRP5k2MsJABuZSxVLSTnrAmX8Dvt54EiBqFJdjyF/+v+De1VWGCbsTOEj0XxCKU42323HTq/GJyJIY2eKlfYrX8c1x/+5IGCGnXBAomXzP+lT+Wwusg6MqGj+TI1b5bq/XsAIcr61zA7rHvpe9VKoFI2jPC61ZVV5PE=")
+            ;
+
+    public static final PlayerSkin MILESMORALES = new PlayerSkin("milesmorales")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY5MTQ5NTAwMTA2NCwKICAicHJvZmlsZUlkIiA6ICJmZDYwZjM2ZjU4NjE0ZjEyYjNjZDQ3YzJkODU1Mjk5YSIsCiAgInByb2ZpbGVOYW1lIiA6ICJSZWFkIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2UzZDU2ODhjOTE3MTIxZWU0ZGIwMmY5NTRjMzFjM2M0ZmE3YzAzMmM4MWEyNDM2YmZiYTRiNDU0NDIxOTdmOTgiLAogICAgICAibWV0YWRhdGEiIDogewogICAgICAgICJtb2RlbCIgOiAic2xpbSIKICAgICAgfQogICAgfQogIH0KfQ==")
+            .setSignature("Y71lh1ShIAcgCzv3lQO+7EYd4WaFoBz5FO1JOy9i4PG04jxE+A5dnUFamOt4UCI/BZgD86DJ92xsUy7MrWb+0pODMK2LqjPjcVXZ24nWPS5Rk2sJRDhH5B5SxlWe7CulkxMz3GPQZNp43/HUN53tSn/EludoHTMzqYeb/uJwWqgy0ArCT7ChgcSHdCqT4tOn0eOKF/VctlytEXKfY/YrFtSRueErWlmMsGEtVwU/XNrzF8y4BDI13+4kk2UqyRSh1OupJTM9VRLwmFUPpATarHcvPw/Q9wqHE8ngirulE2gJDQAyaVu3sK4NMKHbNfwSYbSdYFx/hZtlEh5FaepN/cs5nyTCSJfjWXJRXvPHfDjR9aGoInrBX3oj6zbU6uNNDJbFKhFO48He7y1iRQL0+V3+warH+72hSC4+1g+xfFRLCAVIu26q3UoVc4tooJw2KPx3/QJapsBCD+l/beUkvyJoYZRBPoYrhHFgQrSUj6fku7igkzmbZGssP6fB5JQ90+ZbH3AQ8V19KxfoL4PC0m9Zd0Jw62bPv+UL+ldY2fIN2b+58Lekcb707PtixY03XvjaarDLEVY4aPyQHQSTDxK83eLCUu0OaikQS5Xmnb2z+ztNphgciv5ZKLBQyxt9zKU/gEA53q+B1CDLcsLFoinp3PnTk2MOxFX75N3BNzM=")
+            ;
+
+    public static final PlayerSkin NOOBPRISONER = new PlayerSkin("noobprisoner")
+            .setTexture("ewogICJ0aW1lc3RhbXAiIDogMTY5MTQyNzUyMjk3OSwKICAicHJvZmlsZUlkIiA6ICI0NDAzZGM1NDc1YmM0YjE1YTU0OGNmZGE2YjBlYjdkOSIsCiAgInByb2ZpbGVOYW1lIiA6ICJTa3lSZWFsbVNwaWVsZXIiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTY5MDYyNDBlOTQwOGY5ZDQ2MTVlN2M0MWQ5NzNhZDIxOGQxZGM1Mzg3YmRhOWM2NGRkZmE0ZGNlNDg2MjNiNCIKICAgIH0KICB9Cn0=")
+            .setSignature("fXw4rTwoKnuXS05paGDnlNUmQTGQOFCZHhqAuvEeonqPAfg7SUqHDpUyYreZdtIdMNhlcj+YvbFQP54oEWqR3uFShcaH3kiNd5hysrFcK7J+BQpAX8n0CmH5daxY2oL8vpF3Z7FbOIbkPTz2pvavGtPT5R/Ecy0im+U4xUF8bMIt7sFYoabSuiscPKfxu4HSYKjgSPLbzXTrU/Eu0HJkxUaVH01JWC3DlSKBx4HccnxidKyccXRe3RXCKJ8Tz/yrrCUzgOTm0NFObn05OkKCCpkG0pvMsQttHgmA+D6JZSzF/t5+DM7iYFrYIv0KZkRpl21nKjsPN2sSj/2zFIpT9YbiMBi4iNiM0HTarKp30naKQ/z0ExbxgazfqkCZUG2K9jZWw0HTI9jp9y8maRX65bdLTTz5+N2XpDgGk2hx3XzeSlSS062eo4UsIC2XOcpZIfGfDdt8Okd80i9WgF3tTw0aZgrpiNF38L0eMbM7eTEcRFE7a+zO2a2an84bghDao9FCyy7vX5qsNJFrp0TtI0HYdJSNCD5Lzi3VRzmCIDb0uC6I0NKpeyf1+VvwQ+43wkvPK+kbd2y+veuBVfSBzufHhFOQDw+Dt9qxGKveK4yzPR8famifM85RyPHHabMUq2Mp8Gq7oXyL0tNCX0jSsviPEO6Jyu0VhYHqcG6cEZ0=")
+            ;
+
+    String texture;
+    String signature;
+    String skinName;
+
+    private PlayerSkin(String skinName){
+        this.skinName = skinName;
+        skins.put(skinName, this);
+    }
+
+    public PlayerSkin(String skinName, String texture, String signature){
+        this.skinName = skinName;
+        this.texture = texture;
+        this.signature = signature;
+        skins.put(skinName, this);
+    }
+
+    private PlayerSkin setTexture(String texture){
+        this.texture = texture;
+        return this;
+    }
+
+    private PlayerSkin setSignature(String signature){
+        this.signature = signature;
+        return this;
+    }
+
+    public String getTexture() {
+        return texture;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public String getSkinName(){
+        return skinName;
+    }
+
+    public ItemStack getSkull(){
+        ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta  = (SkullMeta) skull.getItemMeta();
+        PlayerProfile profile = getSkullProfile();
+        meta.setPlayerProfile(profile);
+        skull.setItemMeta(meta);
+        return skull;
+    }
+
+    public PlayerProfile getSkullProfile(){
+        return getSkullProfile(texture, signature);
+    }
+
+
+    public static PlayerSkin getRandomSkin(){
+        ArrayList<PlayerSkin> skinList = new ArrayList<>(skins.values());
+        return skinList.get(new Random().nextInt(skins.size()));
+    }
+
+    public static PlayerSkin getSkin(String skinName){
+        return skins.get(skinName);
+    }
+
+    public static PlayerProfile getSkullProfile(String texture, String signature){
+        PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
+        ProfileProperty property = new ProfileProperty("textures", texture, signature);
+        profile.setProperty(property);
+        return profile;
+    }
+
+    public static ItemStack getSkull(String texture, String signature){
+        return getSkull(getSkullProfile(texture, signature));
+    }
+
+    public static ItemStack getSkull(PlayerProfile playerProfile){
+        ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta  = (SkullMeta) skull.getItemMeta();
+        meta.setPlayerProfile(playerProfile);
+        skull.setItemMeta(meta);
+        return skull;
+    }
+}

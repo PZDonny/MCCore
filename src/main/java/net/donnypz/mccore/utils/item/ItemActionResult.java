@@ -1,6 +1,6 @@
 package net.donnypz.mccore.utils.item;
 
-import net.donnypz.mccore.minigame.arenaManager.Arena;
+import net.donnypz.mccore.minigame.arena.Arena;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;

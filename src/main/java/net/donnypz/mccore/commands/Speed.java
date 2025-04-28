@@ -1,6 +1,6 @@
 package net.donnypz.mccore.commands;
 
-import net.donnypz.mccore.minigame.arenaManager.ArenaManager;
+import net.donnypz.mccore.minigame.arena.ArenaManager;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

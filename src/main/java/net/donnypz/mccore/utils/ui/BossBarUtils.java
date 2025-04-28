@@ -3,7 +3,7 @@ package net.donnypz.mccore.utils.ui;
 import net.donnypz.mccore.Core;
 import net.donnypz.mccore.events.AbilityReturnedEvent;
 import net.donnypz.mccore.events.TimedBossBarEndEvent;
-import net.donnypz.mccore.utils.AbilityHandler;
+import net.donnypz.mccore.utils.ability.AbilityHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;

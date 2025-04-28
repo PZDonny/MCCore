@@ -1,14 +1,13 @@
 /*package net.donnypz.mccore.minigame.setup;
 
 import net.donnypz.mccore.Core;
-import net.donnypz.mccore.database.CoreMongoUtils;
-import net.donnypz.mccore.utils.RegionUtils;
-import net.donnypz.mccore.utils.SlimeUtils;
-import net.donnypz.playerdbutils.database.MongoUtils;
+import net.donnypz.mccore.utils.misc.RegionUtils;
+import net.donnypz.mccore.utils.misc.SlimeUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bukkit.Bukkit;
@@ -27,26 +26,26 @@ public final class MinigameCommandSetup {
 
     private MinigameCommandSetup(){};
 
-    public static void registerSlimeWorld(Player p, DatabaseDataset dataset, boolean ignoreSWM){
-        registerSlimeWorld(p, dataset, null, ignoreSWM);
+    public static void registerSlimeWorld(Player p, Document document, boolean ignoreSWM){
+        registerSlimeWorld(p, document, null, ignoreSWM);
     }
 
-    public static void registerSlimeWorld(Player p, DatabaseDataset dataset, Map<String, Object> additionalData, boolean ignoreSWM){
+    public static void registerSlimeWorld(Player p, Document document, Map<String, Object> additionalData, boolean ignoreSWM){
         if (!ignoreSWM){
             if (!SlimeUtils.isSlimeWorld(p.getWorld().getName())){
-                p.sendMessage(Component.text(ChatColor.RED+"You can only do this in SWM worlds!"));
+                p.sendMessage(Component.text("You can only do this in SWMW worlds!", NamedTextColor.RED));
                 return;
             }
         }
-        String worldName = p.getWorld().getName();
 
-        Document doc = isWorldRegistered(p, dataset, false, worldName);
+        String worldName = p.getWorld().getName();
+        Document doc = isWorldRegistered(p, document, false, worldName);
         if (doc != null){
-            p.sendMessage(Component.text(ChatColor.RED+"This SWM world is already registered"));
+            p.sendMessage(Component.text("This SWM world is already registered!", NamedTextColor.RED));
             return;
         }
 
-        p.sendMessage(Component.text(ChatColor.GREEN+"World successfully registered! "+ChatColor.AQUA+"("+worldName+")"));
+        p.sendMessage(MiniMessage.miniMessage().deserialize("<green>World successfully registered! <aqua>("+worldName+")"));
         new BukkitRunnable(){
             public void run(){
                 Document newWorld = new Document();
@@ -68,7 +67,7 @@ public final class MinigameCommandSetup {
         }.runTaskAsynchronously(Core.getInstance());
     }
 
-    public static void unregisterSlimeWorld(Player p, DatabaseDataset dataset, boolean ignoreSWM){
+    public static void unregisterSlimeWorld(Player p, Document document, boolean ignoreSWM){
         if (!ignoreSWM){
             if (!SlimeUtils.isSlimeWorld(p.getWorld().getName())){
                 p.sendMessage(Component.text(ChatColor.RED+"You can only do this in SWM worlds!"));
@@ -90,7 +89,7 @@ public final class MinigameCommandSetup {
         }.runTaskAsynchronously(Core.getInstance());
     }
 
-    public static void togglePlaytest(Player p, DatabaseDataset dataset, boolean ignoreSWM){
+    public static void togglePlaytest(Player p, Document document, boolean ignoreSWM){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null) return;
 
@@ -113,7 +112,7 @@ public final class MinigameCommandSetup {
     }
 
 
-    public static void setWorldName(Player p, DatabaseDataset dataset, String mapName, boolean ignoreSWM){
+    public static void setWorldName(Player p, Document document, String mapName, boolean ignoreSWM){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null) return;
 
@@ -130,7 +129,7 @@ public final class MinigameCommandSetup {
         }.runTaskAsynchronously(Core.getInstance());
     }
 
-    public static void setWorldCreator(Player p, DatabaseDataset dataset, String mapCreator, boolean ignoreSWM){
+    public static void setWorldCreator(Player p, Document document, String mapCreator, boolean ignoreSWM){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null) return;
 
@@ -147,7 +146,7 @@ public final class MinigameCommandSetup {
         }.runTaskAsynchronously(Core.getInstance());
     }
 
-    public static void set(Player p, DatabaseDataset dataset, String key, Object value, String successMessage, boolean ignoreSWM, boolean ignoreExisting){
+    public static void set(Player p, Document document, String key, Object value, String successMessage, boolean ignoreSWM, boolean ignoreExisting){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null){
             return;
@@ -188,7 +187,7 @@ public final class MinigameCommandSetup {
         }.runTaskAsynchronously(Core.getInstance());
     }
 
-    public static void setMany(Player p, DatabaseDataset dataset, HashMap<String, Object> map, String successMessage, boolean ignoreSWM){
+    public static void setMany(Player p, Document document, HashMap<String, Object> map, String successMessage, boolean ignoreSWM){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null){
             return;
@@ -237,7 +236,7 @@ public final class MinigameCommandSetup {
         }.runTaskAsynchronously(Core.getInstance());
     }
 
-    public static void unset(Player p, DatabaseDataset dataset, String key, String successMessage, boolean ignoreSWM){
+    public static void unset(Player p, Document document, String key, String successMessage, boolean ignoreSWM){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null){
             return;
@@ -261,7 +260,7 @@ public final class MinigameCommandSetup {
         }.runTaskAsynchronously(Core.getInstance());
     }
 
-    public static void unsetMany(Player p, DatabaseDataset dataset, Collection<String> keys, String successMessage, boolean ignoreSWM){
+    public static void unsetMany(Player p, Document document, Collection<String> keys, String successMessage, boolean ignoreSWM){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null){
             return;
@@ -285,7 +284,7 @@ public final class MinigameCommandSetup {
 
 
 
-    public static void addListValue(Player p, DatabaseDataset dataset, String key, Object value, boolean ignoreSWM){
+    public static void addListValue(Player p, Document document, String key, Object value, boolean ignoreSWM){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null) return;
 
@@ -311,7 +310,7 @@ public final class MinigameCommandSetup {
     }
 
 
-    public static void removeListValue(Player p, DatabaseDataset dataset, int index, String key, boolean ignoreSWM){
+    public static void removeListValue(Player p, Document document, int index, String key, boolean ignoreSWM){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null) return;
 
@@ -342,7 +341,7 @@ public final class MinigameCommandSetup {
         }.runTaskAsynchronously(Core.getInstance());
     }
 
-    public static <T> void listValues(Player p, DatabaseDataset dataset, int page, String listName, String listDisplayName, Class<T> clazz, boolean ignoreSWM){
+    public static <T> void listValues(Player p, Document document, int page, String listName, String listDisplayName, Class<T> clazz, boolean ignoreSWM){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null) return;
 
@@ -375,7 +374,7 @@ public final class MinigameCommandSetup {
 
 
 
-    public static void addLocation(Player p, DatabaseDataset dataset, String listName, boolean ignoreSWM){
+    public static void addLocation(Player p, Document document, String listName, boolean ignoreSWM){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null) return;
 
@@ -400,7 +399,7 @@ public final class MinigameCommandSetup {
         }.runTaskAsynchronously(Core.getInstance());
     }
 
-    public static void removeLocation(Player p, DatabaseDataset dataset, int index, String listName, boolean ignoreSWM){
+    public static void removeLocation(Player p, Document document, int index, String listName, boolean ignoreSWM){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null) return;
 
@@ -432,7 +431,7 @@ public final class MinigameCommandSetup {
         }.runTaskAsynchronously(Core.getInstance());
     }
 
-    public static void addLocationToNestedDocument(Player p, DatabaseDataset dataset, String nestedDocumentKey, String listName, String failMessage, boolean ignoreSWM){
+    public static void addLocationToNestedDocument(Player p, Document document, String nestedDocumentKey, String listName, String failMessage, boolean ignoreSWM){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null) return;
 
@@ -457,7 +456,7 @@ public final class MinigameCommandSetup {
     }
 
 
-    public static void removeLocationFromNestedDocument(Player p, DatabaseDataset dataset, int index, String nestedDocumentKey, String listName, boolean ignoreSWM){
+    public static void removeLocationFromNestedDocument(Player p, Document document, int index, String nestedDocumentKey, String listName, boolean ignoreSWM){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null) return;
 
@@ -490,7 +489,7 @@ public final class MinigameCommandSetup {
     }
 
 
-    public static void addLocationBounds(Player p, DatabaseDataset dataset, String listName, boolean ignoreSWM){
+    public static void addLocationBounds(Player p, Document document, String listName, boolean ignoreSWM){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null) return;
 
@@ -523,7 +522,7 @@ public final class MinigameCommandSetup {
 
 
 
-    public static void listLocations(Player p, DatabaseDataset dataset, int page, String listName, String listDisplayName, LocationType locationType, boolean ignoreSWM){
+    public static void listLocations(Player p, Document document, int page, String listName, String listDisplayName, LocationType locationType, boolean ignoreSWM){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null) return;
 
@@ -570,7 +569,7 @@ public final class MinigameCommandSetup {
         p.sendMessage(ChatColor.GRAY+""+ChatColor.BOLD+"-----------="+ ChatColor.GOLD+"Page "+page+ChatColor.GRAY+""+ChatColor.BOLD+"=-----------");
     }
 
-    public static void listLocationsFromNestedDocument(Player p, DatabaseDataset dataset, int page, String nestedDocumentKey, String listName, String listDisplayName, String failMessage, LocationType locationType, boolean ignoreSWM){
+    public static void listLocationsFromNestedDocument(Player p, Document document, int page, String nestedDocumentKey, String listName, String listDisplayName, String failMessage, LocationType locationType, boolean ignoreSWM){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null) return;
 
@@ -621,7 +620,7 @@ public final class MinigameCommandSetup {
 
 
 
-    public static void listPrefixedKeys(Player p, DatabaseDataset dataset, @NotNull String prefix, @NotNull String displayName, boolean ignoreSWM){
+    public static void listPrefixedKeys(Player p, Document document, @NotNull String prefix, @NotNull String displayName, boolean ignoreSWM){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null) return;
 
@@ -639,7 +638,7 @@ public final class MinigameCommandSetup {
     }
 
 
-    public static void listWorlds(Player p, DatabaseDataset dataset, int page){
+    public static void listWorlds(Player p, Document document, int page){
         int iteration = 0;
         int endNumber = (7*page);
         int startNumber = endNumber-7;
@@ -659,7 +658,7 @@ public final class MinigameCommandSetup {
         p.sendMessage(ChatColor.GRAY+""+ChatColor.BOLD+"-----------="+ ChatColor.GOLD+"Page "+page+ChatColor.GRAY+""+ChatColor.BOLD+"=-----------");
     }
 
-    public static void showInfo(Player p, DatabaseDataset dataset, boolean ignoreSWM){
+    public static void showInfo(Player p, Document document, boolean ignoreSWM){
         Document doc = isWorldValid(p, dataset, ignoreSWM);
         if (doc == null) {
             p.sendMessage(Component.text("This SWM world is not registered!", NamedTextColor.RED));
@@ -683,7 +682,7 @@ public final class MinigameCommandSetup {
         }
     }
 
-    private static Document isWorldValid(World world, DatabaseDataset dataset, boolean ignoreSWM){
+    private static Document isWorldValid(World world, Document document, boolean ignoreSWM){
         if (!ignoreSWM){
             if (!SlimeUtils.isSlimeWorld(world.getName())){
                 return null;
@@ -692,7 +691,7 @@ public final class MinigameCommandSetup {
         return MongoUtils.getDocument(dataset.getMongoCollection(), "world", world.getName());
     }
 
-    public static Document isWorldValid(Player player, DatabaseDataset dataset, boolean ignoreSWM){
+    public static Document isWorldValid(Player player, Document document, boolean ignoreSWM){
         String worldName = player.getWorld().getName();
         if (!ignoreSWM){
             if (!SlimeUtils.isSlimeWorld(worldName)){
@@ -704,11 +703,11 @@ public final class MinigameCommandSetup {
         return isWorldRegistered(player, dataset, true, worldName);
     }
 
-    private static Document isWorldRegistered(Player player, DatabaseDataset dataset, boolean sendUnregisteredMessage){
+    private static Document isWorldRegistered(Player player, Document document, boolean sendUnregisteredMessage){
         return isWorldRegistered(player, dataset, sendUnregisteredMessage, player.getWorld().getName());
     }
 
-    private static Document isWorldRegistered(Player player, DatabaseDataset dataset, boolean sendUnregisteredMessage, String worldName){
+    private static Document isWorldRegistered(Player player, Document document, boolean sendUnregisteredMessage, String worldName){
         Document doc = MongoUtils.getDocument(dataset.getMongoCollection(), "world", worldName);
         if (doc == null && sendUnregisteredMessage) {
             player.sendMessage(Component.text("This world is not registered!", NamedTextColor.RED));

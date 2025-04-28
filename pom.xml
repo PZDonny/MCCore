@@ -99,14 +99,6 @@
             <id>papermc-repo</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
-
-        <!--ProtocolLib-->
-        <repository>
-            <id>dmulloy2-repo</id>
-            <url>https://repo.dmulloy2.net/repository/public/</url>
-        </repository>
-
-
     </repositories>
 
     <dependencies>
@@ -115,12 +107,6 @@
             <artifactId>paper-api</artifactId>
             <version>1.21.3-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>net.donnypz</groupId>
-            <artifactId>playerdbutils</artifactId>
-            <version>2.0.0</version>
         </dependency>
 
         <!--ASP-->
@@ -171,13 +157,6 @@
             <groupId>net.luckperms</groupId>
             <artifactId>api</artifactId>
             <version>5.4</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.comphenix.protocol</groupId>
-            <artifactId>ProtocolLib</artifactId>
-            <version>5.1.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

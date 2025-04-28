@@ -11,10 +11,10 @@ import org.bukkit.entity.Player;
 public class ClearChat implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(Component.text("You cannot do this command in the console!", NamedTextColor.RED));
+        if (!CMDUtils.validate(sender, false, null)){
             return false;
         }
+
         for (int i = 0; i < 100; i++) {
             sender.sendMessage(Component.empty());
         }

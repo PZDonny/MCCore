@@ -316,34 +316,24 @@ public final class ItemUtils {
         return item;
     }
 
-    public static ItemStack setLore(@NotNull ItemStack item, @NotNull String[] lore){
-        item.editMeta(meta -> {
-            List<String> loreList = new ArrayList<>(Arrays.asList(lore));
-            meta.setLore(loreList);
-        });
-        return item;
-    }
-
-    public static ItemStack setLore(@NotNull ItemStack item, @NotNull Collection<String> lore){
-        item.editMeta(meta -> {
-            if (lore.isEmpty()){
-                meta.setLore(null);
-            }
-            else{
-                meta.setLore(new ArrayList<>(lore));
-            }
-        });
-        return item;
-    }
-
     public static ItemStack setLore(@NotNull ItemStack item, @NotNull List<Component> lore){
         item.editMeta(meta -> {
-            if (lore.isEmpty()){
-                meta.lore(null);
+            meta.lore(lore);
+        });
+        return item;
+    }
+
+    public static ItemStack addLore(@NotNull ItemStack item, @NotNull Component lore){
+        item.editMeta(meta -> {
+            List<Component> l;
+            if (meta.hasLore()){
+                l = meta.lore();
             }
             else{
-                meta.lore(lore);
+                l = new ArrayList<>();
             }
+            l.add(lore);
+            meta.lore(l);
         });
         return item;
     }

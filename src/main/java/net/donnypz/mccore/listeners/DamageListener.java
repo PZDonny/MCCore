@@ -1,7 +1,7 @@
 package net.donnypz.mccore.listeners;
 
-import net.donnypz.mccore.utils.AbilityHandler;
-import net.donnypz.mccore.utils.FireworkUtils;
+import net.donnypz.mccore.utils.ability.AbilityHandler;
+import net.donnypz.mccore.utils.particles.FireworkUtils;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,7 +20,7 @@ public class DamageListener implements Listener {
 
     //Fall Damage Resistance
         if (e.getCause().equals(EntityDamageEvent.DamageCause.FALL)){
-            if (AbilityHandler.isPlayerFallDamageResistant(p)){
+            if (AbilityHandler.isFallDamageResistant(p)){
                 e.setCancelled(true);
             }
         }
