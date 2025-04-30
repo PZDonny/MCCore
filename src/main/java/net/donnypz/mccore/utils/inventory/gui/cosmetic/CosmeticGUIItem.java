@@ -35,7 +35,7 @@ public class CosmeticGUIItem extends GUIItem {
                 .setDisplayName(cosmetic.getCosmeticDisplayName())
                 .build(),
                 cosmetic,
-                null);
+                upperLore);
     }
 
     public CosmeticGUIItem(@NotNull CosmeticGUI gui, int slot, @NotNull ItemStack item, @NotNull Cosmetic cosmetic) {
