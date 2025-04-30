@@ -1,4 +1,4 @@
-package net.donnypz.mccore.utils.inventory.cosmetic;
+package net.donnypz.mccore.utils.inventory.gui.cosmetic;
 
 import com.mongodb.client.MongoCollection;
 import net.donnypz.mccore.utils.inventory.gui.ChestGUI;

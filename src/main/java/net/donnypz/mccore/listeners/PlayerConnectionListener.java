@@ -25,7 +25,7 @@ public class PlayerConnectionListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPreLogin(AsyncPlayerPreLoginEvent e){
         if ((Core.isMongoEnabled() && !MongoUtils.isConnected())){
-            e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Component.text("Server has not completed startup!\nWait a moment before joining again!", NamedTextColor.RED));
+            e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Component.text("DB Connection not yet established!\nWait a moment before joining again!", NamedTextColor.RED));
         }
     }
 

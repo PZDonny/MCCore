@@ -3,19 +3,14 @@ package net.donnypz.mccore.database;
 import com.mongodb.*;
 import com.mongodb.client.*;
 import com.mongodb.client.model.ReplaceOptions;
-import com.mongodb.client.model.Sorts;
 import net.donnypz.mccore.events.MongoConnectedEvent;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.bson.types.Binary;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 
 public final class MongoUtils {
@@ -62,6 +57,9 @@ public final class MongoUtils {
         return connected;
     }
 
+    /**
+     * Disconnect from MongoDB, typically after a server shutdown or config reload
+     */
     public static void disconnect(){
         if (client != null){
             client.close();
@@ -71,6 +69,10 @@ public final class MongoUtils {
         databases.clear();
     }
 
+    /**
+     * Get the URI used to connect to MongoDB
+     * @return a string
+     */
     public static String getURI(){
         return uri;
     }
@@ -82,7 +84,6 @@ public final class MongoUtils {
         return databases.computeIfAbsent(databaseName, dbName -> client.getDatabase(databaseName));
     }
 
-    //Get Collection
     public static MongoCollection<Document> getCollection(@NotNull String collectionName, @NotNull MongoDatabase mongoDatabase){
         if (!isConnected()){
             return null;
@@ -96,44 +97,50 @@ public final class MongoUtils {
 
     public static void replacePlayerDBDocument(@NotNull UUID playerUUID, @NotNull Document replaceDocument, @NotNull MongoCollection<Document> mongoPlayerCollection){
         Bson filter = new Document("uuid", playerUUID.toString());
-        ExecutorRequest.run(() -> {
+        DBExecutor.run(() -> {
             mongoPlayerCollection.replaceOne(filter, replaceDocument, new ReplaceOptions().upsert(true));
         });
     }
 
     static void update(@NotNull DatabaseUpdate databaseUpdate){
-        update(databaseUpdate.getSetValues(), databaseUpdate.getIncrementedValues(), databaseUpdate.getFilter(), databaseUpdate.getCollection());
-    }
+        if (databaseUpdate.isEmpty()) return;
 
-    static void update(Map<String, Object> setValues, Map<String, NumberUpdate> incrementValues, Document filter, MongoCollection<Document> collection){
         Document updateOperation = new Document();
-        if (setValues != null && !setValues.isEmpty()){
-            Document setDocument = new Document();
-            for (String key : setValues.keySet()){
-                setDocument.append(key, setValues.get(key));
+
+        //Set Fields
+        Document setDocument = new Document();
+        for (Map.Entry<String, Object> entry : databaseUpdate.getSetValues().entrySet()){
+            String field = entry.getKey();
+            Object value = entry.getValue();
+            setDocument.append(field, value);
+        }
+        if (!setDocument.isEmpty()) updateOperation.append("$set", setDocument);
+
+        //Increment Fields
+        Document incrementDocument = new Document();
+        for (Map.Entry<String, NumberUpdate> entry : databaseUpdate.getIncrementedValues().entrySet()){
+            String field = entry.getKey();
+            NumberUpdate value = entry.getValue();
+            switch (value.getNumberType()){
+                case INT -> incrementDocument.append(field, value.intValue());
+                case LONG -> incrementDocument.append(field, value.longValue());
+                case DOUBLE -> incrementDocument.append(field, value.doubleValue());
+                case FLOAT -> incrementDocument.append(field, value.floatValue());
             }
-            updateOperation.append("$set", setDocument);
         }
+        if (!incrementDocument.isEmpty()) updateOperation.append("$inc", incrementDocument);
 
-        if (incrementValues != null && !incrementValues.isEmpty()){
-            Document incrementDocument = new Document();
-            for (String key : incrementValues.keySet()){
-                incrementDocument.append(key, incrementValues.get(key).intValue());
-            }
-            updateOperation.append("$inc", incrementDocument);
+        if (!updateOperation.isEmpty()){
+            //Execute update on a separate thread
+            DBExecutor.run(() -> {
+                databaseUpdate
+                        .getCollection()
+                        .updateOne(databaseUpdate.getFilter(), updateOperation);
+            });
         }
-
-        if (updateOperation.isEmpty()){
-            return;
-        }
-
-        //Execute update on a separate thread
-        ExecutorRequest.run(() -> {
-            collection.updateOne(filter, updateOperation);
-        });
     }
 
-    public static void addBinaryObjectToDocument(@NotNull Document document, @NotNull String key, @NotNull Serializable object){
+    /*public static void addBinaryObjectToDocument(@NotNull Document document, @NotNull String key, @NotNull Serializable object){
         try(ByteArrayOutputStream byteOut = new ByteArrayOutputStream()){
             ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
             objOut.writeObject(object);
@@ -143,9 +150,6 @@ public final class MongoUtils {
         }
         catch(IOException ex){
             ex.printStackTrace();
-        }
-        finally{
-
         }
     }
 
@@ -161,25 +165,5 @@ public final class MongoUtils {
             ex.printStackTrace();
             return null;
         }
-    }
-
-
-    public static List<Document> getSortedDocuments(@NotNull String fieldName, @NotNull MongoCollection<Document> collection, boolean isAscending){
-        return getSortedDocuments(fieldName, collection, isAscending, -1);
-    }
-
-    public static List<Document> getSortedDocuments(@NotNull String fieldName, @NotNull MongoCollection<Document> collection, boolean isAscending, int limit){
-        Bson sortOrder = isAscending ? Sorts.ascending(fieldName) : Sorts.descending(fieldName);
-
-        FindIterable<Document> iter = collection
-                .find()
-                .sort(sortOrder);
-
-        if (limit >= 0){
-            iter.limit(limit);
-        }
-
-        return StreamSupport.stream(iter.spliterator(), false)
-                .collect(Collectors.toList());
-    }
+    }*/
 }

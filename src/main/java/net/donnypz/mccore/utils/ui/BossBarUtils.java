@@ -19,7 +19,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
-public class BossBarUtils {
+public final class BossBarUtils {
+
+    private BossBarUtils(){}
 
 //BossBars
     private static KeyedBossBar createBossBar(Player p, String message, String barID, BarColor color, BarStyle style){

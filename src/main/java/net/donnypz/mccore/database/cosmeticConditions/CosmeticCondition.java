@@ -1,4 +1,4 @@
-package net.donnypz.mccore.cosmetics.conditions;
+package net.donnypz.mccore.database.cosmeticConditions;
 
 import net.donnypz.mccore.cosmetics.Cosmetic;
 import net.kyori.adventure.text.Component;

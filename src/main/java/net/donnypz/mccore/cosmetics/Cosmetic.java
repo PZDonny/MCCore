@@ -1,6 +1,6 @@
 package net.donnypz.mccore.cosmetics;
 
-import net.donnypz.mccore.cosmetics.conditions.CosmeticCondition;
+import net.donnypz.mccore.database.cosmeticConditions.CosmeticCondition;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
@@ -18,7 +18,7 @@ public abstract class Cosmetic{
     private Material displayMaterial = Material.STICK;
     private final HashSet<CosmeticCondition> unlockConditions = new HashSet<>();
 
-    public Cosmetic(@NotNull String cosmeticName, CosmeticRegistry registry){
+    public Cosmetic(@NotNull String cosmeticName, @Nullable CosmeticRegistry registry){
         this.cosmeticName = cosmeticName;
         this.setSelectValue(cosmeticName);
         if (registry != null){
@@ -64,15 +64,6 @@ public abstract class Cosmetic{
 
     public boolean hasCurrency(){
         return currency != null;
-    }
-
-    public Cosmetic setPermission(@NotNull String permission){
-        this.permission = permission;
-        return this;
-    }
-
-    public @Nullable String getPermission() {
-        return permission;
     }
 
     public boolean hasPermission(){

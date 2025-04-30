@@ -3,17 +3,21 @@ package net.donnypz.mccore.database;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class DatabaseUpdate {
+/**
+ * A builder class for preparing an update to a database
+ */
+public class DatabaseUpdate {
     private final HashMap<String, Object> setValues = new HashMap<>();
     private final HashMap<String, NumberUpdate> incrementedValues = new HashMap<>();
     private final MongoCollection<Document> collection;
     private final Document filter;
 
-    DatabaseUpdate(@NotNull MongoCollection<Document> collection, @NotNull Document filter){
+    public DatabaseUpdate(@NotNull MongoCollection<Document> collection, @NotNull Document filter){
         this.collection = collection;
         this.filter = filter;
     }
@@ -26,27 +30,57 @@ public abstract class DatabaseUpdate {
         return setValues.isEmpty() && incrementedValues.isEmpty();
     }
 
-    public DatabaseUpdate setValue(String fieldName, Object value){
+    /**
+     * Set the value
+     * @param fieldName the field's name
+     * @param value the amount to increment the field's value by
+     * @return this
+     */
+    public DatabaseUpdate setValue(@NotNull String fieldName, Object value){
         setValues.put(fieldName, value);
         return this;
     }
 
-    public DatabaseUpdate incrementValue(String fieldName, int value){
+    /**
+     * Increment a field's value by the given value
+     * @param fieldName the field's name
+     * @param value the amount to increment the field's value by
+     * @return this
+     */
+    public DatabaseUpdate incrementValue(@NotNull String fieldName, int value){
         addIncrementedValue(fieldName, value, NumberUpdate.NumberType.INT);
         return this;
     }
 
-    public DatabaseUpdate incrementValue(String fieldName, long value){
+    /**
+     * Increment a field's value by the given value
+     * @param fieldName the field's name
+     * @param value the amount to increment the field's value by
+     * @return this
+     */
+    public DatabaseUpdate incrementValue(@NotNull String fieldName, long value){
         addIncrementedValue(fieldName, value, NumberUpdate.NumberType.LONG);
         return this;
     }
 
-    public DatabaseUpdate incrementValue(String fieldName, double value){
+    /**
+     * Increment a field's value by the given value
+     * @param fieldName the field's name
+     * @param value the amount to increment the field's value by
+     * @return this
+     */
+    public DatabaseUpdate incrementValue(@NotNull String fieldName, double value){
         addIncrementedValue(fieldName, value, NumberUpdate.NumberType.DOUBLE);
         return this;
     }
 
-    public DatabaseUpdate incrementValue(String fieldName, float value){
+    /**
+     * Increment a field's value by the given value
+     * @param fieldName the field's name
+     * @param value the amount to increment the field's value by
+     * @return this
+     */
+    public DatabaseUpdate incrementValue(@NotNull String fieldName, float value){
         addIncrementedValue(fieldName, value, NumberUpdate.NumberType.FLOAT);
         return this;
     }
@@ -68,17 +102,20 @@ public abstract class DatabaseUpdate {
         return filter;
     }
 
+    /**
+     * Send the modifications in this update to the database.
+     */
     public void update(){
         MongoUtils.update(this);
     }
 
     /**
      * Send the modifications in this update to the database, and apply the changes to a given document.
-     * This works the same as using {@link  #apply(Document)}
+     * This works the same as using {@link #update()} then {@link #apply(Document)}
      * @param document the document to apply update to.
      */
     public void update(Document document){
-        MongoUtils.update(this);
+        update();
         apply(document);
     }
 
@@ -87,6 +124,7 @@ public abstract class DatabaseUpdate {
      * @param document
      */
     public void apply(Document document){
+        if (document == null) return;
         for (Map.Entry<String, Object> entry : setValues.entrySet()){
             String field = entry.getKey();
             Object value = entry.getValue();
@@ -105,18 +143,10 @@ public abstract class DatabaseUpdate {
             Document trueDoc = (Document) trueObjects[0];
             String trueField = (String) trueObjects[1];
             switch(number.getNumberType()){
-                case INT -> {
-                    trueDoc.put(trueField, number.intValue()+trueDoc.getInteger(trueField));
-                }
-                case LONG -> {
-                    trueDoc.put(trueField, number.longValue()+trueDoc.getLong(trueField));
-                }
-                case FLOAT -> {
-                    trueDoc.put(trueField, number.floatValue()+trueDoc.getDouble(trueField));
-                }
-                case DOUBLE -> {
-                    trueDoc.put(trueField, number.doubleValue()+trueDoc.getDouble(trueField));
-                }
+                case INT -> trueDoc.put(trueField, number.intValue()+trueDoc.getInteger(trueField));
+                case LONG -> trueDoc.put(trueField, number.longValue()+trueDoc.getLong(trueField));
+                case FLOAT -> trueDoc.put(trueField, number.floatValue()+trueDoc.getDouble(trueField));
+                case DOUBLE -> trueDoc.put(trueField, number.doubleValue()+trueDoc.getDouble(trueField));
             }
         }
     }

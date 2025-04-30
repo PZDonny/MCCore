@@ -1,7 +1,7 @@
-package net.donnypz.mccore.utils.inventory.cosmetic;
+package net.donnypz.mccore.utils.inventory.gui.cosmetic;
 
 import net.donnypz.mccore.cosmetics.*;
-import net.donnypz.mccore.cosmetics.conditions.CosmeticCondition;
+import net.donnypz.mccore.database.cosmeticConditions.CosmeticCondition;
 import net.donnypz.mccore.database.PlayerData;
 import net.donnypz.mccore.utils.item.ItemBuilder;
 import net.donnypz.mccore.utils.item.ItemUtils;
@@ -12,7 +12,6 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bson.Document;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -48,75 +47,36 @@ public class CosmeticGUIItem extends GUIItem {
         this.clickAction = determineClickAction(cosmetic, gui, upperLore);
     }
 
-    private void finalizeLore(List<Component> lore){
-        item.lore(lore);
-        changeItemStack(item);
-    }
-
-    //Add onSelect, onPurchasedOrUnlocked
-
-
-    private Object[] getTrueObjects(Document document, String field){
-        if (!field.contains(".")){
-            return new Object[]{document, field};
-        }
-        Document trueDoc = document;
-        String[] split = field.split("\\.");
-        for (int i = 0; i < split.length-1; i++){
-            if (trueDoc.get(split[i]) instanceof Document d) {
-                trueDoc = d;
-            }
-            else {
-                break;
-            }
-        }
-        return new Object[]{trueDoc, split[split.length-1]};
-    }
-
-
-    private Consumer<InventoryClickEvent> determineClickAction(Cosmetic cosmetic, CosmeticGUI gui, List<Component> upperLore){
+    /**
+     * Determine the purchase action that should be taken when a player clicks this gui item.
+     */
+    private Consumer<InventoryClickEvent> determineClickAction(Cosmetic cosmetic, CosmeticGUI gui, List<Component> upperDescription){
         UUID playerUUID = gui.playerUUID;
         String typeDisplayName = gui.cosmeticTypeDisplayName;
         PlayerData playerData = PlayerData.get(playerUUID);
         Document playerDoc = playerData.getDocument();
 
         //Cosmetic Description List
-        List<Component> lore = upperLore == null ? new ArrayList<>() : new ArrayList<>(upperLore);
-        lore.addAll(getConditionLore(cosmetic));
+        List<Component> lore = upperDescription == null ? new ArrayList<>() : new ArrayList<>(upperDescription);
+        lore.addAll(createConditionDescriptions(cosmetic));
 
         //Get values if field is in a nested document
-        Document selectedFieldDoc = playerDoc;
-        String selectedField = gui.selectedField;
-        if (selectedField.contains(".")){
-            String[] split = selectedField.split("\\.");
-            for (int i = 0; i < split.length-1; i++){
-                if (selectedFieldDoc.get(split[i]) instanceof Document d) {
-                    selectedFieldDoc = d;
-                }
-                else {
-                    break;
-                }
-            }
-            selectedField = split[split.length-1];
-        }
+        Object[] arr = getTrueObjects(playerDoc, gui.selectedField);
+        Document selectDoc = (Document) arr[0];
+        String selectField = (String) arr[1];
 
         //Cosmetic Already Selected
-        if (cosmetic.getSelectValue().equals(selectedFieldDoc.get(selectedField))){
-            alreadySelectedLore(lore, typeDisplayName);
+        if (cosmetic.getSelectValue().equals(selectDoc.get(selectField))){
+            alreadySelectedDescription(lore, typeDisplayName);
             ItemUtils.setEnchantmentGlintOverride(item, true);
-            finalizeLore(lore);
+            finalizeDescription(lore);
 
             return event -> CosmeticShopUtils.alreadySelected((Player) event.getWhoClicked());
         }
 
-        //Permission Based Condition (For Testing)
-        if (cosmetic.hasPermission()){
-            return determinePermissionAction(cosmetic, gui, playerData, cosmetic.getPermission(), upperLore);
-        }
-
         //Check if cosmetic is already unlocked
         if (playerData.hasCosmeticUnlocked(cosmetic, gui.unlockCollection)) {
-            return selectableLore(lore, gui, playerData, cosmetic);
+            return canSelect(lore, gui, playerData, cosmetic);
         }
 
         //Check if CosmeticConditions are met
@@ -125,7 +85,7 @@ public class CosmeticGUIItem extends GUIItem {
                 lore.add(Component.text("You do not own this ", NamedTextColor.RED)
                         .append(Component.text(typeDisplayName, NamedTextColor.YELLOW))
                         .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
-                finalizeLore(lore);
+                finalizeDescription(lore);
                 return event -> CosmeticShopUtils.notUnlocked((Player) event.getWhoClicked());
             }
         }
@@ -139,51 +99,51 @@ public class CosmeticGUIItem extends GUIItem {
 
             //Not Enough
             if (funds < price) {
-                purchaseLore(lore, typeDisplayName, false);
+                purchaseDescription(lore, typeDisplayName, false);
                 return event -> CosmeticShopUtils.notUnlocked((Player) event.getWhoClicked());
             }
             //Has Enough
             else{
-                purchaseLore(lore, typeDisplayName, true);
+                purchaseDescription(lore, typeDisplayName, true);
                 return event -> CosmeticShopUtils.purchaseCosmetic((Player) event.getWhoClicked(), gui, playerData, cosmetic, cosmetic.getCurrency());
             }
         }
 
-        //Allow cosmetic unlock after all conditions are met (And no price is attached)
-        return unlockable(lore, gui, cosmetic);
+        //Allow cosmetic unlock after all conditions are met, and there is no found price
+        return canUnlock(lore, gui, cosmetic);
     }
 
 
 
-    private void alreadySelectedLore(List<Component> lore, String typeDisplayName){
+    private void alreadySelectedDescription(List<Component> lore, String typeDisplayName){
         lore.add(Component.text("You already have this ", NamedTextColor.RED)
                 .append(Component.text(typeDisplayName, NamedTextColor.YELLOW))
                 .append(Component.text(" selected!", NamedTextColor.RED)).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
     }
 
-    private void purchaseLore(List<Component> lore, String typeDisplayName, boolean canUnlock){
+    private void purchaseDescription(List<Component> lore, String typeDisplayName, boolean canUnlock){
         NamedTextColor color = canUnlock ? NamedTextColor.GREEN : NamedTextColor.RED;
         lore.add(Component.text("Click to unlock this ", color)
                 .append(Component.text(typeDisplayName, NamedTextColor.YELLOW)).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
-        finalizeLore(lore);
+        finalizeDescription(lore);
     }
 
-    private Consumer<InventoryClickEvent> selectableLore(List<Component> lore, CosmeticGUI gui, PlayerData playerData, Cosmetic cosmetic){
+    private Consumer<InventoryClickEvent> canSelect(List<Component> lore, CosmeticGUI gui, PlayerData playerData, Cosmetic cosmetic){
         lore.add(Component.text("Click to select this ", NamedTextColor.AQUA)
                 .append(Component.text(gui.cosmeticTypeDisplayName, NamedTextColor.YELLOW))
                 .append(Component.text("!", NamedTextColor.AQUA)).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
-        finalizeLore(lore);
+        finalizeDescription(lore);
         return event -> CosmeticShopUtils.selectCosmetic((Player) event.getWhoClicked(), gui, playerData, cosmetic);
     }
 
-    private Consumer<InventoryClickEvent> unlockable(List<Component> lore, CosmeticGUI gui, Cosmetic cosmetic){
+    private Consumer<InventoryClickEvent> canUnlock(List<Component> lore, CosmeticGUI gui, Cosmetic cosmetic){
         lore.add(Component.text("Click to unlock this ", NamedTextColor.GREEN)
                 .append(Component.text(gui.cosmeticTypeDisplayName, NamedTextColor.YELLOW)).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
-        finalizeLore(lore);
+        finalizeDescription(lore);
         return event -> CosmeticShopUtils.unlockCosmetic((Player) event.getWhoClicked(), gui, cosmetic);
     }
 
-    private @NotNull List<Component> getConditionLore(Cosmetic cosmetic) {
+    private @NotNull List<Component> createConditionDescriptions(Cosmetic cosmetic) {
         List<Component> conditionLore = new ArrayList<>();
 
         //Currency Condition
@@ -203,28 +163,25 @@ public class CosmeticGUIItem extends GUIItem {
         return conditionLore;
     }
 
-    private Consumer<InventoryClickEvent> determinePermissionAction(Cosmetic cosmetic, CosmeticGUI gui, PlayerData playerData, String permission, List<Component> upperLore){
-        List<Component> lore = new ArrayList<>();
-        if (upperLore != null){
-            lore.addAll(upperLore);
+    private void finalizeDescription(List<Component> description) {
+        item.lore(description);
+        changeItemStack(item);
+    }
+
+    private Object[] getTrueObjects(Document document, String field){
+        if (!field.contains(".")){
+            return new Object[]{document, field};
         }
-
-        lore.add(Component.text("Click to select this ", NamedTextColor.AQUA)
-                .append(Component.text(gui.cosmeticTypeDisplayName, NamedTextColor.YELLOW))
-                .append(Component.text("!", NamedTextColor.AQUA)).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
-        lore.add(Component.text("Permission: "+cosmetic.getPermission(), NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false));
-        finalizeLore(lore);
-
-        return inventoryClickEvent -> {
-            Player p = (Player) inventoryClickEvent.getWhoClicked();
-            if (p.hasPermission(permission)){
-                CosmeticShopUtils.selectCosmetic(p, gui, playerData, cosmetic);
+        Document trueDoc = document;
+        String[] split = field.split("\\.");
+        for (int i = 0; i < split.length-1; i++){
+            if (trueDoc.get(split[i]) instanceof Document d) {
+                trueDoc = d;
             }
-            else{
-                p.playSound(p, Sound.BLOCK_NOTE_BLOCK_BIT, 1, 0.5f);
-                p.sendMessage(Component.text("You do not have permission to select that cosmetic", NamedTextColor.RED));
-                p.closeInventory();
+            else {
+                break;
             }
-        };
+        }
+        return new Object[]{trueDoc, split[split.length-1]};
     }
 }

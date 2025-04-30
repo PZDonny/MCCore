@@ -18,16 +18,8 @@ import java.util.*;
 
 public class ChatListener implements Listener {
 
-    //static YamlConfiguration filter;
-    //static final Collection<String> strictWords;
-    //static final Collection<String> softWords;
     private static final HashMap<UUID, Long> cooldown = new HashMap<>();
 
-    static {
-        //filter = YamlConfiguration.loadConfiguration(new InputStreamReader(Core.getInstance().getResource("chatfilter.yml")));
-        //strictWords = Collections.unmodifiableCollection(filter.getStringList("strict"));
-        //softWords = Collections.unmodifiableCollection(filter.getStringList("soft"));
-    }
 
     public static void removeCooldown(Player p){
         cooldown.remove(p.getUniqueId());
@@ -42,47 +34,7 @@ public class ChatListener implements Listener {
         Player p = e.getPlayer();
         Component eventMessage = e.message();
 
-        //Chat Filtering
-        /*String serializedMessage = PlainTextComponentSerializer.plainText().serialize(eventMessage);
-        StringBuilder builder = new StringBuilder();
-        String[] message = serializedMessage.split(" ");
-
-
-        filtering:
-        for (String s : message) {
-            String word = s;
-
-            if (word.length() >= 3) {
-                String decodedWord = word
-                        .replaceAll("[^0134a-zA-z@$\\s]|[\\^`\\[\\]_\\\\]", "")
-                        .replace("0", "o")
-                        .replace("1", "i")
-                        .replace("3", "e")
-                        .replace("4", "a");
-
-                //Hard/Strict Filter
-                for (String strictWord : strictWords) {
-                    if (decodedWord.toLowerCase().contains(strictWord)) {
-                        builder.append("*".repeat(decodedWord.length()));
-                        continue filtering;
-                    }
-                }
-
-                //Soft Filter
-                for (String softWord : softWords) {
-                    if (decodedWord.equalsIgnoreCase(softWord)) {
-                        builder.append("*".repeat(decodedWord.length()));
-                        continue filtering;
-                    }
-                }
-
-            }
-            word = word.replace("%", "%%");
-            builder.append(word)
-                    .append(" ");
-        }*/
         NamedTextColor color = RankUtils.getPlayerNamedTextColor(p);
-        //e.message(Component.text(builder.toString(), color));
         e.message(eventMessage.color(color));
 
         e.viewers().clear();

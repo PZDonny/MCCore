@@ -1,22 +1,18 @@
 package net.donnypz.mccore.cosmetics;
 
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import net.donnypz.mccore.cosmetics.conditions.CosmeticCondition;
-import net.donnypz.mccore.database.MongoUtils;
+import net.donnypz.mccore.database.cosmeticConditions.CosmeticCondition;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 
 public abstract class CosmeticRegistry {
-
-    protected static final HashSet<CosmeticRegistry> registries = new HashSet<>();
-    private final LinkedHashMap<String, Cosmetic> cosmeticStorage = new LinkedHashMap<>();
+    private static final HashSet<CosmeticRegistry> registries = new HashSet<>();
+    private final LinkedHashMap<String, Cosmetic> cosmetics = new LinkedHashMap<>();
     private MongoCollection<Document> unlockCollection;
 
     public CosmeticRegistry(){
@@ -27,8 +23,8 @@ public abstract class CosmeticRegistry {
 
     Cosmetic registerCosmetic(Cosmetic cosmetic){
         String cosmeticName = cosmetic.getCosmeticName();
-        if (!cosmeticStorage.containsKey(cosmeticName)){
-            cosmeticStorage.put(cosmeticName, cosmetic);
+        if (!cosmetics.containsKey(cosmeticName)){
+            cosmetics.put(cosmeticName, cosmetic);
         }
         return cosmetic;
     }
@@ -42,11 +38,11 @@ public abstract class CosmeticRegistry {
     }
 
     public Cosmetic getCosmetic(@NotNull String cosmeticName){
-        return cosmeticStorage.get(cosmeticName);
+        return cosmetics.get(cosmeticName);
     }
 
     public <T> T getCosmetic(@NotNull String cosmeticName, Class<T> cosmeticClass){
-        Cosmetic cosmetic = cosmeticStorage.get(cosmeticName);
+        Cosmetic cosmetic = cosmetics.get(cosmeticName);
         if (cosmetic == null){
             return null;
         }
@@ -77,7 +73,7 @@ public abstract class CosmeticRegistry {
     public <T> List<T> getCosmetics(CosmeticCondition cosmeticCondition, Class<T> cosmeticClass){
         List<T> cosmetics = new ArrayList<>();
 
-        for (Cosmetic cosmetic : cosmeticStorage.values()){
+        for (Cosmetic cosmetic : this.cosmetics.values()){
             if (cosmetic.hasCondition(cosmeticCondition)) {
                 cosmetics.add(cosmeticClass.cast(cosmetic));
             }
@@ -104,7 +100,7 @@ public abstract class CosmeticRegistry {
     public <T> List<T> getCosmetics(Class<T> cosmeticClass, CosmeticCondition... cosmeticConditions){
         List<T> cosmetics = new ArrayList<>();
 
-        for (Cosmetic cosmetic : cosmeticStorage.values()){
+        for (Cosmetic cosmetic : this.cosmetics.values()){
             for (CosmeticCondition condition : cosmeticConditions){
                 if (cosmetic.hasCondition(condition)) {
                     cosmetics.add(cosmeticClass.cast(cosmetic));
@@ -117,10 +113,10 @@ public abstract class CosmeticRegistry {
     }
 
 
-    public <T> List<T> getCosmetics(Class<T> cosmeticClass){
+    public <T> List<T> getCosmetics(@NotNull Class<T> cosmeticClass){
         try{
             List<T> list = new ArrayList<>();
-            for (Cosmetic cosmetic : cosmeticStorage.values()){
+            for (Cosmetic cosmetic : cosmetics.values()){
                 list.add(cosmeticClass.cast(cosmetic));
             }
             return list;
@@ -131,17 +127,18 @@ public abstract class CosmeticRegistry {
     }
 
     public List<Cosmetic> getCosmetics(){
-        return new ArrayList<>(cosmeticStorage.values());
+        return new ArrayList<>(cosmetics.values());
     }
 
     public SequencedSet<String> getCosmeticNames(){
-        return cosmeticStorage.sequencedKeySet();
+        return cosmetics.sequencedKeySet();
     }
 
     public MongoCollection<Document> getUnlockCollection(){
         return unlockCollection;
     }
 
+    @ApiStatus.Internal
     public static void loadRegistries(){
         for (CosmeticRegistry registry : registries){
             try{

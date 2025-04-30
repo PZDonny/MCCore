@@ -1,5 +1,7 @@
-package net.donnypz.mccore.utils.inventory.gui;
+package net.donnypz.mccore.utils.inventory;
 
+import net.donnypz.mccore.utils.inventory.gui.GUI;
+import net.donnypz.mccore.utils.inventory.gui.GUIItem;
 import net.donnypz.mccore.utils.item.ItemBuilder;
 import net.donnypz.mccore.utils.item.ItemUtils;
 import net.kyori.adventure.text.Component;
@@ -15,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-public class InventoryUtils {
+public final class InventoryUtils {
     public enum OutlineType{
         TOPROW,
         SECONDROW,
@@ -26,6 +28,8 @@ public class InventoryUtils {
         FILL,
         BORDER;
     }
+
+    private InventoryUtils(){}
 
     public static void setSlotFromField(@NotNull GUI gui, @NotNull ItemStack itemStack, int slot, @NotNull Document document, @NotNull String fieldName, @NotNull String displayName){
         setSlotFromField(gui.getInventory(), itemStack, slot, document, fieldName, displayName);
@@ -82,45 +86,31 @@ public class InventoryUtils {
         int size = inventory.getSize();
         switch(outlineType){
             case TOPROW -> {
-                for (int i = 0; i<9; i++){
-                    inventory.setItem(i, outlineItem);
-                }
+                fill(0, 9, outlineItem, inventory);
             }
 
             case SECONDROW -> {
-                for (int i = 9; i<18; i++){
-                    inventory.setItem(i, outlineItem);
-                }
+                fill(9, 18, outlineItem, inventory);
             }
 
             case THIRDROW -> {
-                for (int i = 18; i<27; i++){
-                    inventory.setItem(i, outlineItem);
-                }
+                fill(18, 27, outlineItem, inventory);
             }
 
             case FOURTHROW -> {
-                for (int i = 27; i<36; i++){
-                    inventory.setItem(i, outlineItem);
-                }
+                fill(27, 36, outlineItem, inventory);
             }
 
             case FIFTHROW -> {
-                for (int i = 36; i<45; i++){
-                    inventory.setItem(i, outlineItem);
-                }
+                fill(36, 45, outlineItem, inventory);
             }
 
             case SIXTHROW -> {
-                for (int i = 45; i<54; i++){
-                    inventory.setItem(i, outlineItem);
-                }
+                fill(45, 54, outlineItem, inventory);
             }
 
             case FILL -> {
-                for (int i = 0; i< size; i++){
-                    inventory.setItem(i, outlineItem);
-                }
+                fill(0, size, outlineItem, inventory);
             }
 
             case BORDER ->  {
@@ -138,6 +128,12 @@ public class InventoryUtils {
                     inventory.setItem(i+8, outlineItem);
                 }
             }
+        }
+    }
+
+    private static void fill(int start, int end, ItemStack outlineItem, Inventory inventory){
+        for (int i = start; i < end; i++){
+            inventory.setItem(i, outlineItem);
         }
     }
 }

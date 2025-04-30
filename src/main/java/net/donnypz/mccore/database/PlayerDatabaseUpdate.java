@@ -6,6 +6,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
+/**
+ * A builder class for preparing an update to a database, using a player's UUID to filter effected documents
+ */
 public final class PlayerDatabaseUpdate extends DatabaseUpdate {
 
     public PlayerDatabaseUpdate(@NotNull MongoCollection<Document> collection, @NotNull UUID playerUUID){

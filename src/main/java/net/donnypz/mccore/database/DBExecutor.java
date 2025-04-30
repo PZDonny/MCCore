@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-class ExecutorRequest {
+class DBExecutor {
 
     static final ExecutorService executor = Executors.newCachedThreadPool();
     private static boolean isShuttingDown = false;

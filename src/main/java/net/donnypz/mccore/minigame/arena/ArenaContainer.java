@@ -21,6 +21,7 @@ import java.util.*;
 
 public abstract class ArenaContainer {
     protected static final HashMap<Arena, ArenaContainer> allContainedArenas = new HashMap<>();
+
     private Set<UUID> disconnectedEarly = new HashSet<>();
     protected final Arena arena;
 

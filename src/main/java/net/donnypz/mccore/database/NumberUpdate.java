@@ -1,6 +1,6 @@
 package net.donnypz.mccore.database;
 
-public class NumberUpdate{
+class NumberUpdate{
     Number incrementAmount;
     private final NumberType numberType;
 
@@ -10,27 +10,27 @@ public class NumberUpdate{
     }
 
 
-    public int intValue() {
+    int intValue() {
         return incrementAmount.intValue();
     }
 
-    public long longValue() {
+    long longValue() {
         return incrementAmount.longValue();
     }
 
-    public float floatValue() {
+    float floatValue() {
         return incrementAmount.floatValue();
     }
 
-    public double doubleValue() {
+    double doubleValue() {
         return incrementAmount.doubleValue();
     }
 
-    public NumberType getNumberType() {
+    NumberType getNumberType() {
         return numberType;
     }
 
-    public String getNumberAsString() {
+    String getNumberAsString() {
         switch (numberType) {
             case INT -> {
                 return String.valueOf(intValue());
@@ -50,7 +50,7 @@ public class NumberUpdate{
         }
     }
 
-    public enum NumberType {
+    enum NumberType {
         INT,
         LONG,
         DOUBLE,

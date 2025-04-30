@@ -17,7 +17,7 @@ public class ActionBarMessage {
         this.message = LegacyComponentSerializer.legacyAmpersand().deserialize(message);
     }
 
-    public void setMessage(Component message){
+    public void setMessage(@NotNull Component message){
         this.message = message;
     }
 
