@@ -14,7 +14,6 @@ public abstract class Cosmetic{
     private Object selectValue;
     private Component cosmeticDisplayName = Component.empty();
     private Currency currency;
-    private String permission;
     private Material displayMaterial = Material.STICK;
     private final HashSet<CosmeticCondition> unlockConditions = new HashSet<>();
 
@@ -65,11 +64,6 @@ public abstract class Cosmetic{
     public boolean hasCurrency(){
         return currency != null;
     }
-
-    public boolean hasPermission(){
-        return permission != null;
-    }
-
 
     public Cosmetic addCondition(@NotNull CosmeticCondition condition){
         unlockConditions.add(condition);
