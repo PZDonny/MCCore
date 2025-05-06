@@ -84,6 +84,10 @@ public class PlayerData {
     }
 
 
+    /**
+     * Asynchronously query the cosmetics a player has unlocked, and cache the returned data
+     * @param player
+     */
     private void queryUnlockedCosmetics(Player player){
         new BukkitRunnable(){
             final Document filterDoc = new Document(CosmeticShopUtils.PLAYER_UUID_FIELD, player.getUniqueId().toString());

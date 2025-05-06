@@ -10,6 +10,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 
+/**
+ * A registry class holding every cosmetic of a certain type, and the associated collection that holds unlocked cosmetics
+ */
 public abstract class CosmeticRegistry {
     private static final HashSet<CosmeticRegistry> registries = new HashSet<>();
     private final LinkedHashMap<String, Cosmetic> cosmetics = new LinkedHashMap<>();
