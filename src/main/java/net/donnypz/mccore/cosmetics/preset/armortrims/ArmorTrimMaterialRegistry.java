@@ -27,7 +27,8 @@ public class ArmorTrimMaterialRegistry extends CosmeticRegistry {
         EMERALD(Material.EMERALD, "Emerald", TrimMaterial.EMERALD),
         DIAMOND(Material.DIAMOND,  "Diamond", TrimMaterial.DIAMOND),
         LAPIS(Material.LAPIS_LAZULI, "Lapis Lazuli", TrimMaterial.LAPIS),
-        AMETHYST(Material.AMETHYST_SHARD,  "Amethyst", TrimMaterial.AMETHYST);
+        AMETHYST(Material.AMETHYST_SHARD,  "Amethyst", TrimMaterial.AMETHYST),
+        RESIN(Material.RESIN_BRICK, "Resin", TrimMaterial.RESIN);
 
         final Material material;
         final String displayName;
