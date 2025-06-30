@@ -404,23 +404,23 @@ public final class ItemUtils {
         return item;
     }
 
-    public static ItemStack addCanPlace(@NotNull ItemStack itemStack, @NotNull BlockType blockType, boolean showInToolTip){
-        return setItemAdventurePredicate(itemStack, List.of(blockType), showInToolTip, true);
+    public static ItemStack addCanPlace(@NotNull ItemStack itemStack, @NotNull BlockType blockType){
+        return setItemAdventurePredicate(itemStack, List.of(blockType),  true);
     }
 
-    public static ItemStack addCanPlace(@NotNull ItemStack itemStack, @NotNull List<BlockType> blockTypes, boolean showInToolTip){
-        return setItemAdventurePredicate(itemStack, blockTypes, showInToolTip, true);
+    public static ItemStack addCanPlace(@NotNull ItemStack itemStack, @NotNull List<BlockType> blockTypes){
+        return setItemAdventurePredicate(itemStack, blockTypes, true);
     }
 
-    public static ItemStack addCanBreak(@NotNull ItemStack itemStack, @NotNull BlockType blockType, boolean showInToolTip){
-        return setItemAdventurePredicate(itemStack, List.of(blockType), showInToolTip, false);
+    public static ItemStack addCanBreak(@NotNull ItemStack itemStack, @NotNull BlockType blockType){
+        return setItemAdventurePredicate(itemStack, List.of(blockType), false);
     }
 
-    public static ItemStack addCanBreak(@NotNull ItemStack itemStack, @NotNull List<BlockType> blockTypes, boolean showInToolTip){
-        return setItemAdventurePredicate(itemStack, blockTypes, showInToolTip, false);
+    public static ItemStack addCanBreak(@NotNull ItemStack itemStack, @NotNull List<BlockType> blockTypes){
+        return setItemAdventurePredicate(itemStack, blockTypes, false);
     }
 
-    private static ItemStack setItemAdventurePredicate(ItemStack itemStack, List<BlockType> blockTypes, boolean showInToolTip, boolean isCanPlace){
+    private static ItemStack setItemAdventurePredicate(ItemStack itemStack, List<BlockType> blockTypes, boolean isCanPlace){
 
         ItemAdventurePredicate existing;
         if (isCanPlace){
@@ -448,7 +448,6 @@ public final class ItemUtils {
                 .blocks(RegistrySet.keySet(RegistryKey.BLOCK, typedKeys))
                 .build();
         builder.addPredicate(predicateBuilder.build());
-        builder.showInTooltip(showInToolTip);
 
 
         if (isCanPlace){
@@ -728,6 +727,7 @@ public final class ItemUtils {
             case DARK_OAK_LOG:
             case CRIMSON_STEM:
             case WARPED_STEM:
+            case PALE_OAK_LOG:
                 return true;
             default:
                 return false;
@@ -746,6 +746,7 @@ public final class ItemUtils {
             case STRIPPED_DARK_OAK_LOG:
             case STRIPPED_CRIMSON_STEM:
             case STRIPPED_WARPED_STEM:
+            case STRIPPED_PALE_OAK_LOG:
                 return true;
             default:
                 return false;
@@ -764,6 +765,8 @@ public final class ItemUtils {
             case DARK_OAK_WOOD:
             case CRIMSON_HYPHAE:
             case WARPED_HYPHAE:
+            case BAMBOO_BLOCK:
+            case PALE_OAK_WOOD:
                 return true;
             default:
                 return false;
@@ -782,6 +785,8 @@ public final class ItemUtils {
             case STRIPPED_DARK_OAK_WOOD:
             case STRIPPED_CRIMSON_HYPHAE:
             case STRIPPED_WARPED_HYPHAE:
+            case STRIPPED_BAMBOO_BLOCK:
+            case STRIPPED_PALE_OAK_WOOD:
                 return true;
             default:
                 return false;
@@ -904,6 +909,7 @@ public final class ItemUtils {
             case WAXED_OXIDIZED_COPPER_DOOR:
             case WAXED_WEATHERED_COPPER_DOOR:
             case WEATHERED_COPPER_DOOR:
+            case PALE_OAK_DOOR:
                 return true;
             default:
                 return false;
@@ -942,6 +948,8 @@ public final class ItemUtils {
             case DARK_OAK_SIGN:
             case BAMBOO_SIGN:
             case CHERRY_SIGN:
+            case PALE_OAK_SIGN:
+                return true;
             default:
                 return false;
         }
@@ -960,6 +968,8 @@ public final class ItemUtils {
             case SPRUCE_WALL_SIGN:
             case BAMBOO_WALL_SIGN:
             case CHERRY_WALL_SIGN:
+            case PALE_OAK_WALL_SIGN:
+                return true;
             default:
                 return false;
         }
@@ -978,6 +988,7 @@ public final class ItemUtils {
             case SPRUCE_HANGING_SIGN:
             case WARPED_HANGING_SIGN:
             case CHERRY_HANGING_SIGN:
+            case PALE_OAK_HANGING_SIGN:
                 return true;
             default:
                 return false;
@@ -997,6 +1008,7 @@ public final class ItemUtils {
             case OAK_WALL_HANGING_SIGN:
             case SPRUCE_WALL_HANGING_SIGN:
             case CHERRY_WALL_HANGING_SIGN:
+            case PALE_OAK_WALL_HANGING_SIGN:
                 return true;
             default:
                 return false;
@@ -1025,6 +1037,7 @@ public final class ItemUtils {
             case WAXED_OXIDIZED_COPPER_TRAPDOOR:
             case WAXED_WEATHERED_COPPER_TRAPDOOR:
             case WEATHERED_COPPER_TRAPDOOR:
+            case PALE_OAK_TRAPDOOR:
                 return true;
             default:
                 return false;
@@ -1113,6 +1126,8 @@ public final class ItemUtils {
             case POLISHED_TUFF_STAIRS:
             case TUFF_BRICK_STAIRS:
             case TUFF_STAIRS:
+            case PALE_OAK_STAIRS:
+            case RESIN_BRICK_STAIRS:
                 return true;
             default:
                 return false;
@@ -1181,6 +1196,8 @@ public final class ItemUtils {
             case POLISHED_TUFF_SLAB:
             case TUFF_BRICK_SLAB:
             case TUFF_SLAB:
+            case PALE_OAK_SLAB:
+            case RESIN_BRICK_SLAB:
                 return true;
             default:
                 return false;
@@ -1271,6 +1288,8 @@ public final class ItemUtils {
             case LILY_OF_THE_VALLEY:
             case WITHER_ROSE:
             case TORCHFLOWER:
+            case CLOSED_EYEBLOSSOM:
+            case OPEN_EYEBLOSSOM:
                 return true;
             default:
                 return false;
@@ -1305,6 +1324,7 @@ public final class ItemUtils {
             case SPRUCE_BUTTON:
             case STONE_BUTTON:
             case WARPED_BUTTON:
+            case PALE_OAK_BUTTON:
                 return true;
             default:
                 return false;
@@ -1372,6 +1392,10 @@ public final class ItemUtils {
             case MUSIC_DISC_STRAD:
             case MUSIC_DISC_WAIT:
             case MUSIC_DISC_WARD:
+            case MUSIC_DISC_CREATOR:
+            case MUSIC_DISC_CREATOR_MUSIC_BOX:
+            case MUSIC_DISC_PRECIPICE:
+            case MUSIC_DISC_TEARS:
                 return true;
             default:
                 return false;

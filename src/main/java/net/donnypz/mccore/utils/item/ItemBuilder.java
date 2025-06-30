@@ -100,23 +100,23 @@ public class ItemBuilder implements Cloneable{
         return this;
     }
 
-    public ItemBuilder addCanPlace(@NotNull BlockType blockType, boolean showInToolTip){
-        ItemUtils.addCanPlace(itemStack, List.of(blockType), showInToolTip);
+    public ItemBuilder addCanPlace(@NotNull BlockType blockType){
+        ItemUtils.addCanPlace(itemStack, List.of(blockType));
         return this;
     }
 
-    public ItemBuilder addCanPlace(@NotNull List<BlockType> blockTypes, boolean showInToolTip){
-        ItemUtils.addCanPlace(itemStack, blockTypes, showInToolTip);
+    public ItemBuilder addCanPlace(@NotNull List<BlockType> blockTypes){
+        ItemUtils.addCanPlace(itemStack, blockTypes);
         return this;
     }
 
-    public ItemBuilder addCanBreak(@NotNull BlockType blockType, boolean showInToolTip){
-        ItemUtils.addCanBreak(itemStack, List.of(blockType), showInToolTip);
+    public ItemBuilder addCanBreak(@NotNull BlockType blockType){
+        ItemUtils.addCanBreak(itemStack, List.of(blockType));
         return this;
     }
 
-    public ItemBuilder addCanBreak(@NotNull List<BlockType> blockTypes, boolean showInToolTip){
-        ItemUtils.addCanBreak(itemStack, blockTypes, showInToolTip);
+    public ItemBuilder addCanBreak(@NotNull List<BlockType> blockTypes){
+        ItemUtils.addCanBreak(itemStack, blockTypes);
         return this;
     }
 
