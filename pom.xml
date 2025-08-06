@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.donnypz</groupId>
-    <artifactId>mccore</artifactId>
+    <groupId>net.donnypz.mccore</groupId>
+    <artifactId>core</artifactId>
     <version>3.0.0</version>
     <packaging>pom</packaging>
 
@@ -30,49 +30,49 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>net.donnypz</groupId>
-                <artifactId>mccore-api</artifactId>
+                <groupId>net.donnypz.mccore</groupId>
+                <artifactId>api</artifactId>
                 <version>${mccore.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>net.donnypz</groupId>
+                <groupId>net.donnypz.mccore</groupId>
                 <artifactId>loader</artifactId>
                 <version>${mccore.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>net.donnypz</groupId>
+                <groupId>net.donnypz.mccore</groupId>
                 <artifactId>v1_21_1</artifactId>
                 <version>${mccore.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>net.donnypz</groupId>
+                <groupId>net.donnypz.mccore</groupId>
                 <artifactId>v1_21_3</artifactId>
                 <version>${mccore.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>net.donnypz</groupId>
+                <groupId>net.donnypz.mccore</groupId>
                 <artifactId>v1_21_4</artifactId>
                 <version>${mccore.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>net.donnypz</groupId>
+                <groupId>net.donnypz.mccore</groupId>
                 <artifactId>v1_21_5</artifactId>
                 <version>${mccore.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>net.donnypz</groupId>
+                <groupId>net.donnypz.mccore</groupId>
                 <artifactId>v1_21_6</artifactId>
                 <version>${mccore.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>net.donnypz</groupId>
+                <groupId>net.donnypz.mccore</groupId>
                 <artifactId>v1_21_8</artifactId>
                 <version>${mccore.version}</version>
             </dependency>
