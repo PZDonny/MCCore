@@ -7,15 +7,79 @@
     <groupId>net.donnypz</groupId>
     <artifactId>mccore</artifactId>
     <version>3.0.0</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <name>MCCore</name>
-
+    <modules>
+        <module>api</module>
+        <module>loader</module>
+        <module>v1_21_1</module>
+        <module>v1_21_3</module>
+        <module>v1_21_4</module>
+        <module>v1_21_5</module>
+        <module>v1_21_6</module>
+        <module>v1_21_8</module>
+    </modules>
 
     <properties>
+        <mccore.version>3.0.0</mccore.version>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>net.donnypz</groupId>
+                <artifactId>mccore-api</artifactId>
+                <version>${mccore.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.donnypz</groupId>
+                <artifactId>loader</artifactId>
+                <version>${mccore.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.donnypz</groupId>
+                <artifactId>v1_21_1</artifactId>
+                <version>${mccore.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.donnypz</groupId>
+                <artifactId>v1_21_3</artifactId>
+                <version>${mccore.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.donnypz</groupId>
+                <artifactId>v1_21_4</artifactId>
+                <version>${mccore.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.donnypz</groupId>
+                <artifactId>v1_21_5</artifactId>
+                <version>${mccore.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.donnypz</groupId>
+                <artifactId>v1_21_6</artifactId>
+                <version>${mccore.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.donnypz</groupId>
+                <artifactId>v1_21_8</artifactId>
+                <version>${mccore.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
 
     <build>
         <plugins>
@@ -27,24 +91,6 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.6.0</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
 
@@ -77,6 +123,12 @@
         </repository>
     <!--FlowNBT-->
 
+
+        <repository>
+            <id>papermc-repo</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+
         <!-- InfernalSuite RELEASE -->
         <repository>
             <id>is-releases</id>
@@ -89,40 +141,18 @@
             <url>https://repo.infernalsuite.com/repository/maven-snapshots/</url>
         </repository>
 
+
         <!--NoteBlockAPI-->
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
-
-        <repository>
-            <id>papermc-repo</id>
-            <url>https://repo.papermc.io/repository/maven-public/</url>
-        </repository>
     </repositories>
 
     <dependencies>
-        <dependency>
-            <groupId>io.papermc.paper</groupId>
-            <artifactId>paper-api</artifactId>
-            <version>1.21.3-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
 
         <!--ASP-->
-        <dependency>
-            <groupId>com.infernalsuite.aswm</groupId>
-            <artifactId>api</artifactId>
-            <version>3.0.0</version>
-            <scope>provided</scope>
-        </dependency>
 
-        <dependency>
-            <groupId>com.infernalsuite.aswm</groupId>
-            <artifactId>loaders</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
 
         <!--<dependency>
             <groupId>com.flowpowered</groupId>
@@ -150,13 +180,6 @@
             <groupId>com.github.koca2000</groupId>
             <artifactId>NoteBlockAPI</artifactId>
             <version>1.6.2</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>net.luckperms</groupId>
-            <artifactId>api</artifactId>
-            <version>5.4</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

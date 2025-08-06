@@ -1,0 +1,197 @@
+package net.donnypz.mccore.version.v1_21_4;
+
+import io.papermc.paper.block.BlockPredicate;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.Consumable;
+import io.papermc.paper.datacomponent.item.ItemAdventurePredicate;
+import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
+import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.TypedKey;
+import io.papermc.paper.registry.set.RegistrySet;
+import net.donnypz.mccore.utils.item.ItemAnimation;
+import net.donnypz.mccore.utils.item.ItemHandler;
+import net.donnypz.mccore.version.CoreAPI;
+import net.kyori.adventure.key.Key;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.block.BlockType;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.components.UseCooldownComponent;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
+import java.util.UUID;
+
+public class ItemHandlerImpl implements ItemHandler {
+
+    @Override
+    public ItemStack setEnchantmentGlintOverride(@NotNull ItemStack item, boolean override) {
+        item.editMeta(meta ->{
+            meta.setEnchantmentGlintOverride(override);
+        });
+        return item;
+    }
+
+    @Override
+    public ItemStack setUseRemainder(@NotNull ItemStack item, ItemStack newItem) {
+        item.editMeta(meta -> {
+            meta.setUseRemainder(newItem);
+        });
+        return item;
+    }
+
+    @Override
+    public ItemStack setItemModel(@NotNull ItemStack item, @NotNull Material material) {
+        item.editMeta(meta -> {
+            meta.setItemModel(material.getKey());
+        });
+        return item;
+    }
+
+    @Override
+    public ItemStack setGlider(@NotNull ItemStack item, boolean canGlide) {
+        item.editMeta(meta -> {
+            meta.setGlider(canGlide);
+        });
+        return item;
+    }
+
+    @Override
+    public ItemStack setMaxStackSize(@NotNull ItemStack item, int maxStackSize) {
+        item.editMeta(meta ->{
+            meta.setMaxStackSize(maxStackSize);
+        });
+        return item;
+    }
+
+    @Override
+    public ItemStack setDamage(@NotNull ItemStack item, int damage) {
+        item.editMeta(Damageable.class, meta -> {
+            meta.setDamage(damage);
+        });
+        return item;
+    }
+
+    @Override
+    public ItemStack setMaxDamage(@NotNull ItemStack item, int maxDamage) {
+        item.editMeta(Damageable.class, meta -> {
+            meta.setMaxDamage(maxDamage);
+        });
+        return item;
+    }
+
+    @Override
+    public void setTooltipHidden(@NotNull ItemStack item, boolean hidden){
+        item.editMeta(meta -> {
+            meta.setHideTooltip(hidden);
+        });
+    }
+
+    @Override
+    public ItemStack setUseCooldown(@NotNull ItemStack item, float cooldownInSeconds, @Nullable NamespacedKey cooldownGroup){
+        item.editMeta(meta -> {
+            UseCooldownComponent comp = meta.getUseCooldown();
+            comp.setCooldownSeconds(cooldownInSeconds);
+            comp.setCooldownGroup(cooldownGroup);
+        });
+        return item;
+    }
+
+    @Override
+    public ItemStack setConsumable(@NotNull ItemStack item, @NotNull ItemAnimation animation, float consumeSeconds, boolean showParticles, @NotNull Key sound) {
+        Consumable consumable = Consumable.consumable()
+                .animation(ItemUseAnimation.valueOf(animation.name()))
+                .consumeSeconds(consumeSeconds)
+                .hasConsumeParticles(showParticles)
+                .sound(sound)
+                .build();
+        item.setData(DataComponentTypes.CONSUMABLE, consumable);
+        return item;
+    }
+
+    @Override
+    public ItemStack randomizeUseCooldownGroup(@NotNull ItemStack item) {
+        UUID randomUUID = UUID.randomUUID();
+        item.editMeta(meta -> {
+            UseCooldownComponent comp = meta.getUseCooldown();
+            comp.setCooldownGroup(new NamespacedKey(CoreAPI.getPlugin(), randomUUID.toString()));
+            meta.setUseCooldown(comp);
+        });
+        return item;
+    }
+
+    @Override
+    public ItemStack randomizeUseCooldownGroup(@NotNull ItemStack item, @NotNull String namespace){
+        UUID randomUUID = UUID.randomUUID();
+        item.editMeta(meta -> {
+            UseCooldownComponent comp = meta.getUseCooldown();
+            comp.setCooldownGroup(new NamespacedKey(namespace, randomUUID.toString()));
+            meta.setUseCooldown(comp);
+        });
+        return item;
+    }
+
+    @Override
+    public boolean hasFoodOrIsEdible(@NotNull ItemStack item) {
+        return (item.hasItemMeta() && item.getItemMeta().hasFood())
+                || item.getType().isEdible();
+    }
+
+    @Override
+    public ItemStack addCanPlace(@NotNull ItemStack item, @NotNull Collection<BlockType> blockTypes, boolean showInTooltip) {
+        ItemAdventurePredicate existing = item.getData(DataComponentTypes.CAN_PLACE_ON);
+
+        ItemAdventurePredicate.Builder builder = ItemAdventurePredicate.itemAdventurePredicate();
+        if (existing != null){
+            builder.addPredicates(existing.predicates());
+        }
+
+        BlockPredicate.Builder predicateBuilder = BlockPredicate.predicate();
+
+        TypedKey<BlockType>[] typedKeys = new TypedKey[blockTypes.size()];
+        int i = 0;
+        for (BlockType blockType: blockTypes){
+            typedKeys[i] = TypedKey.create(RegistryKey.BLOCK, blockType.key());
+            i++;
+        }
+
+        predicateBuilder
+                .blocks(RegistrySet.keySet(RegistryKey.BLOCK, typedKeys))
+                .build();
+        builder.addPredicate(predicateBuilder.build());
+
+        item.setData(DataComponentTypes.CAN_PLACE_ON, builder.build());
+        setTooltipHidden(item, !showInTooltip);
+        return item;
+    }
+
+    @Override
+    public ItemStack addCanBreak(@NotNull ItemStack item, @NotNull Collection<BlockType> blockTypes, boolean showInTooltip) {
+        ItemAdventurePredicate existing = item.getData(DataComponentTypes.CAN_BREAK);
+
+        ItemAdventurePredicate.Builder builder = ItemAdventurePredicate.itemAdventurePredicate();
+        if (existing != null){
+            builder.addPredicates(existing.predicates());
+        }
+
+        BlockPredicate.Builder predicateBuilder = BlockPredicate.predicate();
+
+        TypedKey<BlockType>[] typedKeys = new TypedKey[blockTypes.size()];
+        int i = 0;
+        for (BlockType blockType: blockTypes){
+            typedKeys[i] = TypedKey.create(RegistryKey.BLOCK, blockType.key());
+            i++;
+        }
+
+        predicateBuilder
+                .blocks(RegistrySet.keySet(RegistryKey.BLOCK, typedKeys))
+                .build();
+        builder.addPredicate(predicateBuilder.build());
+
+        item.setData(DataComponentTypes.CAN_BREAK, builder.build());
+        setTooltipHidden(item, !showInTooltip);
+        return item;
+    }
+}
