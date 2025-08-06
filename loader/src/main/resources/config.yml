@@ -1,0 +1,21 @@
+#MCCore Configuration
+
+mongoDB:
+  enabled: true
+  connectionString: "mongodb://localhost:27017/"
+
+#Minigame API
+minigames:
+  enabled: true
+
+  #Minigame Waiting World
+  waitingWorld: "world"
+
+  #Determines whether the player is limited in the Minigame Waiting World
+  limitPlayer: true
+
+  #Choose to hide or show the join and quit messages
+  hideConnectionMessage: true
+
+#Fix Projectile Angles being affected by player velocity
+fixProjectileRandomness: true
